@@ -1,0 +1,115 @@
+CrankLab 原生内核升级交付（2026-10-02）
+
+本轮结果
+在现有 Lua 内核和 UE5 项目中加入了 ARM 设备二进制执行层。现在可以加载
+pdex.bin，运行纯 C 游戏，以及通过 SDK API 进行 C／Lua 双向调用。
+保留现有 3D 掌机、HUD、放大模式、陀螺仪跟随和震动设置。
+原来的二阶段 APK 与此前真机验证版 APK 均保留，未覆盖。
+
+安装与体验
+新版手机安装包：android/native-core-arm64/CrankLab-arm64.apk
+测试模拟器安装包：android/native-core-x64/CrankLab-x64.apk
+Windows 内核：bin/Win64/crank-core.dll、crank-runtime.exe
+UE5 工程：Unreal/CrankLab.uproject
+精确 SHA256、包检查和执行范围：verification-native-core/delivery.json
+
+native-test-games/ 中提供可导入的 ZIP 包：
+Hello-World、Life、Sprite-Game 是官方 C 示例；Particles 是官方 C／Lua 示例。
+Core-ABI 验证浮点／结构体／变参／文件／菜单／事件／精灵回调和碰撞结构。
+Mixed-ABI 验证对象保留、释放、用户值、嵌套 C／Lua 调用与共享位图。
+Audio-C 验证采样播放器、PCM 音频和结束回调。
+Runaway、Unsupported-C 是故意触发诊断的测试程序，不是普通游戏。
+建议先导入 Hello-World.zip 与 Mixed-ABI.zip，再测试实际游戏。
+手机后续安装、触控、声音、陀螺仪、震动和持续性能验收由用户进行。
+本轮没有在手机安装新版，也没有注入手机触控。
+
+执行链路
+UE5 输入／摇柄 → 现有宿主命令队列 → Lua VM 或 Unicorn Cortex-M7 →
+SDK API 适配层 → 现有图形／精灵／文件／菜单／音频后端 → 帧与 PCM → UE5。
+使用 Cranked 的设备代码执行／SDK 高层仿真架构作为参考，保留现有后端。
+不依赖 Playdate 官方系统镜像或官方桌面模拟器进程。
+
+新增能力
+- PDX 头检查、zlib 解压、重定位、BSS 初始化、Thumb 和单精度浮点执行。
+- 独立 32 位 guest 地址空间；64 KB 栈、16 MB 堆、只读 SDK 函数表。
+- 从本机 SDK 3.1.2 生成 36 张 API 表、590 个函数槽位。槽位数量不是实现数量。
+- 纯 C update；InitLua 注册函数／类；C→Lua→C 嵌套调用；对象和位图的引用生命周期。
+- 原生按键、摇柄、时间、文件、基本绘图、精灵、碰撞结果和 SDK 自定义菜单。
+- 原生采样／文件播放器基本操作、音量、暂停、PCM 传输与结束回调。
+- 暂停、锁屏、恢复、终止事件与既有宿主生命周期衔接。
+- 可中断 CPU 执行；正常 update 看门狗预算 2 秒，初始化预算 10 秒。
+- 未实现 C API 返回完整 API 名称，不静默伪装成功。
+- UE5 可读取运行模式、ARM 调用数和 SDK 调用数；游戏库与 Android 导入接受纯 C PDX。
+
+实现时修正的关键兼容问题
+- 解压长度不包含紧随代码的重定位表。
+- ARM hard-float 参数和 PDRect HFA 的传参与返回。
+- ARM EABI 的小枚举使 SpriteCollisionInfo 实际为 72 字节；以官方 GCC 编译的夹具验证。
+- SDK 位图的白色位极性、屏幕 52 字节行跨度、工作帧与已显示帧分离。
+- C 释放位图所有权后，Lua／精灵持有的共享位图仍然存活。
+- 精灵释放的延后回收和复制后的回调身份。
+- 原生图案颜色位的反转与覆盖掩码；C update 返回 0 时保持已显示帧。
+- 音频结束回调在游戏线程分派，避免音频线程进入 CPU／Lua。
+
+已验证范围
+Windows：9 组原生测试全部通过：Hello World、Particles、原生二维码、Core-ABI、
+Mixed-ABI、Audio-C、Life、Sprite-Game、失控代码中断。
+PDGames 的 quick_qr 函数确认实际由 C 执行；生成的二维码解码为
+https://pdgamez.com/game/2523，不使用原先的 Lua 二维码替代实现。
+1000 个原生对象经历 GC 后，资源和 guest 堆保持有界。
+最新停止失控代码的延迟约 71 毫秒；2 秒看门狗产生明确错误。
+6 类损坏二进制与一个未实现 API 均安全报错；每次之后同进程启动正常 C 游戏成功。
+
+Lua 回归：Music Box、Pooh Mini Mahjong、PDGames 的 180 帧按键／摇柄流程全部
+退出正常并产生画面；单独的音频、暂停／时钟／存档与 SDK 菜单回归通过。
+这不代表三个游戏的完整流程或所有 API 已验证。
+
+Android：ARM64 与 x86_64 内核及 UE5 应用均构建成功。隔离的 API 36.1 x86_64
+模拟器运行 6 个原生程序和 3 个既有 Lua／音频程序，全部通过。
+修正碰撞／复制回调之后再次运行 Core-ABI、Mixed-ABI、Sprite-Game 和 Life 通过。
+Java 导入测试接受官方纯 C 与混合包，同时保留路径穿越、非法包和多游戏包校验。
+APK 中的内核装载代码与已验证构建一致；所有原生 ELF LOAD 段满足 16 KB 对齐；
+ARM64 APK 的签名与 ZIP 对齐检查通过。
+
+UE5 Windows：纯 C 和 C／Lua 游戏均在 3D 模型显示屏上运行，投影按键和持续摇柄
+检查通过，分别记录 C／Lua+C 运行模式与实际 ARM／API 调用计数。
+UE5 Android：完整 APK 运行 C 游戏，记录 292 次 ARM 调用、1158 次 API 调用，
+投影按键、持续摇柄和帧更新断言通过。软件 Vulkan 的 HDR 颜色校验未通过；
+停用 MSAA 后仍有颜色异常，Android 实际显示截图也复现；主页对照同样异常。
+该 AVD 只提供 OpenGL ES 3.1，UE5 要求 3.2，因此 OpenGL 测试未进入场景。
+这些渲染检查不算通过，原始截图和日志均保留。手机配置和现有模型材质未因
+软件模拟器测试修改。具体运行和渲染边界见 delivery.json。
+新版 ARM64 APK 已构建，尚未在手机运行；此前手机验证结果属于旧版包。
+
+明确边界
+这是一轮原生执行基础能力升级，尚未达到官方模拟器的全部兼容范围。
+软件模拟器 HDR 颜色异常仍需另行定位；本轮不将它视为渲染验收通过。
+98 个 API 名称在上述 Windows 测试中被实际调用；名称列表见
+verification-native-core/verified-native-apis.json，不表示每个参数变体完全兼容。
+高级图形、位图表／旋转／视频、音频合成／效果、C 网络、JSON、排行榜、tilemap
+以及其他未适配 API 仍需按实际游戏调用逐步实现。
+原生 newBitmap 的图案背景、clear 图案变体与 UTF-16 C 文本当前明确报错。
+精灵碰撞复用既有算法；时间比例、初始重叠、touch 和 bounce 等尚未完全对齐官方。
+加速度计 API 目前返回固定值；手机陀螺仪用于视角跟随，尚未接入游戏 SDK 传感器。
+不支持加密设备二进制、只有桌面 DLL／dylib 的 C 扩展或旧 SDK 的特殊表布局。
+仍需真实游戏清单驱动的兼容补齐、长时间内存／CPU／发热检查和手机音频验收。
+
+复现（从此目录运行 PowerShell）
+./tools/Build-Runtime.ps1
+./tools/Build-AndroidRuntime.ps1 -Abi arm64-v8a
+./tools/Build-Unreal.ps1 -Platform Win64
+./tools/Build-Unreal.ps1 -Platform Android -Architecture arm64
+./tools/Cook-Unreal.ps1 -Architecture arm64 -OutputDirectory android/native-core-arm64
+
+纯 C／混合示例必须由官方 SDK pdc 编译为设备 PDX。
+tools/build-native-fixtures.py 接受 --sdk、--gcc、--output、--example；自有夹具另加
+--source-root tools/fixtures/native。本轮使用 SDK 3.1.2 与 ARM GNU 13.2.Rel1。
+官方示例名称是 "Hello World"、Particles、Life、"Sprite Game"；输出目录自动以连字符命名。
+完整原生回归命令（另行提供 --fixtures 指向编译后的目录和 --pdgames 指向实际游戏）：
+python tools/probe-native.py --library bin/Win64/crank-core.dll --fixtures ../../work/native-fixtures --pdgames C:/Users/dodol/Downloads/pdgames.pdx --output verification-native-core
+python tools/generate-native-api.py --sdk C:/Users/dodol/Documents/PlaydateSDK --output runtime/src/pd_native_api.inc
+tools/generate-native-api.py 用 SDK 头生成表；升级 SDK 后需重新生成并验证 ABI。
+tools/probe-native.py 验证实际 ARM 程序；probe-native-loader.py 验证损坏包与恢复；
+probe-android.py 验证诊断 APK；Run-SceneProbe.ps1 验证 UE5；
+verify-native-artifact.py 比较 APK 的可装载代码与构建产物。
+源代码中的 SDK 名称和依赖来源记录保留在 third-party.json。

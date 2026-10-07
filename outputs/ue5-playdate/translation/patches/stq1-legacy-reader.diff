@@ -1,0 +1,40 @@
+diff --git a/ggml/include/gguf.h b/ggml/include/gguf.h
+index b3a1e12..9513eb4 100644
+--- a/ggml/include/gguf.h
++++ b/ggml/include/gguf.h
+@@ -80,6 +80,9 @@ extern "C" {
+     typedef size_t (*gguf_reader_callback_t)(void * userdata, void * output, uint64_t offset, size_t len);
+ 
+     GGML_API struct gguf_context * gguf_init_empty(void);
++    // CrankLab: enable only after verifying the pinned Tencent legacy STQ GGUF.
++    // Thread-local and read-only; ordinary Q2_0 files retain type 42.
++    GGML_API void gguf_crank_legacy_stq1(bool enabled);
+     GGML_API struct gguf_context * gguf_init_from_file_ptr(FILE * file, struct gguf_init_params params);
+     GGML_API struct gguf_context * gguf_init_from_file(const char * fname, struct gguf_init_params params);
+     GGML_API struct gguf_context * gguf_init_from_buffer(const void * data, size_t size, struct gguf_init_params params);
+diff --git a/ggml/src/gguf.cpp b/ggml/src/gguf.cpp
+index 75ceade..9494176 100644
+--- a/ggml/src/gguf.cpp
++++ b/ggml/src/gguf.cpp
+@@ -20,6 +20,9 @@
+ #define GGUF_MAX_STRING_LENGTH  (1024*1024*1024)
+ #define GGUF_MAX_ARRAY_ELEMENTS (1024*1024*1024)
+ 
++static thread_local bool crank_legacy_stq1 = false;
++void gguf_crank_legacy_stq1(bool enabled) { crank_legacy_stq1 = enabled; }
++
+ #ifdef _WIN32
+ #    define gguf_ftell _ftelli64
+ #    define gguf_fseek _fseeki64
+@@ -725,6 +728,11 @@ static struct gguf_context * gguf_init_from_reader(const struct gguf_reader & gr
+         // tensor type
+         {
+             ok = ok && gr.read(info.t.type);
++            // The SHA-256-pinned Hy-MT2 1.25Bit file predates STQ1's enum move
++            // from 42 to 43. Interpret its header without rewriting the model.
++            if (ok && crank_legacy_stq1 && info.t.type == GGML_TYPE_Q2_0) {
++                info.t.type = GGML_TYPE_STQ1_0;
++            }
+ 
+             // check that tensor type is within defined range
+             if (info.t.type < 0 || info.t.type >= GGML_TYPE_COUNT) {

@@ -1,0 +1,5 @@
+name=Native watchdog fixture
+author=CrankLab
+bundleID=com.cranklab.native-watchdog
+version=1.0
+buildNumber=1

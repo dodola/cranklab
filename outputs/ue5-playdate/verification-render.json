@@ -1,0 +1,126 @@
+{
+  "platform": "Windows UE 5.8.3 SM6",
+  "reference": "verification-scene/web-reference.png",
+  "before": "verification-scene/before-render.png",
+  "after": "verification-scene/landscape/device.png",
+  "portrait": "verification-scene/portrait/device.png",
+  "visualReview": "Inspected fresh landscape, portrait and focused-field/error screenshots. Yellow, chrome, dark-grey bezel and soft shadow now follow the web reference.",
+  "changes": [
+    "Packed channels R=metallic, G=AO, B=gloss; metal-gloss maps do not supply AO",
+    "Original prefiltered LogLuv panorama and SH lighting ported to a UE material",
+    "Original open-crank baked maps and ground-shadow alpha",
+    "Source yellow replacement and neutral tone curve; vignette disabled",
+    "Albedo lettering retained without additional block compression",
+    "Entire unfolded device centered with 20-pixel minimum bounds check",
+    "Focused and read-only input text uses dark foreground"
+  ],
+  "samplePixels": {
+    "before": {
+      "corner": [
+        219,
+        218,
+        218
+      ],
+      "bodyAt450x530": [
+        250,
+        214,
+        0
+      ]
+    },
+    "after": {
+      "corner": [
+        232,
+        232,
+        231
+      ],
+      "bodyAt450x530": [
+        255,
+        205,
+        64
+      ]
+    },
+    "web": {
+      "corner": [
+        232,
+        232,
+        232
+      ],
+      "bodyAt450x530": [
+        255,
+        202,
+        62
+      ]
+    }
+  },
+  "scenes": {
+    "landscape": {
+      "passed": true,
+      "nodes": 14,
+      "frames": 222,
+      "crankDegrees": 600.17431640625,
+      "pointerPressedA": true,
+      "pointerReleasedA": true,
+      "deviceFitsViewport": true,
+      "crankSweepAngles": 24,
+      "crankAttachmentErrorCm": 1.631687946612622e-15,
+      "visualCrankDegrees": 135,
+      "runtimeError": "",
+      "startError": "",
+      "intentionalInvalidPath": false
+    },
+    "portrait": {
+      "passed": true,
+      "nodes": 14,
+      "frames": 268,
+      "crankDegrees": 600.1560668945312,
+      "pointerPressedA": true,
+      "pointerReleasedA": true,
+      "deviceFitsViewport": true,
+      "runtimeError": "",
+      "startError": "",
+      "intentionalInvalidPath": false
+    },
+    "error": {
+      "passed": true,
+      "nodes": 14,
+      "frames": 274,
+      "crankDegrees": 599.4573974609375,
+      "pointerPressedA": true,
+      "pointerReleasedA": true,
+      "deviceFitsViewport": true,
+      "runtimeError": "",
+      "startError": "未找到游戏。请选择包含 pdxinfo 的 PDX 文件夹。",
+      "intentionalInvalidPath": true
+    }
+  },
+  "limits": "Windows reference materials and historical emulator scene verified. Current ARM64 package renders at native resolution in Vulkan and OpenGL on the connected Adreno 830 phone. Full gameplay, OS multitouch, physical external keyboards, SAF and sustained performance remain unverified.",
+  "androidLandscape": "verification-android-scene/landscape/device.png",
+  "androidPortrait": "verification-android-scene/portrait/device.png",
+  "mobileChanges": [
+    "Mobile HDR output with neutral camera tone curve and 4x MSAA fixes this phone's black LDR/MSAA scene",
+    "Native resolution on Adreno8xx, Android DPI curve preserves control sizes",
+    "Full material float precision",
+    "Default virtual joysticks disabled in DefaultInput.ini",
+    "Original handle pivot rotation; 24-angle attachment and viewport sweep"
+  ],
+  "phoneVulkan": "verification-phone/final-vulkan/device.png",
+  "phoneOpenGL": "verification-phone/final-opengl/device.png",
+  "phoneDisplayCapture": "verification-lifecycle/phone-final/before-touch.png",
+  "phoneVisualReview": "Fresh phone render and Android display captures inspected. Model, grey background, chrome, shadow and live fixture screen are visible; UI is readable at native resolution.",
+  "phoneSamplePixels": {
+    "image": "verification-phone/crank/device.png",
+    "backgroundAt20x20": [
+      231,
+      231,
+      231,
+      255
+    ],
+    "bodyAt400x1650": [
+      246,
+      204,
+      89,
+      255
+    ]
+  },
+  "phoneMusicBoxDisplay": "verification-phone/musicbox/phone.png"
+}

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "bundleID": "com.pdgamez.browser",
+  "build": 18,
+  "sha256": "7f2dda0105d456e83aa430b8310531f4124e4010f12a4742743b2b6be60f64b3",
+  "files": [
+    "fonts/cranklab-zh.pft",
+    "fonts/font-full-circle.pft",
+    "images/book_20.pdi",
+    "images/catalog_small.pdi",
+    "images/itchio_small.pdi",
+    "images/launcher/card.pdi",
+    "images/launcher/icon.pdi",
+    "images/launcher/launchImage.pdi",
+    "images/logo-1bit.pdi",
+    "images/logo.pdi",
+    "images/open-book_20.pdi",
+    "lib/quick_qr/README.txt",
+    "lib/quick_qr/qrcode.pdz",
+    "main.pdz",
+    "pdex.bin",
+    "pdxinfo",
+    "sounds/hover.pda",
+    "sounds/store_music.pda"
+  ],
+  "hostAssets": [
+    "fonts/cranklab-zh.pft"
+  ]
+}

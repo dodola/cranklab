@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "games": [
+    {
+      "root": "C:\\Users\\dodol\\Downloads\\music_box_1.1.4.pdx\\music_box_1.1.4.pdx",
+      "metadata": {
+        "name": "Music Box",
+        "author": "Tizian Zeltner",
+        "description": "A tiny music box for your Playdate.",
+        "bundleID": "com.tizianzeltner.musicbox",
+        "version": "1.1.4",
+        "imagePath": "res/metaimages/",
+        "launchSoundPath": "res/sounds/windup",
+        "buildNumber": "10",
+        "pdxversion": "20100",
+        "buildtime": "759688123"
+      },
+      "classification": "lua-only-package",
+      "files": 119,
+      "bytes": 560130.0,
+      "nativeFiles": [],
+      "luaContainers": [
+        {
+          "path": "main.pdz",
+          "bytes": 104591
+        },
+        {
+          "path": "prerender.pdz",
+          "bytes": 2044
+        }
+      ],
+      "extensions": [
+        {
+          "extension": "",
+          "count": 15
+        },
+        {
+          "extension": ".md",
+          "count": 1
+        },
+        {
+          "extension": ".pda",
+          "count": 4
+        },
+        {
+          "extension": ".pdi",
+          "count": 85
+        },
+        {
+          "extension": ".pdz",
+          "count": 2
+        },
+        {
+          "extension": ".pft",
+          "count": 1
+        },
+        {
+          "extension": ".txt",
+          "count": 11
+        }
+      ],
+      "verification": "Directory inventory only; execution and API coverage not verified."
+    },
+    {
+      "root": "C:\\Users\\dodol\\Downloads\\PoohMiniMahjong-1.0.pdx\\PoohMiniMahjong.pdx",
+      "metadata": {
+        "name": "Winnie-the-Pooh Mini Mahjong",
+        "author": "Nathan Korth",
+        "description": "",
+        "bundleID": "com.nkorth.ponjan.pooh",
+        "imagePath": "launcherCard",
+        "version": "1.0",
+        "buildNumber": "1",
+        "pdxversion": "20000",
+        "buildtime": "758582432"
+      },
+      "classification": "lua-only-package",
+      "files": 49,
+      "bytes": 2297136.0,
+      "nativeFiles": [],
+      "luaContainers": [
+        {
+          "path": "main.pdz",
+          "bytes": 49658
+        },
+        {
+          "path": "sim_game.pdz",
+          "bytes": 1499
+        },
+        {
+          "path": "test_bots.pdz",
+          "bytes": 272
+        },
+        {
+          "path": "test_ponjan.pdz",
+          "bytes": 1063
+        }
+      ],
+      "extensions": [
+        {
+          "extension": "",
+          "count": 1
+        },
+        {
+          "extension": ".pda",
+          "count": 21
+        },
+        {
+          "extension": ".pdi",
+          "count": 18
+        },
+        {
+          "extension": ".pdz",
+          "count": 4
+        },
+        {
+          "extension": ".pft",
+          "count": 5
+        }
+      ],
+      "verification": "Directory inventory only; execution and API coverage not verified."
+    },
+    {
+      "root": "C:\\Users\\dodol\\Downloads\\pdgames.pdx",
+      "metadata": {
+        "name": "PDGames",
+        "author": "SamSpudd",
+        "description": "Browse Playdate games from Catalog and itch.io",
+        "bundleID": "com.pdgamez.browser",
+        "version": "1.0.0",
+        "buildNumber": "18",
+        "imagePath": "images/launcher",
+        "contentWarning": "Game listings are unmoderated, so may contain content for any ages",
+        "pdxversion": "30000",
+        "buildtime": "824395021"
+      },
+      "classification": "native-or-hybrid",
+      "files": 18,
+      "bytes": 856194.0,
+      "nativeFiles": [
+        {
+          "path": "pdex.bin",
+          "bytes": 6556,
+          "format": "unknown",
+          "architecture": "unknown"
+        },
+        {
+          "path": "pdex.dylib",
+          "bytes": 73320,
+          "format": "Mach-O 64-bit",
+          "architecture": "ARM64"
+        }
+      ],
+      "luaContainers": [
+        {
+          "path": "main.pdz",
+          "bytes": 212934
+        },
+        {
+          "path": "lib\\quick_qr\\qrcode.pdz",
+          "bytes": 240
+        }
+      ],
+      "extensions": [
+        {
+          "extension": "",
+          "count": 1
+        },
+        {
+          "extension": ".bin",
+          "count": 1
+        },
+        {
+          "extension": ".dylib",
+          "count": 1
+        },
+        {
+          "extension": ".pda",
+          "count": 2
+        },
+        {
+          "extension": ".pdi",
+          "count": 9
+        },
+        {
+          "extension": ".pdz",
+          "count": 2
+        },
+        {
+          "extension": ".pft",
+          "count": 1
+        },
+        {
+          "extension": ".txt",
+          "count": 1
+        }
+      ],
+      "verification": "Directory inventory only; execution and API coverage not verified."
+    }
+  ]
+}

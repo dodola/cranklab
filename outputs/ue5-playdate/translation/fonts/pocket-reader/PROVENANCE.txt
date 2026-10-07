@@ -1,0 +1,7 @@
+Source: https://github.com/Antonoko/pocket-reader
+Commit: 8d8ec05f92b66b65663c24f7b4519851e303b5e2
+Files: source/font/SourceHanSansCN-M-20px.fnt and its 22x22 PNG atlas.
+The original monochrome glyph masks and advances are retained. CrankLab's
+build-launcher-font.py packs them into the runtime's PFT representation.
+The PDGames adapter follows the reader's glyph-width-based text layout approach,
+adding paragraph wrapping, Latin word grouping and Chinese punctuation handling.

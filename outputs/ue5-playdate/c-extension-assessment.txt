@@ -1,0 +1,30 @@
+C 扩展支持可行性记录（2026-10-02）
+
+当前实现
+CrankLab 的兼容运行时执行 PDX 中的 Lua 入口，并提供图形、输入、音频、文件、HTTP 和 SDK 系统菜单接口。当前没有加载 pdex.bin / pdex.dylib 的通用机制。
+
+提供的三个游戏
+Music Box 1.1.4、Winnie-the-Pooh Mini Mahjong 1.0 的文件清单没有原生扩展。
+PDGames 1.0.0 同时有 main.pdz、pdex.bin（6556 字节）及 pdex.dylib（73320 字节）。后者是 ARM64 Mach-O，包含 quick_qr.generate 和 qrcodegen 的符号。Lua 容器包含二维码回退路径、商品详情与二维码界面；本次检查没有找到游戏内 ZIP 下载、安装及启动入口。
+本次 Windows 原生桥检查覆盖列表、封面、详情、图片浏览和 SDK “Show QR” 菜单。二维码图像已检查，并用 OpenCV 解码为 https://pdgamez.com/game/2523。该流程使用 Lua 回退，没有加载 C 扩展。账户配对和完整商店操作仍需专项测试。
+
+为什么不能直接在 Android 加载这些文件
+ARM64 Mach-O 是 Apple 平台的动态库格式，Android 动态加载器需要 Android ELF 和相应 ABI。
+SDK 文档说明 pdex.bin 为设备固定内存位置构建，Playdate 没有通用动态加载器。其入口是 eventHandler(PlaydateAPI*, PDSystemEvent, uint32_t)，通过 API 函数表访问系统，并可在 kEventInitLua 时注册 Lua 函数。当前桥没有实现这一完整二进制 ABI。
+
+后续路线
+1. 有源代码的游戏：重新编译为 Android ARM64 模块，逐步补齐 Playdate C API 适配表，并隔离模块的生命周期。这条路线有可验证的入口，优先级最高。
+2. 特定扩展：为明确的 Lua 调用契约实现兼容模块，例如 quick_qr.generate；这只能声明该模块支持，不能声明任意 C 扩展支持。
+3. 只有设备二进制：需要单独评估处理器执行、固定地址装载、调用边界、浮点和内存映射。应建立独立验证项目，先跑官方 C 示例，再进入真实游戏。
+4. 官方桌面扩展二进制：还存在宿主文件格式、系统 ABI 和符号依赖差异，需要单独的执行环境，不能用 dlopen 直接解决。
+
+证据与参考
+game-inventory.json：三个包的实际文件、架构和版本清单。
+verification-phase-two/game-menus-entered：运行、菜单与 HTTP 记录。
+verification-phase-two/pdgames-flow-final：列表、详情、图片、二维码和返回截图；二维码解码记录。
+本机 SDK C_API/pd_api.h：PlaydateAPI 和事件入口定义。
+https://sdk.play.date/3.1.2/Inside%20Playdate%20with%20C.html#_building_for_the_device
+本机 SDK Inside Playdate with C.html：编译及 C API 生命周期。
+
+阶段边界
+本阶段交付的是系统界面与 SDK 行为兼容，不是原版系统镜像或处理器仿真。通用 C 扩展支持未实现。

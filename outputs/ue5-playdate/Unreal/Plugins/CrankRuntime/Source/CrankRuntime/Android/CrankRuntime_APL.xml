@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+    <androidManifestUpdates>
+        <addPermission android:name="android.permission.INTERNET"/>
+        <!-- Playdate games can request HTTP, including PDGames' thumbnail CDN. -->
+        <addAttribute tag="application" name="android:usesCleartextTraffic" value="true"/>
+        <!-- ggml's CPU dispatch opens backends from nativeLibraryDir. -->
+        <addAttribute tag="application" name="android:extractNativeLibs" value="true"/>
+    </androidManifestUpdates>
+    <proguardAdditions>
+        <insert>-keep class com.cranklab.CrankHttp { *; }</insert>
+        <insert>-keep class com.cranklab.CrankPdxImport { *; }</insert>
+    </proguardAdditions>
+    <prebuildCopies>
+        <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankHttp.java" dst="$S(BuildDir)/src/com/cranklab/CrankHttp.java"/>
+        <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankPdxImport.java" dst="$S(BuildDir)/src/com/cranklab/CrankPdxImport.java"/>
+    </prebuildCopies>
+    <resourceCopies>
+        <isArch arch="arm64-v8a">
+            <copyFile src="$S(PluginDir)/../../../Binaries/ThirdParty/Android/arm64-v8a/libcrank-core.so" dst="$S(BuildDir)/libs/arm64-v8a/libcrank-core.so"/>
+            <copyDir src="$S(PluginDir)/../../../Binaries/ThirdParty/Translation/Android/arm64-v8a" dst="$S(BuildDir)/libs/arm64-v8a"/>
+        </isArch>
+        <isArch arch="x86_64">
+            <copyFile src="$S(PluginDir)/../../../Binaries/ThirdParty/Android/x86_64/libcrank-core.so" dst="$S(BuildDir)/libs/x86_64/libcrank-core.so"/>
+        </isArch>
+    </resourceCopies>
+    <gameActivityOnActivityResultAdditions>
+        <insert>com.cranklab.CrankPdxImport.onActivityResult(this,requestCode,resultCode,data);</insert>
+    </gameActivityOnActivityResultAdditions>
+</root>

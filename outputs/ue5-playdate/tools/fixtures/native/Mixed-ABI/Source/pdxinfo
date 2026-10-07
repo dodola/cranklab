@@ -1,0 +1,5 @@
+name=Mixed C Lua ABI fixture
+author=CrankLab
+bundleID=com.cranklab.mixed-abi
+version=1.0
+buildNumber=1

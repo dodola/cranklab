@@ -1,0 +1,8 @@
+{
+  "name": "playdate-local",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local reconstruction of Playdate's intro-canvas model viewer",
+  "scripts": { "start": "node server.cjs", "check": "node --check app.js && node --check interactions.js && node --check server.cjs", "test": "node tests/crank.cjs" },
+  "engines": { "node": ">=18" }
+}

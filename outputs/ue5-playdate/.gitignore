@@ -1,0 +1,7 @@
+Unreal/Binaries/
+Unreal/Intermediate/
+Unreal/Saved/
+Unreal/DerivedDataCache/
+Unreal/Plugins/*/Intermediate/
+user-data/
+*.sln

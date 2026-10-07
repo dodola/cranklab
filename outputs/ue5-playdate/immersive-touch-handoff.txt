@@ -1,0 +1,15 @@
+CrankLab - immersive touch and screen crank (2026-10-08)
+
+APK: C:\Users\dodol\Documents\Codex\2026-10-01\https-play-date-https-play-date\outputs\ue5-playdate\android\immersive-touch-arm64\CrankLab-arm64.apk
+SHA256: 2e3e01687c70c198a5c7e5e599d2419dd616ca72f567c48432192591341784d9
+
+Reproduced original dial failure: real Slate touch hit the HUD safe-zone container; turn delta was zero.
+Fixed full-screen layout hit testing so the immersive dial receives touch, drag, and release.
+Added LCD vertical swipe: upward clockwise, downward counterclockwise. Continuous screen-height travel maps to 360 degrees, subject to the shared 90-degree per-update crank limit.
+Preserved light taps/double taps; vertical gesture detection cancels tap activation. Supports concurrent A/B/Dpad. Docking and overlay opening prevent crank input.
+
+Verified actual Slate touch routing in portrait 576x1024, narrow 320x640, and short landscape 844x390; clockwise/reverse dial capture/release, screen up/down, A/B holds and independent releases, jitter/tap safety, docking/overlay blocking.
+3D regression and four UE automation tests passed. Strict UI audit and DESIGN lint have zero errors/warnings. Windows and Android ARM64 builds/package passed. APK native code matches the build, native ELF segments are 16 KB aligned, bundled game/resources match the previous APK.
+
+No installation or phone input injection was performed. User owns device touch acceptance.
+Evidence: C:\Users\dodol\Documents\Codex\2026-10-01\https-play-date-https-play-date\outputs\ue5-playdate\verification-immersive-touch\delivery.json

@@ -1,0 +1,20 @@
+{
+  "llamaCppRepository": "https://github.com/ggml-org/llama.cpp.git",
+  "llamaCppRevision": "b86d2f07542b29ab099aed34fd6b6d1b2fd4b81c",
+  "modelRepository": "tencent/Hy-MT2-1.8B-GGUF",
+  "modelRevision": "a0c709d9fac510f2c807aa3af52872340dc37a4a",
+  "modelFile": "Hy-MT2-1.8B-Q4_K_M.gguf",
+  "modelBytes": 1133080448,
+  "modelSha256": "dc5f44fcf1fa496ee7ad725982c0c8c553a4de00259b53af84c4b89fb0c06699",
+  "stqPullRequest": "https://github.com/ggml-org/llama.cpp/pull/22836",
+  "stqHeadRevision": "1e411d8f5a1e23525fa3265dfb4bd76265465397",
+  "stqPatchFile": "patches/stq1-pinned.diff",
+  "stqPatchSha256": "15682eeefc660e86c61c31d63c3f06321fbccecd31a67e8746572b117684e98e",
+  "stqCompatibilityPatchFile": "patches/stq1-legacy-reader.diff",
+  "stqCompatibilityPatchSha256": "9eb928014751a4fa290fed0aa2ccad915591555341542d15111d53517290f2da",
+  "lightModelRepository": "tencent/Hy-MT2-1.8B-1.25Bit-GGUF",
+  "lightModelRevision": "9df5c824a00a744fb0512a29c640466f4d97dfb0",
+  "lightModelFile": "Hy-MT2-1.8B-1.25Bit.gguf",
+  "lightModelBytes": 461860800,
+  "lightModelSha256": "cc497fe8f033b52b3b8b00a7669e9661435432f9d4cd43f7ed24400c01507a93"
+}

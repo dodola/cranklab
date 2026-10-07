@@ -1,0 +1,8 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.8",
+  "Category": "",
+  "Description": "Android Playdate compatibility prototype",
+  "Modules": [{"Name": "CrankLab", "Type": "Runtime", "LoadingPhase": "Default"}],
+  "Plugins": [{"Name": "CrankRuntime", "Enabled": true}, {"Name": "ProceduralMeshComponent", "Enabled": true}, {"Name": "PythonScriptPlugin", "Enabled": true}, {"Name": "EditorScriptingUtilities", "Enabled": true}]
+}

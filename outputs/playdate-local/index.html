@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e8e8e8">
+  <title>Playdate · 本地 3D 演示</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ffc600'/%3E%3Cpath d='M8 7h16v12H8z' fill='%23333333'/%3E%3Cpath d='M10 22v6m-3-3h6' stroke='%23333333' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="vendor/model-viewer.min.js"></script>
+  <script defer src="interactions.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <main aria-label="Playdate 3D 模型">
+    <figure id="device" aria-label="可旋转的 Playdate 3D 模型">
+      <video id="video1" loop playsinline muted preload="auto" aria-hidden="true"></video>
+      <canvas id="intro-canvas" tabindex="0" aria-label="Playdate 3D 模型。点击按钮按压，点击摇柄展开，拖动摇柄转动，双击摇柄收起。Z/X 操作 A/B 键，WASD 操作方向键，C 展开或收起摇柄，长按 Q/E 连续反向或正向摇动，松开减速停止。方向键旋转整机，Home 复位。">浏览器需要支持 WebGL 才能显示模型。</canvas>
+      <span id="input-status" class="sr-only" role="status" aria-live="polite"></span>
+      <div id="loading" class="loading" role="status"><span class="loading-dot"></span><span>正在加载 Playdate…</span></div>
+      <div id="error" class="error" hidden role="alert"><p id="error-message"></p><button id="retry" type="button" disabled>重新加载</button></div>
+    </figure>
+  </main>
+</body>
+</html>

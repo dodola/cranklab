@@ -1,0 +1,10 @@
+name=PDGames
+author=SamSpudd
+description=Browse Playdate games from Catalog and itch.io
+bundleID=com.pdgamez.browser
+version=1.0.0
+buildNumber=18
+imagePath=images/launcher
+contentWarning=Game listings are unmoderated, so may contain content for any ages
+pdxversion=30000
+buildtime=824395021

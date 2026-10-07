@@ -1,0 +1,3136 @@
+{
+  "tables": [
+    {
+      "name": "PlaydateAPI",
+      "path": "",
+      "count": 10
+    },
+    {
+      "name": "playdate_sys",
+      "path": "system",
+      "count": 54
+    },
+    {
+      "name": "playdate_file",
+      "path": "file",
+      "count": 13
+    },
+    {
+      "name": "playdate_graphics",
+      "path": "graphics",
+      "count": 71
+    },
+    {
+      "name": "playdate_video",
+      "path": "graphics.video",
+      "count": 8
+    },
+    {
+      "name": "playdate_tilemap",
+      "path": "graphics.tilemap",
+      "count": 11
+    },
+    {
+      "name": "playdate_videostream",
+      "path": "graphics.videostream",
+      "count": 11
+    },
+    {
+      "name": "playdate_sprite",
+      "path": "sprite",
+      "count": 66
+    },
+    {
+      "name": "playdate_display",
+      "path": "display",
+      "count": 10
+    },
+    {
+      "name": "playdate_sound",
+      "path": "sound",
+      "count": 25
+    },
+    {
+      "name": "playdate_sound_channel",
+      "path": "sound.channel",
+      "count": 17
+    },
+    {
+      "name": "playdate_sound_fileplayer",
+      "path": "sound.fileplayer",
+      "count": 24
+    },
+    {
+      "name": "playdate_sound_sample",
+      "path": "sound.sample",
+      "count": 8
+    },
+    {
+      "name": "playdate_sound_sampleplayer",
+      "path": "sound.sampleplayer",
+      "count": 19
+    },
+    {
+      "name": "playdate_sound_synth",
+      "path": "sound.synth",
+      "count": 30
+    },
+    {
+      "name": "playdate_sound_sequence",
+      "path": "sound.sequence",
+      "count": 20
+    },
+    {
+      "name": "playdate_sound_effect",
+      "path": "sound.effect",
+      "count": 13
+    },
+    {
+      "name": "playdate_sound_effect_twopolefilter",
+      "path": "sound.effect.twopolefilter",
+      "count": 10
+    },
+    {
+      "name": "playdate_sound_effect_onepolefilter",
+      "path": "sound.effect.onepolefilter",
+      "count": 5
+    },
+    {
+      "name": "playdate_sound_effect_bitcrusher",
+      "path": "sound.effect.bitcrusher",
+      "count": 15
+    },
+    {
+      "name": "playdate_sound_effect_ringmodulator",
+      "path": "sound.effect.ringmodulator",
+      "count": 5
+    },
+    {
+      "name": "playdate_sound_effect_delayline",
+      "path": "sound.effect.delayline",
+      "count": 10
+    },
+    {
+      "name": "playdate_sound_effect_overdrive",
+      "path": "sound.effect.overdrive",
+      "count": 9
+    },
+    {
+      "name": "playdate_sound_lfo",
+      "path": "sound.lfo",
+      "count": 15
+    },
+    {
+      "name": "playdate_sound_envelope",
+      "path": "sound.envelope",
+      "count": 12
+    },
+    {
+      "name": "playdate_sound_source",
+      "path": "sound.source",
+      "count": 4
+    },
+    {
+      "name": "playdate_control_signal",
+      "path": "sound.controlsignal",
+      "count": 6
+    },
+    {
+      "name": "playdate_sound_track",
+      "path": "sound.track",
+      "count": 17
+    },
+    {
+      "name": "playdate_sound_instrument",
+      "path": "sound.instrument",
+      "count": 13
+    },
+    {
+      "name": "playdate_sound_signal",
+      "path": "sound.signal",
+      "count": 6
+    },
+    {
+      "name": "playdate_lua",
+      "path": "lua",
+      "count": 32
+    },
+    {
+      "name": "playdate_json",
+      "path": "json",
+      "count": 3
+    },
+    {
+      "name": "playdate_scoreboards",
+      "path": "scoreboards",
+      "count": 7
+    },
+    {
+      "name": "playdate_network",
+      "path": "network",
+      "count": 7
+    },
+    {
+      "name": "playdate_http",
+      "path": "network.http",
+      "count": 25
+    },
+    {
+      "name": "playdate_tcp",
+      "path": "network.tcp",
+      "count": 17
+    }
+  ],
+  "functions": [
+    {
+      "name": "system.realloc",
+      "result": "void*",
+      "args": "void* ptr, size_t size"
+    },
+    {
+      "name": "system.formatString",
+      "result": "int",
+      "args": "char **ret, const char *fmt, ..."
+    },
+    {
+      "name": "system.logToConsole",
+      "result": "void",
+      "args": "const char* fmt, ..."
+    },
+    {
+      "name": "system.error",
+      "result": "void",
+      "args": "const char* fmt, ..."
+    },
+    {
+      "name": "system.getLanguage",
+      "result": "PDLanguage",
+      "args": "void"
+    },
+    {
+      "name": "system.getCurrentTimeMilliseconds",
+      "result": "unsigned int",
+      "args": "void"
+    },
+    {
+      "name": "system.getSecondsSinceEpoch",
+      "result": "unsigned int",
+      "args": "unsigned int *milliseconds"
+    },
+    {
+      "name": "system.drawFPS",
+      "result": "void",
+      "args": "int x, int y"
+    },
+    {
+      "name": "system.setUpdateCallback",
+      "result": "void",
+      "args": "PDCallbackFunction* update, void* userdata"
+    },
+    {
+      "name": "system.getButtonState",
+      "result": "void",
+      "args": "PDButtons* current, PDButtons* pushed, PDButtons* released"
+    },
+    {
+      "name": "system.setPeripheralsEnabled",
+      "result": "void",
+      "args": "PDPeripherals mask"
+    },
+    {
+      "name": "system.getAccelerometer",
+      "result": "void",
+      "args": "float* outx, float* outy, float* outz"
+    },
+    {
+      "name": "system.getCrankChange",
+      "result": "float",
+      "args": "void"
+    },
+    {
+      "name": "system.getCrankAngle",
+      "result": "float",
+      "args": "void"
+    },
+    {
+      "name": "system.isCrankDocked",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "system.setCrankSoundsDisabled",
+      "result": "int",
+      "args": "int flag"
+    },
+    {
+      "name": "system.getFlipped",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "system.setAutoLockDisabled",
+      "result": "void",
+      "args": "int disable"
+    },
+    {
+      "name": "system.setMenuImage",
+      "result": "void",
+      "args": "LCDBitmap* bitmap, int xOffset"
+    },
+    {
+      "name": "system.addMenuItem",
+      "result": "PDMenuItem*",
+      "args": "const char *title, PDMenuItemCallbackFunction* callback, void* userdata"
+    },
+    {
+      "name": "system.addCheckmarkMenuItem",
+      "result": "PDMenuItem*",
+      "args": "const char *title, int value, PDMenuItemCallbackFunction* callback, void* userdata"
+    },
+    {
+      "name": "system.addOptionsMenuItem",
+      "result": "PDMenuItem*",
+      "args": "const char *title, const char** optionTitles, int optionsCount, PDMenuItemCallbackFunction* f, void* userdata"
+    },
+    {
+      "name": "system.removeAllMenuItems",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "system.removeMenuItem",
+      "result": "void",
+      "args": "PDMenuItem *menuItem"
+    },
+    {
+      "name": "system.getMenuItemValue",
+      "result": "int",
+      "args": "PDMenuItem *menuItem"
+    },
+    {
+      "name": "system.setMenuItemValue",
+      "result": "void",
+      "args": "PDMenuItem *menuItem, int value"
+    },
+    {
+      "name": "system.getMenuItemTitle",
+      "result": "const char*",
+      "args": "PDMenuItem *menuItem"
+    },
+    {
+      "name": "system.setMenuItemTitle",
+      "result": "void",
+      "args": "PDMenuItem *menuItem, const char *title"
+    },
+    {
+      "name": "system.getMenuItemUserdata",
+      "result": "void*",
+      "args": "PDMenuItem *menuItem"
+    },
+    {
+      "name": "system.setMenuItemUserdata",
+      "result": "void",
+      "args": "PDMenuItem *menuItem, void *ud"
+    },
+    {
+      "name": "system.getReduceFlashing",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "system.getElapsedTime",
+      "result": "float",
+      "args": "void"
+    },
+    {
+      "name": "system.resetElapsedTime",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "system.getBatteryPercentage",
+      "result": "float",
+      "args": "void"
+    },
+    {
+      "name": "system.getBatteryVoltage",
+      "result": "float",
+      "args": "void"
+    },
+    {
+      "name": "system.getTimezoneOffset",
+      "result": "int32_t",
+      "args": "void"
+    },
+    {
+      "name": "system.shouldDisplay24HourTime",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "system.convertEpochToDateTime",
+      "result": "void",
+      "args": "uint32_t epoch, struct PDDateTime* datetime"
+    },
+    {
+      "name": "system.convertDateTimeToEpoch",
+      "result": "uint32_t",
+      "args": "struct PDDateTime* datetime"
+    },
+    {
+      "name": "system.clearICache",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "system.setButtonCallback",
+      "result": "void",
+      "args": "PDButtonCallbackFunction* cb, void* buttonud, int queuesize"
+    },
+    {
+      "name": "system.setSerialMessageCallback",
+      "result": "void",
+      "args": "void (*callback)(const char* data)"
+    },
+    {
+      "name": "system.vaFormatString",
+      "result": "int",
+      "args": "char **outstr, const char *fmt, va_list args"
+    },
+    {
+      "name": "system.parseString",
+      "result": "int",
+      "args": "const char *str, const char *format, ..."
+    },
+    {
+      "name": "system.delay",
+      "result": "void",
+      "args": "uint32_t milliseconds"
+    },
+    {
+      "name": "system.getServerTime",
+      "result": "void",
+      "args": "void (*callback)(const char* time, const char* err)"
+    },
+    {
+      "name": "system.restartGame",
+      "result": "void",
+      "args": "const char* launchargs"
+    },
+    {
+      "name": "system.getLaunchArgs",
+      "result": "const char*",
+      "args": "const char** outpath"
+    },
+    {
+      "name": "system.sendMirrorData",
+      "result": "bool",
+      "args": "uint8_t command, void* data, int len"
+    },
+    {
+      "name": "system.getSystemInfo",
+      "result": "const struct PDInfo*",
+      "args": "void"
+    },
+    {
+      "name": "system.getLocalizedText",
+      "result": "char*",
+      "args": "const char *key, PDLanguage language"
+    },
+    {
+      "name": "system.getVolume",
+      "result": "float",
+      "args": "void"
+    },
+    {
+      "name": "system.getPowerStatus",
+      "result": "PDPowerStatus",
+      "args": "void"
+    },
+    {
+      "name": "system.exitToLauncher",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "file.geterr",
+      "result": "const char*",
+      "args": "void"
+    },
+    {
+      "name": "file.listfiles",
+      "result": "int",
+      "args": "const char* path, void (*callback)(const char* path, void* userdata), void* userdata, int showhidden"
+    },
+    {
+      "name": "file.stat",
+      "result": "int",
+      "args": "const char* path, FileStat* stat"
+    },
+    {
+      "name": "file.mkdir",
+      "result": "int",
+      "args": "const char* path"
+    },
+    {
+      "name": "file.unlink",
+      "result": "int",
+      "args": "const char* name, int recursive"
+    },
+    {
+      "name": "file.rename",
+      "result": "int",
+      "args": "const char* from, const char* to"
+    },
+    {
+      "name": "file.open",
+      "result": "SDFile*",
+      "args": "const char* name, FileOptions mode"
+    },
+    {
+      "name": "file.close",
+      "result": "int",
+      "args": "SDFile* file"
+    },
+    {
+      "name": "file.read",
+      "result": "int",
+      "args": "SDFile* file, void* buf, unsigned int len"
+    },
+    {
+      "name": "file.write",
+      "result": "int",
+      "args": "SDFile* file, const void* buf, unsigned int len"
+    },
+    {
+      "name": "file.flush",
+      "result": "int",
+      "args": "SDFile* file"
+    },
+    {
+      "name": "file.tell",
+      "result": "int",
+      "args": "SDFile* file"
+    },
+    {
+      "name": "file.seek",
+      "result": "int",
+      "args": "SDFile* file, int pos, int whence"
+    },
+    {
+      "name": "graphics.video.loadVideo",
+      "result": "LCDVideoPlayer*",
+      "args": "const char* path"
+    },
+    {
+      "name": "graphics.video.freePlayer",
+      "result": "void",
+      "args": "LCDVideoPlayer* p"
+    },
+    {
+      "name": "graphics.video.setContext",
+      "result": "int",
+      "args": "LCDVideoPlayer* p, LCDBitmap* context"
+    },
+    {
+      "name": "graphics.video.useScreenContext",
+      "result": "void",
+      "args": "LCDVideoPlayer* p"
+    },
+    {
+      "name": "graphics.video.renderFrame",
+      "result": "int",
+      "args": "LCDVideoPlayer* p, int n"
+    },
+    {
+      "name": "graphics.video.getError",
+      "result": "const char*",
+      "args": "LCDVideoPlayer* p"
+    },
+    {
+      "name": "graphics.video.getInfo",
+      "result": "void",
+      "args": "LCDVideoPlayer* p, int* outWidth, int* outHeight, float* outFrameRate, int* outFrameCount, int* outCurrentFrame"
+    },
+    {
+      "name": "graphics.video.getContext",
+      "result": "LCDBitmap*",
+      "args": "LCDVideoPlayer *p"
+    },
+    {
+      "name": "graphics.clear",
+      "result": "void",
+      "args": "LCDColor color"
+    },
+    {
+      "name": "graphics.setBackgroundColor",
+      "result": "void",
+      "args": "LCDSolidColor color"
+    },
+    {
+      "name": "graphics.setStencil",
+      "result": "void",
+      "args": "LCDBitmap* stencil"
+    },
+    {
+      "name": "graphics.setDrawMode",
+      "result": "LCDBitmapDrawMode",
+      "args": "LCDBitmapDrawMode mode"
+    },
+    {
+      "name": "graphics.setDrawOffset",
+      "result": "void",
+      "args": "int dx, int dy"
+    },
+    {
+      "name": "graphics.setClipRect",
+      "result": "void",
+      "args": "int x, int y, int width, int height"
+    },
+    {
+      "name": "graphics.clearClipRect",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "graphics.setLineCapStyle",
+      "result": "void",
+      "args": "LCDLineCapStyle endCapStyle"
+    },
+    {
+      "name": "graphics.setFont",
+      "result": "void",
+      "args": "LCDFont* font"
+    },
+    {
+      "name": "graphics.setTextTracking",
+      "result": "void",
+      "args": "int tracking"
+    },
+    {
+      "name": "graphics.pushContext",
+      "result": "void",
+      "args": "LCDBitmap* target"
+    },
+    {
+      "name": "graphics.popContext",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "graphics.drawBitmap",
+      "result": "void",
+      "args": "LCDBitmap* bitmap, int x, int y, LCDBitmapFlip flip"
+    },
+    {
+      "name": "graphics.tileBitmap",
+      "result": "void",
+      "args": "LCDBitmap* bitmap, int x, int y, int width, int height, LCDBitmapFlip flip"
+    },
+    {
+      "name": "graphics.drawLine",
+      "result": "void",
+      "args": "int x1, int y1, int x2, int y2, int width, LCDColor color"
+    },
+    {
+      "name": "graphics.fillTriangle",
+      "result": "void",
+      "args": "int x1, int y1, int x2, int y2, int x3, int y3, LCDColor color"
+    },
+    {
+      "name": "graphics.drawRect",
+      "result": "void",
+      "args": "int x, int y, int width, int height, LCDColor color"
+    },
+    {
+      "name": "graphics.fillRect",
+      "result": "void",
+      "args": "int x, int y, int width, int height, LCDColor color"
+    },
+    {
+      "name": "graphics.drawEllipse",
+      "result": "void",
+      "args": "int x, int y, int width, int height, int lineWidth, float startAngle, float endAngle, LCDColor color"
+    },
+    {
+      "name": "graphics.fillEllipse",
+      "result": "void",
+      "args": "int x, int y, int width, int height, float startAngle, float endAngle, LCDColor color"
+    },
+    {
+      "name": "graphics.drawScaledBitmap",
+      "result": "void",
+      "args": "LCDBitmap* bitmap, int x, int y, float xscale, float yscale"
+    },
+    {
+      "name": "graphics.drawText",
+      "result": "int",
+      "args": "const void* text, size_t len, PDStringEncoding encoding, int x, int y"
+    },
+    {
+      "name": "graphics.newBitmap",
+      "result": "LCDBitmap*",
+      "args": "int width, int height, LCDColor bgcolor"
+    },
+    {
+      "name": "graphics.freeBitmap",
+      "result": "void",
+      "args": "LCDBitmap*"
+    },
+    {
+      "name": "graphics.loadBitmap",
+      "result": "LCDBitmap*",
+      "args": "const char* path, const char** outerr"
+    },
+    {
+      "name": "graphics.copyBitmap",
+      "result": "LCDBitmap*",
+      "args": "LCDBitmap* bitmap"
+    },
+    {
+      "name": "graphics.loadIntoBitmap",
+      "result": "void",
+      "args": "const char* path, LCDBitmap* bitmap, const char** outerr"
+    },
+    {
+      "name": "graphics.getBitmapData",
+      "result": "void",
+      "args": "LCDBitmap* bitmap, int* width, int* height, int* rowbytes, uint8_t** mask, uint8_t** data"
+    },
+    {
+      "name": "graphics.clearBitmap",
+      "result": "void",
+      "args": "LCDBitmap* bitmap, LCDColor bgcolor"
+    },
+    {
+      "name": "graphics.rotatedBitmap",
+      "result": "LCDBitmap*",
+      "args": "LCDBitmap* bitmap, float rotation, float xscale, float yscale, int* allocedSize"
+    },
+    {
+      "name": "graphics.newBitmapTable",
+      "result": "LCDBitmapTable*",
+      "args": "int count, int width, int height"
+    },
+    {
+      "name": "graphics.freeBitmapTable",
+      "result": "void",
+      "args": "LCDBitmapTable* table"
+    },
+    {
+      "name": "graphics.loadBitmapTable",
+      "result": "LCDBitmapTable*",
+      "args": "const char* path, const char** outerr"
+    },
+    {
+      "name": "graphics.loadIntoBitmapTable",
+      "result": "void",
+      "args": "const char* path, LCDBitmapTable* table, const char** outerr"
+    },
+    {
+      "name": "graphics.getTableBitmap",
+      "result": "LCDBitmap*",
+      "args": "LCDBitmapTable* table, int idx"
+    },
+    {
+      "name": "graphics.loadFont",
+      "result": "LCDFont*",
+      "args": "const char* path, const char** outErr"
+    },
+    {
+      "name": "graphics.getFontPage",
+      "result": "LCDFontPage*",
+      "args": "LCDFont* font, uint32_t c"
+    },
+    {
+      "name": "graphics.getPageGlyph",
+      "result": "LCDFontGlyph*",
+      "args": "LCDFontPage* page, uint32_t c, LCDBitmap** bitmap, int* advance"
+    },
+    {
+      "name": "graphics.getGlyphKerning",
+      "result": "int",
+      "args": "LCDFontGlyph* glyph, uint32_t glyphcode, uint32_t nextcode"
+    },
+    {
+      "name": "graphics.getTextWidth",
+      "result": "int",
+      "args": "LCDFont* font, const void* text, size_t len, PDStringEncoding encoding, int tracking"
+    },
+    {
+      "name": "graphics.getFrame",
+      "result": "uint8_t*",
+      "args": "void"
+    },
+    {
+      "name": "graphics.getDisplayFrame",
+      "result": "uint8_t*",
+      "args": "void"
+    },
+    {
+      "name": "graphics.getDebugBitmap",
+      "result": "LCDBitmap*",
+      "args": "void"
+    },
+    {
+      "name": "graphics.copyFrameBufferBitmap",
+      "result": "LCDBitmap*",
+      "args": "void"
+    },
+    {
+      "name": "graphics.markUpdatedRows",
+      "result": "void",
+      "args": "int start, int end"
+    },
+    {
+      "name": "graphics.display",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "graphics.setColorToPattern",
+      "result": "void",
+      "args": "LCDColor* color, LCDBitmap* bitmap, int x, int y"
+    },
+    {
+      "name": "graphics.checkMaskCollision",
+      "result": "int",
+      "args": "LCDBitmap* bitmap1, int x1, int y1, LCDBitmapFlip flip1, LCDBitmap* bitmap2, int x2, int y2, LCDBitmapFlip flip2, LCDRect rect"
+    },
+    {
+      "name": "graphics.setScreenClipRect",
+      "result": "void",
+      "args": "int x, int y, int width, int height"
+    },
+    {
+      "name": "graphics.fillPolygon",
+      "result": "void",
+      "args": "int nPoints, int* coords, LCDColor color, LCDPolygonFillRule fillrule"
+    },
+    {
+      "name": "graphics.getFontHeight",
+      "result": "uint8_t",
+      "args": "LCDFont* font"
+    },
+    {
+      "name": "graphics.getDisplayBufferBitmap",
+      "result": "LCDBitmap*",
+      "args": "void"
+    },
+    {
+      "name": "graphics.drawRotatedBitmap",
+      "result": "void",
+      "args": "LCDBitmap* bitmap, int x, int y, float rotation, float centerx, float centery, float xscale, float yscale"
+    },
+    {
+      "name": "graphics.setTextLeading",
+      "result": "void",
+      "args": "int lineHeightAdustment"
+    },
+    {
+      "name": "graphics.setBitmapMask",
+      "result": "int",
+      "args": "LCDBitmap* bitmap, LCDBitmap* mask"
+    },
+    {
+      "name": "graphics.getBitmapMask",
+      "result": "LCDBitmap*",
+      "args": "LCDBitmap* bitmap"
+    },
+    {
+      "name": "graphics.setStencilImage",
+      "result": "void",
+      "args": "LCDBitmap* stencil, int tile"
+    },
+    {
+      "name": "graphics.makeFontFromData_deprecated",
+      "result": "LCDFont*",
+      "args": "LCDFontData* data, int wide"
+    },
+    {
+      "name": "graphics.getTextTracking",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "graphics.setPixel",
+      "result": "void",
+      "args": "int x, int y, LCDColor c"
+    },
+    {
+      "name": "graphics.getBitmapPixel",
+      "result": "LCDSolidColor",
+      "args": "LCDBitmap* bitmap, int x, int y"
+    },
+    {
+      "name": "graphics.getBitmapTableInfo",
+      "result": "void",
+      "args": "LCDBitmapTable* table, int* count, int* width"
+    },
+    {
+      "name": "graphics.drawTextInRect",
+      "result": "void",
+      "args": "const void* text, size_t len, PDStringEncoding encoding, int x, int y, int width, int height, PDTextWrappingMode wrap, PDTextAlignment align"
+    },
+    {
+      "name": "graphics.getTextHeightForMaxWidth",
+      "result": "int",
+      "args": "LCDFont* font, const void* text, size_t len, int maxwidth, PDStringEncoding encoding, PDTextWrappingMode wrap, int tracking, int extraLeading"
+    },
+    {
+      "name": "graphics.drawRoundRect",
+      "result": "void",
+      "args": "int x, int y, int width, int height, int radius, int lineWidth, LCDColor color"
+    },
+    {
+      "name": "graphics.fillRoundRect",
+      "result": "void",
+      "args": "int x, int y, int width, int height, int radius, LCDColor color"
+    },
+    {
+      "name": "graphics.tilemap.newTilemap",
+      "result": "LCDTileMap*",
+      "args": "void"
+    },
+    {
+      "name": "graphics.tilemap.freeTilemap",
+      "result": "void",
+      "args": "LCDTileMap* m"
+    },
+    {
+      "name": "graphics.tilemap.setImageTable",
+      "result": "void",
+      "args": "LCDTileMap* m, LCDBitmapTable* table"
+    },
+    {
+      "name": "graphics.tilemap.getImageTable",
+      "result": "LCDBitmapTable*",
+      "args": "LCDTileMap* m"
+    },
+    {
+      "name": "graphics.tilemap.setSize",
+      "result": "void",
+      "args": "LCDTileMap* m, int tilesWide, int tilesHigh"
+    },
+    {
+      "name": "graphics.tilemap.getSize",
+      "result": "void",
+      "args": "LCDTileMap* m, int* tilesWide, int* tilesHigh"
+    },
+    {
+      "name": "graphics.tilemap.getPixelSize",
+      "result": "void",
+      "args": "LCDTileMap* m, uint32_t* outWidth, uint32_t* outHeight"
+    },
+    {
+      "name": "graphics.tilemap.setTiles",
+      "result": "void",
+      "args": "LCDTileMap* m, uint16_t* indexes, int count, int rowwidth"
+    },
+    {
+      "name": "graphics.tilemap.setTileAtPosition",
+      "result": "void",
+      "args": "LCDTileMap* m, int x, int y, uint16_t idx"
+    },
+    {
+      "name": "graphics.tilemap.getTileAtPosition",
+      "result": "int",
+      "args": "LCDTileMap* m, int x, int y"
+    },
+    {
+      "name": "graphics.tilemap.drawAtPoint",
+      "result": "void",
+      "args": "LCDTileMap* m, float x, float y"
+    },
+    {
+      "name": "graphics.videostream.newPlayer",
+      "result": "LCDStreamPlayer*",
+      "args": "void"
+    },
+    {
+      "name": "graphics.videostream.freePlayer",
+      "result": "void",
+      "args": "LCDStreamPlayer* p"
+    },
+    {
+      "name": "graphics.videostream.setBufferSize",
+      "result": "void",
+      "args": "LCDStreamPlayer* p, int video, int audio"
+    },
+    {
+      "name": "graphics.videostream.setFile",
+      "result": "void",
+      "args": "LCDStreamPlayer* p, SDFile* file"
+    },
+    {
+      "name": "graphics.videostream.setHTTPConnection",
+      "result": "void",
+      "args": "LCDStreamPlayer* p, HTTPConnection* conn"
+    },
+    {
+      "name": "graphics.videostream.getFilePlayer",
+      "result": "FilePlayer*",
+      "args": "LCDStreamPlayer* p"
+    },
+    {
+      "name": "graphics.videostream.getVideoPlayer",
+      "result": "LCDVideoPlayer*",
+      "args": "LCDStreamPlayer* p"
+    },
+    {
+      "name": "graphics.videostream.update",
+      "result": "bool",
+      "args": "LCDStreamPlayer* p"
+    },
+    {
+      "name": "graphics.videostream.getBufferedFrameCount",
+      "result": "int",
+      "args": "LCDStreamPlayer* p"
+    },
+    {
+      "name": "graphics.videostream.getBytesRead",
+      "result": "uint32_t",
+      "args": "LCDStreamPlayer* p"
+    },
+    {
+      "name": "graphics.videostream.setTCPConnection",
+      "result": "void",
+      "args": "LCDStreamPlayer* p, TCPConnection* conn"
+    },
+    {
+      "name": "graphics.getFontGlyph",
+      "result": "LCDFontGlyph*",
+      "args": "LCDFont* font, uint32_t c, LCDBitmap** bitmap, int* advance"
+    },
+    {
+      "name": "graphics.makeFontFromData",
+      "result": "LCDFont*",
+      "args": "LCDFontData* data, int wide, int datalength"
+    },
+    {
+      "name": "sprite.setAlwaysRedraw",
+      "result": "void",
+      "args": "int flag"
+    },
+    {
+      "name": "sprite.addDirtyRect",
+      "result": "void",
+      "args": "LCDRect dirtyRect"
+    },
+    {
+      "name": "sprite.drawSprites",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "sprite.updateAndDrawSprites",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "sprite.newSprite",
+      "result": "LCDSprite*",
+      "args": "void"
+    },
+    {
+      "name": "sprite.freeSprite",
+      "result": "void",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.copy",
+      "result": "LCDSprite*",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.addSprite",
+      "result": "void",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.removeSprite",
+      "result": "void",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.removeSprites",
+      "result": "void",
+      "args": "LCDSprite **sprites, int count"
+    },
+    {
+      "name": "sprite.removeAllSprites",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "sprite.getSpriteCount",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "sprite.setBounds",
+      "result": "void",
+      "args": "LCDSprite *sprite, PDRect bounds"
+    },
+    {
+      "name": "sprite.getBounds",
+      "result": "PDRect",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.moveTo",
+      "result": "void",
+      "args": "LCDSprite *sprite, float x, float y"
+    },
+    {
+      "name": "sprite.moveBy",
+      "result": "void",
+      "args": "LCDSprite *sprite, float dx, float dy"
+    },
+    {
+      "name": "sprite.setImage",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDBitmap *image, LCDBitmapFlip flip"
+    },
+    {
+      "name": "sprite.getImage",
+      "result": "LCDBitmap*",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setSize",
+      "result": "void",
+      "args": "LCDSprite *s, float width, float height"
+    },
+    {
+      "name": "sprite.setZIndex",
+      "result": "void",
+      "args": "LCDSprite *sprite, int16_t zIndex"
+    },
+    {
+      "name": "sprite.getZIndex",
+      "result": "int16_t",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setDrawMode",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDBitmapDrawMode mode"
+    },
+    {
+      "name": "sprite.setImageFlip",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDBitmapFlip flip"
+    },
+    {
+      "name": "sprite.getImageFlip",
+      "result": "LCDBitmapFlip",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setStencil",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDBitmap* stencil"
+    },
+    {
+      "name": "sprite.setClipRect",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDRect clipRect"
+    },
+    {
+      "name": "sprite.clearClipRect",
+      "result": "void",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setClipRectsInRange",
+      "result": "void",
+      "args": "LCDRect clipRect, int startZ, int endZ"
+    },
+    {
+      "name": "sprite.clearClipRectsInRange",
+      "result": "void",
+      "args": "int startZ, int endZ"
+    },
+    {
+      "name": "sprite.setUpdatesEnabled",
+      "result": "void",
+      "args": "LCDSprite *sprite, int flag"
+    },
+    {
+      "name": "sprite.updatesEnabled",
+      "result": "int",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setCollisionsEnabled",
+      "result": "void",
+      "args": "LCDSprite *sprite, int flag"
+    },
+    {
+      "name": "sprite.collisionsEnabled",
+      "result": "int",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setVisible",
+      "result": "void",
+      "args": "LCDSprite *sprite, int flag"
+    },
+    {
+      "name": "sprite.isVisible",
+      "result": "int",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setOpaque",
+      "result": "void",
+      "args": "LCDSprite *sprite, int flag"
+    },
+    {
+      "name": "sprite.markDirty",
+      "result": "void",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setTag",
+      "result": "void",
+      "args": "LCDSprite *sprite, uint8_t tag"
+    },
+    {
+      "name": "sprite.getTag",
+      "result": "uint8_t",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setIgnoresDrawOffset",
+      "result": "void",
+      "args": "LCDSprite *sprite, int flag"
+    },
+    {
+      "name": "sprite.setUpdateFunction",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDSpriteUpdateFunction *func"
+    },
+    {
+      "name": "sprite.setDrawFunction",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDSpriteDrawFunction *func"
+    },
+    {
+      "name": "sprite.getPosition",
+      "result": "void",
+      "args": "LCDSprite *sprite, float *x, float *y"
+    },
+    {
+      "name": "sprite.resetCollisionWorld",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "sprite.setCollideRect",
+      "result": "void",
+      "args": "LCDSprite *sprite, PDRect collideRect"
+    },
+    {
+      "name": "sprite.getCollideRect",
+      "result": "PDRect",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.clearCollideRect",
+      "result": "void",
+      "args": "LCDSprite *sprite"
+    },
+    {
+      "name": "sprite.setCollisionResponseFunction",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDSpriteCollisionFilterProc *func"
+    },
+    {
+      "name": "sprite.checkCollisions",
+      "result": "SpriteCollisionInfo*",
+      "args": "LCDSprite *sprite, float goalX, float goalY, float *actualX, float *actualY, int *len"
+    },
+    {
+      "name": "sprite.moveWithCollisions",
+      "result": "SpriteCollisionInfo*",
+      "args": "LCDSprite *sprite, float goalX, float goalY, float *actualX, float *actualY, int *len"
+    },
+    {
+      "name": "sprite.querySpritesAtPoint",
+      "result": "LCDSprite**",
+      "args": "float x, float y, int *len"
+    },
+    {
+      "name": "sprite.querySpritesInRect",
+      "result": "LCDSprite**",
+      "args": "float x, float y, float width, float height, int *len"
+    },
+    {
+      "name": "sprite.querySpritesAlongLine",
+      "result": "LCDSprite**",
+      "args": "float x1, float y1, float x2, float y2, int *len"
+    },
+    {
+      "name": "sprite.querySpriteInfoAlongLine",
+      "result": "SpriteQueryInfo*",
+      "args": "float x1, float y1, float x2, float y2, int *len"
+    },
+    {
+      "name": "sprite.overlappingSprites",
+      "result": "LCDSprite**",
+      "args": "LCDSprite *sprite, int *len"
+    },
+    {
+      "name": "sprite.allOverlappingSprites",
+      "result": "LCDSprite**",
+      "args": "int *len"
+    },
+    {
+      "name": "sprite.setStencilPattern",
+      "result": "void",
+      "args": "LCDSprite* sprite, uint8_t pattern[8]"
+    },
+    {
+      "name": "sprite.clearStencil",
+      "result": "void",
+      "args": "LCDSprite* sprite"
+    },
+    {
+      "name": "sprite.setUserdata",
+      "result": "void",
+      "args": "LCDSprite* sprite, void* userdata"
+    },
+    {
+      "name": "sprite.getUserdata",
+      "result": "void*",
+      "args": "LCDSprite* sprite"
+    },
+    {
+      "name": "sprite.setStencilImage",
+      "result": "void",
+      "args": "LCDSprite *sprite, LCDBitmap* stencil, int tile"
+    },
+    {
+      "name": "sprite.setCenter",
+      "result": "void",
+      "args": "LCDSprite* s, float x, float y"
+    },
+    {
+      "name": "sprite.getCenter",
+      "result": "void",
+      "args": "LCDSprite* s, float* x, float* y"
+    },
+    {
+      "name": "sprite.setTilemap",
+      "result": "void",
+      "args": "LCDSprite* s, LCDTileMap* tilemap"
+    },
+    {
+      "name": "sprite.getTilemap",
+      "result": "LCDTileMap*",
+      "args": "LCDSprite* s"
+    },
+    {
+      "name": "sprite.markDirtyRect",
+      "result": "void",
+      "args": "LCDSprite* s, PDRect rect"
+    },
+    {
+      "name": "display.getWidth",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "display.getHeight",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "display.setRefreshRate",
+      "result": "void",
+      "args": "float rate"
+    },
+    {
+      "name": "display.setInverted",
+      "result": "void",
+      "args": "int flag"
+    },
+    {
+      "name": "display.setScale",
+      "result": "void",
+      "args": "unsigned int s"
+    },
+    {
+      "name": "display.setMosaic",
+      "result": "void",
+      "args": "unsigned int x, unsigned int y"
+    },
+    {
+      "name": "display.setFlipped",
+      "result": "void",
+      "args": "int x, int y"
+    },
+    {
+      "name": "display.setOffset",
+      "result": "void",
+      "args": "int x, int y"
+    },
+    {
+      "name": "display.getRefreshRate",
+      "result": "float",
+      "args": "void"
+    },
+    {
+      "name": "display.getFPS",
+      "result": "float",
+      "args": "void"
+    },
+    {
+      "name": "sound.channel.newChannel",
+      "result": "SoundChannel*",
+      "args": "void"
+    },
+    {
+      "name": "sound.channel.freeChannel",
+      "result": "void",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.channel.addSource",
+      "result": "int",
+      "args": "SoundChannel* channel, SoundSource* source"
+    },
+    {
+      "name": "sound.channel.removeSource",
+      "result": "int",
+      "args": "SoundChannel* channel, SoundSource* source"
+    },
+    {
+      "name": "sound.channel.addCallbackSource",
+      "result": "SoundSource*",
+      "args": "SoundChannel* channel, AudioSourceFunction* callback, void* context, int stereo"
+    },
+    {
+      "name": "sound.channel.addEffect",
+      "result": "int",
+      "args": "SoundChannel* channel, SoundEffect* effect"
+    },
+    {
+      "name": "sound.channel.removeEffect",
+      "result": "int",
+      "args": "SoundChannel* channel, SoundEffect* effect"
+    },
+    {
+      "name": "sound.channel.setVolume",
+      "result": "void",
+      "args": "SoundChannel* channel, float volume"
+    },
+    {
+      "name": "sound.channel.getVolume",
+      "result": "float",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.channel.setVolumeModulator",
+      "result": "void",
+      "args": "SoundChannel* channel, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.channel.getVolumeModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.channel.setPan",
+      "result": "void",
+      "args": "SoundChannel* channel, float pan"
+    },
+    {
+      "name": "sound.channel.setPanModulator",
+      "result": "void",
+      "args": "SoundChannel* channel, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.channel.getPanModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.channel.getDryLevelSignal",
+      "result": "PDSynthSignalValue*",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.channel.getWetLevelSignal",
+      "result": "PDSynthSignalValue*",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.channel.getOutputAsSource",
+      "result": "SoundSource*",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.fileplayer.newPlayer",
+      "result": "FilePlayer*",
+      "args": "void"
+    },
+    {
+      "name": "sound.fileplayer.freePlayer",
+      "result": "void",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.fileplayer.loadIntoPlayer",
+      "result": "int",
+      "args": "FilePlayer* player, const char* path"
+    },
+    {
+      "name": "sound.fileplayer.setBufferLength",
+      "result": "void",
+      "args": "FilePlayer* player, float bufferLen"
+    },
+    {
+      "name": "sound.fileplayer.play",
+      "result": "int",
+      "args": "FilePlayer* player, int repeat"
+    },
+    {
+      "name": "sound.fileplayer.isPlaying",
+      "result": "int",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.fileplayer.pause",
+      "result": "void",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.fileplayer.stop",
+      "result": "void",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.fileplayer.setVolume",
+      "result": "void",
+      "args": "FilePlayer* player, float left, float right"
+    },
+    {
+      "name": "sound.fileplayer.getVolume",
+      "result": "void",
+      "args": "FilePlayer* player, float* left, float* right"
+    },
+    {
+      "name": "sound.fileplayer.getLength",
+      "result": "float",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.fileplayer.setOffset",
+      "result": "void",
+      "args": "FilePlayer* player, float offset"
+    },
+    {
+      "name": "sound.fileplayer.setRate",
+      "result": "void",
+      "args": "FilePlayer* player, float rate"
+    },
+    {
+      "name": "sound.fileplayer.setLoopRange",
+      "result": "void",
+      "args": "FilePlayer* player, float start, float end"
+    },
+    {
+      "name": "sound.fileplayer.didUnderrun",
+      "result": "int",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.fileplayer.setFinishCallback",
+      "result": "void",
+      "args": "FilePlayer* player, sndCallbackProc callback, void* userdata"
+    },
+    {
+      "name": "sound.fileplayer.setLoopCallback",
+      "result": "void",
+      "args": "FilePlayer* player, sndCallbackProc callback, void* userdata"
+    },
+    {
+      "name": "sound.fileplayer.getOffset",
+      "result": "float",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.fileplayer.getRate",
+      "result": "float",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.fileplayer.setStopOnUnderrun",
+      "result": "void",
+      "args": "FilePlayer* player, int flag"
+    },
+    {
+      "name": "sound.fileplayer.fadeVolume",
+      "result": "void",
+      "args": "FilePlayer* player, float left, float right, int32_t len, sndCallbackProc finishCallback, void* userdata"
+    },
+    {
+      "name": "sound.fileplayer.setMP3StreamSource",
+      "result": "void",
+      "args": "FilePlayer* player, int (*dataSource)(uint8_t* data, int bytes, void* userdata), void* userdata, float bufferLen"
+    },
+    {
+      "name": "sound.fileplayer.setRateModulator",
+      "result": "void",
+      "args": "FilePlayer* player, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.fileplayer.getRateModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "FilePlayer* player"
+    },
+    {
+      "name": "sound.sample.newSampleBuffer",
+      "result": "AudioSample*",
+      "args": "int byteCount"
+    },
+    {
+      "name": "sound.sample.loadIntoSample",
+      "result": "int",
+      "args": "AudioSample* sample, const char* path"
+    },
+    {
+      "name": "sound.sample.load",
+      "result": "AudioSample*",
+      "args": "const char* path"
+    },
+    {
+      "name": "sound.sample.newSampleFromData",
+      "result": "AudioSample*",
+      "args": "uint8_t* data, SoundFormat format, uint32_t sampleRate, int byteCount, int shouldFreeData"
+    },
+    {
+      "name": "sound.sample.getData",
+      "result": "void",
+      "args": "AudioSample* sample, uint8_t** data, SoundFormat* format, uint32_t* sampleRate, uint32_t* bytelength"
+    },
+    {
+      "name": "sound.sample.freeSample",
+      "result": "void",
+      "args": "AudioSample* sample"
+    },
+    {
+      "name": "sound.sample.getLength",
+      "result": "float",
+      "args": "AudioSample* sample"
+    },
+    {
+      "name": "sound.sample.decompress",
+      "result": "int",
+      "args": "AudioSample* sample"
+    },
+    {
+      "name": "sound.sampleplayer.newPlayer",
+      "result": "SamplePlayer*",
+      "args": "void"
+    },
+    {
+      "name": "sound.sampleplayer.freePlayer",
+      "result": "void",
+      "args": "SamplePlayer* player"
+    },
+    {
+      "name": "sound.sampleplayer.setSample",
+      "result": "void",
+      "args": "SamplePlayer* player, AudioSample* sample"
+    },
+    {
+      "name": "sound.sampleplayer.play",
+      "result": "int",
+      "args": "SamplePlayer* player, int repeat, float rate"
+    },
+    {
+      "name": "sound.sampleplayer.isPlaying",
+      "result": "int",
+      "args": "SamplePlayer* player"
+    },
+    {
+      "name": "sound.sampleplayer.stop",
+      "result": "void",
+      "args": "SamplePlayer* player"
+    },
+    {
+      "name": "sound.sampleplayer.setVolume",
+      "result": "void",
+      "args": "SamplePlayer* player, float left, float right"
+    },
+    {
+      "name": "sound.sampleplayer.getVolume",
+      "result": "void",
+      "args": "SamplePlayer* player, float* left, float* right"
+    },
+    {
+      "name": "sound.sampleplayer.getLength",
+      "result": "float",
+      "args": "SamplePlayer* player"
+    },
+    {
+      "name": "sound.sampleplayer.setOffset",
+      "result": "void",
+      "args": "SamplePlayer* player, float offset"
+    },
+    {
+      "name": "sound.sampleplayer.setRate",
+      "result": "void",
+      "args": "SamplePlayer* player, float rate"
+    },
+    {
+      "name": "sound.sampleplayer.setPlayRange",
+      "result": "void",
+      "args": "SamplePlayer* player, int start, int end"
+    },
+    {
+      "name": "sound.sampleplayer.setFinishCallback",
+      "result": "void",
+      "args": "SamplePlayer* player, sndCallbackProc callback, void* userdata"
+    },
+    {
+      "name": "sound.sampleplayer.setLoopCallback",
+      "result": "void",
+      "args": "SamplePlayer* player, sndCallbackProc callback, void* userdata"
+    },
+    {
+      "name": "sound.sampleplayer.getOffset",
+      "result": "float",
+      "args": "SamplePlayer* player"
+    },
+    {
+      "name": "sound.sampleplayer.getRate",
+      "result": "float",
+      "args": "SamplePlayer* player"
+    },
+    {
+      "name": "sound.sampleplayer.setPaused",
+      "result": "void",
+      "args": "SamplePlayer* player, int flag"
+    },
+    {
+      "name": "sound.sampleplayer.setRateModulator",
+      "result": "void",
+      "args": "SamplePlayer* player, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.sampleplayer.getRateModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "SamplePlayer* player"
+    },
+    {
+      "name": "sound.synth.newSynth",
+      "result": "PDSynth*",
+      "args": "void"
+    },
+    {
+      "name": "sound.synth.freeSynth",
+      "result": "void",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.synth.setWaveform",
+      "result": "void",
+      "args": "PDSynth* synth, SoundWaveform wave"
+    },
+    {
+      "name": "sound.synth.setGenerator_deprecated",
+      "result": "void",
+      "args": "PDSynth* synth, int stereo, synthRenderFunc render, synthNoteOnFunc noteOn, synthReleaseFunc release, synthSetParameterFunc setparam, synthDeallocFunc dealloc, void* userdata"
+    },
+    {
+      "name": "sound.synth.setSample",
+      "result": "void",
+      "args": "PDSynth* synth, AudioSample* sample, uint32_t sustainStart, uint32_t sustainEnd"
+    },
+    {
+      "name": "sound.synth.setAttackTime",
+      "result": "void",
+      "args": "PDSynth* synth, float attack"
+    },
+    {
+      "name": "sound.synth.setDecayTime",
+      "result": "void",
+      "args": "PDSynth* synth, float decay"
+    },
+    {
+      "name": "sound.synth.setSustainLevel",
+      "result": "void",
+      "args": "PDSynth* synth, float sustain"
+    },
+    {
+      "name": "sound.synth.setReleaseTime",
+      "result": "void",
+      "args": "PDSynth* synth, float release"
+    },
+    {
+      "name": "sound.synth.setTranspose",
+      "result": "void",
+      "args": "PDSynth* synth, float halfSteps"
+    },
+    {
+      "name": "sound.synth.setFrequencyModulator",
+      "result": "void",
+      "args": "PDSynth* synth, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.synth.getFrequencyModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.synth.setAmplitudeModulator",
+      "result": "void",
+      "args": "PDSynth* synth, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.synth.getAmplitudeModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.synth.getParameterCount",
+      "result": "int",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.synth.setParameter",
+      "result": "int",
+      "args": "PDSynth* synth, int parameter, float value"
+    },
+    {
+      "name": "sound.synth.setParameterModulator",
+      "result": "void",
+      "args": "PDSynth* synth, int parameter, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.synth.getParameterModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "PDSynth* synth, int parameter"
+    },
+    {
+      "name": "sound.synth.playNote",
+      "result": "void",
+      "args": "PDSynth* synth, float freq, float vel, float len, uint32_t when"
+    },
+    {
+      "name": "sound.synth.playMIDINote",
+      "result": "void",
+      "args": "PDSynth* synth, MIDINote note, float vel, float len, uint32_t when"
+    },
+    {
+      "name": "sound.synth.noteOff",
+      "result": "void",
+      "args": "PDSynth* synth, uint32_t when"
+    },
+    {
+      "name": "sound.synth.stop",
+      "result": "void",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.synth.setVolume",
+      "result": "void",
+      "args": "PDSynth* synth, float left, float right"
+    },
+    {
+      "name": "sound.synth.getVolume",
+      "result": "void",
+      "args": "PDSynth* synth, float* left, float* right"
+    },
+    {
+      "name": "sound.synth.isPlaying",
+      "result": "int",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.synth.getEnvelope",
+      "result": "PDSynthEnvelope*",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.synth.setWavetable",
+      "result": "int",
+      "args": "PDSynth* synth, AudioSample* sample, int log2size, int columns, int rows"
+    },
+    {
+      "name": "sound.synth.setGenerator",
+      "result": "void",
+      "args": "PDSynth* synth, int stereo, synthRenderFunc render, synthNoteOnFunc noteOn, synthReleaseFunc release, synthSetParameterFunc setparam, synthDeallocFunc dealloc, synthCopyUserdata copyUserdata, void* userdata"
+    },
+    {
+      "name": "sound.synth.copy",
+      "result": "PDSynth*",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.synth.clearEnvelope",
+      "result": "void",
+      "args": "PDSynth* synth"
+    },
+    {
+      "name": "sound.sequence.newSequence",
+      "result": "SoundSequence*",
+      "args": "void"
+    },
+    {
+      "name": "sound.sequence.freeSequence",
+      "result": "void",
+      "args": "SoundSequence* sequence"
+    },
+    {
+      "name": "sound.sequence.loadMIDIFile",
+      "result": "int",
+      "args": "SoundSequence* seq, const char* path"
+    },
+    {
+      "name": "sound.sequence.getTime",
+      "result": "uint32_t",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.sequence.setTime",
+      "result": "void",
+      "args": "SoundSequence* seq, uint32_t time"
+    },
+    {
+      "name": "sound.sequence.setLoops",
+      "result": "void",
+      "args": "SoundSequence* seq, int loopstart, int loopend, int loops"
+    },
+    {
+      "name": "sound.sequence.getTempo_deprecated",
+      "result": "int",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.sequence.setTempo",
+      "result": "void",
+      "args": "SoundSequence* seq, float stepsPerSecond"
+    },
+    {
+      "name": "sound.sequence.getTrackCount",
+      "result": "int",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.sequence.addTrack",
+      "result": "SequenceTrack*",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.sequence.getTrackAtIndex",
+      "result": "SequenceTrack*",
+      "args": "SoundSequence* seq, unsigned int track"
+    },
+    {
+      "name": "sound.sequence.setTrackAtIndex",
+      "result": "void",
+      "args": "SoundSequence* seq, SequenceTrack* track, unsigned int idx"
+    },
+    {
+      "name": "sound.sequence.allNotesOff",
+      "result": "void",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.sequence.isPlaying",
+      "result": "int",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.sequence.getLength",
+      "result": "uint32_t",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.sequence.play",
+      "result": "void",
+      "args": "SoundSequence* seq, SequenceFinishedCallback finishCallback, void* userdata"
+    },
+    {
+      "name": "sound.sequence.stop",
+      "result": "void",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.sequence.getCurrentStep",
+      "result": "int",
+      "args": "SoundSequence* seq, int* timeOffset"
+    },
+    {
+      "name": "sound.sequence.setCurrentStep",
+      "result": "void",
+      "args": "SoundSequence* seq, int step, int timeOffset, int playNotes"
+    },
+    {
+      "name": "sound.sequence.getTempo",
+      "result": "float",
+      "args": "SoundSequence* seq"
+    },
+    {
+      "name": "sound.effect.newEffect",
+      "result": "SoundEffect*",
+      "args": "effectProc* proc, void* userdata"
+    },
+    {
+      "name": "sound.effect.freeEffect",
+      "result": "void",
+      "args": "SoundEffect* effect"
+    },
+    {
+      "name": "sound.effect.setMix",
+      "result": "void",
+      "args": "SoundEffect* effect, float level"
+    },
+    {
+      "name": "sound.effect.setMixModulator",
+      "result": "void",
+      "args": "SoundEffect* effect, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.getMixModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "SoundEffect* effect"
+    },
+    {
+      "name": "sound.effect.setUserdata",
+      "result": "void",
+      "args": "SoundEffect* effect, void* userdata"
+    },
+    {
+      "name": "sound.effect.getUserdata",
+      "result": "void*",
+      "args": "SoundEffect* effect"
+    },
+    {
+      "name": "sound.effect.twopolefilter.newFilter",
+      "result": "TwoPoleFilter*",
+      "args": "void"
+    },
+    {
+      "name": "sound.effect.twopolefilter.freeFilter",
+      "result": "void",
+      "args": "TwoPoleFilter* filter"
+    },
+    {
+      "name": "sound.effect.twopolefilter.setType",
+      "result": "void",
+      "args": "TwoPoleFilter* filter, TwoPoleFilterType type"
+    },
+    {
+      "name": "sound.effect.twopolefilter.setFrequency",
+      "result": "void",
+      "args": "TwoPoleFilter* filter, float frequency"
+    },
+    {
+      "name": "sound.effect.twopolefilter.setFrequencyModulator",
+      "result": "void",
+      "args": "TwoPoleFilter* filter, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.twopolefilter.getFrequencyModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "TwoPoleFilter* filter"
+    },
+    {
+      "name": "sound.effect.twopolefilter.setGain",
+      "result": "void",
+      "args": "TwoPoleFilter* filter, float gain"
+    },
+    {
+      "name": "sound.effect.twopolefilter.setResonance",
+      "result": "void",
+      "args": "TwoPoleFilter* filter, float resonance"
+    },
+    {
+      "name": "sound.effect.twopolefilter.setResonanceModulator",
+      "result": "void",
+      "args": "TwoPoleFilter* filter, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.twopolefilter.getResonanceModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "TwoPoleFilter* filter"
+    },
+    {
+      "name": "sound.effect.onepolefilter.newFilter",
+      "result": "OnePoleFilter*",
+      "args": "void"
+    },
+    {
+      "name": "sound.effect.onepolefilter.freeFilter",
+      "result": "void",
+      "args": "OnePoleFilter* filter"
+    },
+    {
+      "name": "sound.effect.onepolefilter.setParameter",
+      "result": "void",
+      "args": "OnePoleFilter* filter, float parameter"
+    },
+    {
+      "name": "sound.effect.onepolefilter.setParameterModulator",
+      "result": "void",
+      "args": "OnePoleFilter* filter, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.onepolefilter.getParameterModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "OnePoleFilter* filter"
+    },
+    {
+      "name": "sound.effect.bitcrusher.newBitCrusher",
+      "result": "BitCrusher*",
+      "args": "void"
+    },
+    {
+      "name": "sound.effect.bitcrusher.freeBitCrusher",
+      "result": "void",
+      "args": "BitCrusher* filter"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setAmount",
+      "result": "void",
+      "args": "BitCrusher* filter, float amount"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setAmountModulator",
+      "result": "void",
+      "args": "BitCrusher* filter, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.bitcrusher.getAmountModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "BitCrusher* filter"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setUndersampling",
+      "result": "void",
+      "args": "BitCrusher* filter, float undersampling"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setUndersampleModulator",
+      "result": "void",
+      "args": "BitCrusher* filter, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.bitcrusher.getUndersampleModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "BitCrusher* filter"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setExponential",
+      "result": "void",
+      "args": "BitCrusher* filter, bool flag"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setDepth",
+      "result": "void",
+      "args": "BitCrusher* filter, float amount"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setDepthModulator",
+      "result": "void",
+      "args": "BitCrusher* filter, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.bitcrusher.getDepthModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "BitCrusher* filter"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setDownsampling",
+      "result": "void",
+      "args": "BitCrusher* filter, float undersampling"
+    },
+    {
+      "name": "sound.effect.bitcrusher.setDownsamplingModulator",
+      "result": "void",
+      "args": "BitCrusher* filter, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.bitcrusher.getDownsamplingModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "BitCrusher* filter"
+    },
+    {
+      "name": "sound.effect.ringmodulator.newRingmod",
+      "result": "RingModulator*",
+      "args": "void"
+    },
+    {
+      "name": "sound.effect.ringmodulator.freeRingmod",
+      "result": "void",
+      "args": "RingModulator* filter"
+    },
+    {
+      "name": "sound.effect.ringmodulator.setFrequency",
+      "result": "void",
+      "args": "RingModulator* filter, float frequency"
+    },
+    {
+      "name": "sound.effect.ringmodulator.setFrequencyModulator",
+      "result": "void",
+      "args": "RingModulator* filter, PDSynthSignalValue* signal"
+    },
+    {
+      "name": "sound.effect.ringmodulator.getFrequencyModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "RingModulator* filter"
+    },
+    {
+      "name": "sound.effect.delayline.newDelayLine",
+      "result": "DelayLine*",
+      "args": "int length, int stereo"
+    },
+    {
+      "name": "sound.effect.delayline.freeDelayLine",
+      "result": "void",
+      "args": "DelayLine* filter"
+    },
+    {
+      "name": "sound.effect.delayline.setLength",
+      "result": "void",
+      "args": "DelayLine* d, int frames"
+    },
+    {
+      "name": "sound.effect.delayline.setFeedback",
+      "result": "void",
+      "args": "DelayLine* d, float fb"
+    },
+    {
+      "name": "sound.effect.delayline.addTap",
+      "result": "DelayLineTap*",
+      "args": "DelayLine* d, int delay"
+    },
+    {
+      "name": "sound.effect.delayline.freeTap",
+      "result": "void",
+      "args": "DelayLineTap* tap"
+    },
+    {
+      "name": "sound.effect.delayline.setTapDelay",
+      "result": "void",
+      "args": "DelayLineTap* t, int frames"
+    },
+    {
+      "name": "sound.effect.delayline.setTapDelayModulator",
+      "result": "void",
+      "args": "DelayLineTap* t, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.effect.delayline.getTapDelayModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "DelayLineTap* t"
+    },
+    {
+      "name": "sound.effect.delayline.setTapChannelsFlipped",
+      "result": "void",
+      "args": "DelayLineTap* t, int flip"
+    },
+    {
+      "name": "sound.effect.overdrive.newOverdrive",
+      "result": "Overdrive*",
+      "args": "void"
+    },
+    {
+      "name": "sound.effect.overdrive.freeOverdrive",
+      "result": "void",
+      "args": "Overdrive* filter"
+    },
+    {
+      "name": "sound.effect.overdrive.setGain",
+      "result": "void",
+      "args": "Overdrive* o, float gain"
+    },
+    {
+      "name": "sound.effect.overdrive.setLimit",
+      "result": "void",
+      "args": "Overdrive* o, float limit"
+    },
+    {
+      "name": "sound.effect.overdrive.setLimitModulator",
+      "result": "void",
+      "args": "Overdrive* o, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.effect.overdrive.getLimitModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "Overdrive* o"
+    },
+    {
+      "name": "sound.effect.overdrive.setOffset",
+      "result": "void",
+      "args": "Overdrive* o, float offset"
+    },
+    {
+      "name": "sound.effect.overdrive.setOffsetModulator",
+      "result": "void",
+      "args": "Overdrive* o, PDSynthSignalValue* mod"
+    },
+    {
+      "name": "sound.effect.overdrive.getOffsetModulator",
+      "result": "PDSynthSignalValue*",
+      "args": "Overdrive* o"
+    },
+    {
+      "name": "sound.lfo.newLFO",
+      "result": "PDSynthLFO*",
+      "args": "LFOType type"
+    },
+    {
+      "name": "sound.lfo.freeLFO",
+      "result": "void",
+      "args": "PDSynthLFO* lfo"
+    },
+    {
+      "name": "sound.lfo.setType",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, LFOType type"
+    },
+    {
+      "name": "sound.lfo.setRate",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, float rate"
+    },
+    {
+      "name": "sound.lfo.setPhase",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, float phase"
+    },
+    {
+      "name": "sound.lfo.setCenter",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, float center"
+    },
+    {
+      "name": "sound.lfo.setDepth",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, float depth"
+    },
+    {
+      "name": "sound.lfo.setArpeggiation",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, int nSteps, float* steps"
+    },
+    {
+      "name": "sound.lfo.setFunction",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, float (*lfoFunc)(PDSynthLFO* lfo, void* userdata), void* userdata, int interpolate"
+    },
+    {
+      "name": "sound.lfo.setDelay",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, float holdoff, float ramptime"
+    },
+    {
+      "name": "sound.lfo.setRetrigger",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, int flag"
+    },
+    {
+      "name": "sound.lfo.getValue",
+      "result": "float",
+      "args": "PDSynthLFO* lfo"
+    },
+    {
+      "name": "sound.lfo.setGlobal",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, int global"
+    },
+    {
+      "name": "sound.lfo.setStartPhase",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, float phase"
+    },
+    {
+      "name": "sound.lfo.setRandomSeed",
+      "result": "void",
+      "args": "PDSynthLFO* lfo, uint16_t value"
+    },
+    {
+      "name": "sound.envelope.newEnvelope",
+      "result": "PDSynthEnvelope*",
+      "args": "float attack, float decay, float sustain, float release"
+    },
+    {
+      "name": "sound.envelope.freeEnvelope",
+      "result": "void",
+      "args": "PDSynthEnvelope* env"
+    },
+    {
+      "name": "sound.envelope.setAttack",
+      "result": "void",
+      "args": "PDSynthEnvelope* env, float attack"
+    },
+    {
+      "name": "sound.envelope.setDecay",
+      "result": "void",
+      "args": "PDSynthEnvelope* env, float decay"
+    },
+    {
+      "name": "sound.envelope.setSustain",
+      "result": "void",
+      "args": "PDSynthEnvelope* env, float sustain"
+    },
+    {
+      "name": "sound.envelope.setRelease",
+      "result": "void",
+      "args": "PDSynthEnvelope* env, float release"
+    },
+    {
+      "name": "sound.envelope.setLegato",
+      "result": "void",
+      "args": "PDSynthEnvelope* env, int flag"
+    },
+    {
+      "name": "sound.envelope.setRetrigger",
+      "result": "void",
+      "args": "PDSynthEnvelope* lfo, int flag"
+    },
+    {
+      "name": "sound.envelope.getValue",
+      "result": "float",
+      "args": "PDSynthEnvelope* env"
+    },
+    {
+      "name": "sound.envelope.setCurvature",
+      "result": "void",
+      "args": "PDSynthEnvelope* env, float amount"
+    },
+    {
+      "name": "sound.envelope.setVelocitySensitivity",
+      "result": "void",
+      "args": "PDSynthEnvelope* env, float velsens"
+    },
+    {
+      "name": "sound.envelope.setRateScaling",
+      "result": "void",
+      "args": "PDSynthEnvelope* env, float scaling, MIDINote start, MIDINote end"
+    },
+    {
+      "name": "sound.source.setVolume",
+      "result": "void",
+      "args": "SoundSource* c, float lvol, float rvol"
+    },
+    {
+      "name": "sound.source.getVolume",
+      "result": "void",
+      "args": "SoundSource* c, float* outl, float* outr"
+    },
+    {
+      "name": "sound.source.isPlaying",
+      "result": "int",
+      "args": "SoundSource* c"
+    },
+    {
+      "name": "sound.source.setFinishCallback",
+      "result": "void",
+      "args": "SoundSource* c, sndCallbackProc callback, void* userdata"
+    },
+    {
+      "name": "sound.controlsignal.newSignal",
+      "result": "ControlSignal*",
+      "args": "void"
+    },
+    {
+      "name": "sound.controlsignal.freeSignal",
+      "result": "void",
+      "args": "ControlSignal* signal"
+    },
+    {
+      "name": "sound.controlsignal.clearEvents",
+      "result": "void",
+      "args": "ControlSignal* control"
+    },
+    {
+      "name": "sound.controlsignal.addEvent",
+      "result": "void",
+      "args": "ControlSignal* control, int step, float value, int interpolate"
+    },
+    {
+      "name": "sound.controlsignal.removeEvent",
+      "result": "void",
+      "args": "ControlSignal* control, int step"
+    },
+    {
+      "name": "sound.controlsignal.getMIDIControllerNumber",
+      "result": "int",
+      "args": "ControlSignal* control"
+    },
+    {
+      "name": "sound.track.newTrack",
+      "result": "SequenceTrack*",
+      "args": "void"
+    },
+    {
+      "name": "sound.track.freeTrack",
+      "result": "void",
+      "args": "SequenceTrack* track"
+    },
+    {
+      "name": "sound.track.setInstrument",
+      "result": "void",
+      "args": "SequenceTrack* track, PDSynthInstrument* inst"
+    },
+    {
+      "name": "sound.track.getInstrument",
+      "result": "PDSynthInstrument*",
+      "args": "SequenceTrack* track"
+    },
+    {
+      "name": "sound.track.addNoteEvent",
+      "result": "void",
+      "args": "SequenceTrack* track, uint32_t step, uint32_t len, MIDINote note, float velocity"
+    },
+    {
+      "name": "sound.track.removeNoteEvent",
+      "result": "void",
+      "args": "SequenceTrack* track, uint32_t step, MIDINote note"
+    },
+    {
+      "name": "sound.track.clearNotes",
+      "result": "void",
+      "args": "SequenceTrack* track"
+    },
+    {
+      "name": "sound.track.getControlSignalCount",
+      "result": "int",
+      "args": "SequenceTrack* track"
+    },
+    {
+      "name": "sound.track.getControlSignal",
+      "result": "ControlSignal*",
+      "args": "SequenceTrack* track, int idx"
+    },
+    {
+      "name": "sound.track.clearControlEvents",
+      "result": "void",
+      "args": "SequenceTrack* track"
+    },
+    {
+      "name": "sound.track.getPolyphony",
+      "result": "int",
+      "args": "SequenceTrack* track"
+    },
+    {
+      "name": "sound.track.activeVoiceCount",
+      "result": "int",
+      "args": "SequenceTrack* track"
+    },
+    {
+      "name": "sound.track.setMuted",
+      "result": "void",
+      "args": "SequenceTrack* track, int mute"
+    },
+    {
+      "name": "sound.track.getLength",
+      "result": "uint32_t",
+      "args": "SequenceTrack* track"
+    },
+    {
+      "name": "sound.track.getIndexForStep",
+      "result": "int",
+      "args": "SequenceTrack* track, uint32_t step"
+    },
+    {
+      "name": "sound.track.getNoteAtIndex",
+      "result": "int",
+      "args": "SequenceTrack* track, int index, uint32_t* outStep, uint32_t* outLen, MIDINote* outNote, float* outVelocity"
+    },
+    {
+      "name": "sound.track.getSignalForController",
+      "result": "ControlSignal*",
+      "args": "SequenceTrack* track, int controller, int create"
+    },
+    {
+      "name": "sound.instrument.newInstrument",
+      "result": "PDSynthInstrument*",
+      "args": "void"
+    },
+    {
+      "name": "sound.instrument.freeInstrument",
+      "result": "void",
+      "args": "PDSynthInstrument* inst"
+    },
+    {
+      "name": "sound.instrument.addVoice",
+      "result": "int",
+      "args": "PDSynthInstrument* inst, PDSynth* synth, MIDINote rangeStart, MIDINote rangeEnd, float transpose"
+    },
+    {
+      "name": "sound.instrument.playNote",
+      "result": "PDSynth*",
+      "args": "PDSynthInstrument* inst, float frequency, float vel, float len, uint32_t when"
+    },
+    {
+      "name": "sound.instrument.playMIDINote",
+      "result": "PDSynth*",
+      "args": "PDSynthInstrument* inst, MIDINote note, float vel, float len, uint32_t when"
+    },
+    {
+      "name": "sound.instrument.setPitchBend",
+      "result": "void",
+      "args": "PDSynthInstrument* inst, float bend"
+    },
+    {
+      "name": "sound.instrument.setPitchBendRange",
+      "result": "void",
+      "args": "PDSynthInstrument* inst, float halfSteps"
+    },
+    {
+      "name": "sound.instrument.setTranspose",
+      "result": "void",
+      "args": "PDSynthInstrument* inst, float halfSteps"
+    },
+    {
+      "name": "sound.instrument.noteOff",
+      "result": "void",
+      "args": "PDSynthInstrument* inst, MIDINote note, uint32_t when"
+    },
+    {
+      "name": "sound.instrument.allNotesOff",
+      "result": "void",
+      "args": "PDSynthInstrument* inst, uint32_t when"
+    },
+    {
+      "name": "sound.instrument.setVolume",
+      "result": "void",
+      "args": "PDSynthInstrument* inst, float left, float right"
+    },
+    {
+      "name": "sound.instrument.getVolume",
+      "result": "void",
+      "args": "PDSynthInstrument* inst, float* left, float* right"
+    },
+    {
+      "name": "sound.instrument.activeVoiceCount",
+      "result": "int",
+      "args": "PDSynthInstrument* inst"
+    },
+    {
+      "name": "sound.getCurrentTime",
+      "result": "uint32_t",
+      "args": "void"
+    },
+    {
+      "name": "sound.addSource",
+      "result": "SoundSource*",
+      "args": "AudioSourceFunction* callback, void* context, int stereo"
+    },
+    {
+      "name": "sound.getDefaultChannel",
+      "result": "SoundChannel*",
+      "args": "void"
+    },
+    {
+      "name": "sound.addChannel",
+      "result": "int",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.removeChannel",
+      "result": "int",
+      "args": "SoundChannel* channel"
+    },
+    {
+      "name": "sound.setMicCallback",
+      "result": "int",
+      "args": "RecordCallback* callback, void* context, enum MicSource source"
+    },
+    {
+      "name": "sound.getHeadphoneState",
+      "result": "void",
+      "args": "int* headphone, int* headsetmic, void (*changeCallback)(int headphone, int mic)"
+    },
+    {
+      "name": "sound.setOutputsActive",
+      "result": "void",
+      "args": "int headphone, int speaker"
+    },
+    {
+      "name": "sound.removeSource",
+      "result": "int",
+      "args": "SoundSource* source"
+    },
+    {
+      "name": "sound.signal.newSignal",
+      "result": "PDSynthSignal*",
+      "args": "signalStepFunc step, signalNoteOnFunc noteOn, signalNoteOffFunc noteOff, signalDeallocFunc dealloc, void* userdata"
+    },
+    {
+      "name": "sound.signal.freeSignal",
+      "result": "void",
+      "args": "PDSynthSignal* signal"
+    },
+    {
+      "name": "sound.signal.getValue",
+      "result": "float",
+      "args": "PDSynthSignal* signal"
+    },
+    {
+      "name": "sound.signal.setValueScale",
+      "result": "void",
+      "args": "PDSynthSignal* signal, float scale"
+    },
+    {
+      "name": "sound.signal.setValueOffset",
+      "result": "void",
+      "args": "PDSynthSignal* signal, float offset"
+    },
+    {
+      "name": "sound.signal.newSignalForValue",
+      "result": "PDSynthSignal*",
+      "args": "PDSynthSignalValue* value"
+    },
+    {
+      "name": "sound.getError",
+      "result": "const char*",
+      "args": "void"
+    },
+    {
+      "name": "sound.requestMicAccess",
+      "result": "enum accessReply",
+      "args": "const char* purpose, AccessRequestCallback* requestCallback, void* userdata"
+    },
+    {
+      "name": "lua.addFunction",
+      "result": "int",
+      "args": "lua_CFunction f, const char* name, const char** outErr"
+    },
+    {
+      "name": "lua.registerClass",
+      "result": "int",
+      "args": "const char* name, const lua_reg* reg, const lua_val* vals, int isstatic, const char** outErr"
+    },
+    {
+      "name": "lua.pushFunction",
+      "result": "void",
+      "args": "lua_CFunction f"
+    },
+    {
+      "name": "lua.indexMetatable",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "lua.stop",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "lua.start",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "lua.getArgCount",
+      "result": "int",
+      "args": "void"
+    },
+    {
+      "name": "lua.getArgType",
+      "result": "enum LuaType",
+      "args": "int pos, const char** outClass"
+    },
+    {
+      "name": "lua.argIsNil",
+      "result": "int",
+      "args": "int pos"
+    },
+    {
+      "name": "lua.getArgBool",
+      "result": "int",
+      "args": "int pos"
+    },
+    {
+      "name": "lua.getArgInt",
+      "result": "int",
+      "args": "int pos"
+    },
+    {
+      "name": "lua.getArgFloat",
+      "result": "float",
+      "args": "int pos"
+    },
+    {
+      "name": "lua.getArgString",
+      "result": "const char*",
+      "args": "int pos"
+    },
+    {
+      "name": "lua.getArgBytes",
+      "result": "const char*",
+      "args": "int pos, size_t* outlen"
+    },
+    {
+      "name": "lua.getArgObject",
+      "result": "void*",
+      "args": "int pos, char* type, LuaUDObject** outud"
+    },
+    {
+      "name": "lua.getBitmap",
+      "result": "LCDBitmap*",
+      "args": "int pos"
+    },
+    {
+      "name": "lua.getSprite",
+      "result": "LCDSprite*",
+      "args": "int pos"
+    },
+    {
+      "name": "lua.pushNil",
+      "result": "void",
+      "args": "void"
+    },
+    {
+      "name": "lua.pushBool",
+      "result": "void",
+      "args": "int val"
+    },
+    {
+      "name": "lua.pushInt",
+      "result": "void",
+      "args": "int val"
+    },
+    {
+      "name": "lua.pushFloat",
+      "result": "void",
+      "args": "float val"
+    },
+    {
+      "name": "lua.pushString",
+      "result": "void",
+      "args": "const char* str"
+    },
+    {
+      "name": "lua.pushBytes",
+      "result": "void",
+      "args": "const char* str, size_t len"
+    },
+    {
+      "name": "lua.pushBitmap",
+      "result": "void",
+      "args": "LCDBitmap* bitmap"
+    },
+    {
+      "name": "lua.pushSprite",
+      "result": "void",
+      "args": "LCDSprite* sprite"
+    },
+    {
+      "name": "lua.pushObject",
+      "result": "LuaUDObject*",
+      "args": "void* obj, char* type, int nValues"
+    },
+    {
+      "name": "lua.retainObject",
+      "result": "LuaUDObject*",
+      "args": "LuaUDObject* obj"
+    },
+    {
+      "name": "lua.releaseObject",
+      "result": "void",
+      "args": "LuaUDObject* obj"
+    },
+    {
+      "name": "lua.setUserValue",
+      "result": "void",
+      "args": "LuaUDObject* obj, unsigned int slot"
+    },
+    {
+      "name": "lua.getUserValue",
+      "result": "int",
+      "args": "LuaUDObject* obj, unsigned int slot"
+    },
+    {
+      "name": "lua.callFunction_deprecated",
+      "result": "void",
+      "args": "const char* name, int nargs"
+    },
+    {
+      "name": "lua.callFunction",
+      "result": "int",
+      "args": "const char* name, int nargs, const char** outerr"
+    },
+    {
+      "name": "json.initEncoder",
+      "result": "void",
+      "args": "json_encoder* encoder, json_writeFunc* write, void* userdata, int pretty"
+    },
+    {
+      "name": "json.decode",
+      "result": "int",
+      "args": "struct json_decoder* functions, json_reader reader, json_value* outval"
+    },
+    {
+      "name": "json.decodeString",
+      "result": "int",
+      "args": "struct json_decoder* functions, const char* jsonString, json_value* outval"
+    },
+    {
+      "name": "scoreboards.addScore",
+      "result": "int",
+      "args": "const char *boardId, uint32_t value, AddScoreCallback callback"
+    },
+    {
+      "name": "scoreboards.getPersonalBest",
+      "result": "int",
+      "args": "const char *boardId, PersonalBestCallback callback"
+    },
+    {
+      "name": "scoreboards.freeScore",
+      "result": "void",
+      "args": "PDScore *score"
+    },
+    {
+      "name": "scoreboards.getScoreboards",
+      "result": "int",
+      "args": "BoardsListCallback callback"
+    },
+    {
+      "name": "scoreboards.freeBoardsList",
+      "result": "void",
+      "args": "PDBoardsList *boardsList"
+    },
+    {
+      "name": "scoreboards.getScores",
+      "result": "int",
+      "args": "const char *boardId, ScoresCallback callback"
+    },
+    {
+      "name": "scoreboards.freeScoresList",
+      "result": "void",
+      "args": "PDScoresList *scoresList"
+    },
+    {
+      "name": "network.http.requestAccess",
+      "result": "enum accessReply",
+      "args": "const char* server, int port, bool usessl, const char* purpose, AccessRequestCallback* requestCallback, void* userdata"
+    },
+    {
+      "name": "network.http.newConnection",
+      "result": "HTTPConnection*",
+      "args": "const char* server, int port, bool usessl"
+    },
+    {
+      "name": "network.http.retain",
+      "result": "HTTPConnection*",
+      "args": "HTTPConnection* http"
+    },
+    {
+      "name": "network.http.release",
+      "result": "void",
+      "args": "HTTPConnection* http"
+    },
+    {
+      "name": "network.http.setConnectTimeout",
+      "result": "void",
+      "args": "HTTPConnection* connection, int ms"
+    },
+    {
+      "name": "network.http.setKeepAlive",
+      "result": "void",
+      "args": "HTTPConnection* connection, bool keepalive"
+    },
+    {
+      "name": "network.http.setByteRange",
+      "result": "void",
+      "args": "HTTPConnection* connection, int start, int end"
+    },
+    {
+      "name": "network.http.setUserdata",
+      "result": "void",
+      "args": "HTTPConnection* connection, void* userdata"
+    },
+    {
+      "name": "network.http.getUserdata",
+      "result": "void*",
+      "args": "HTTPConnection* connection"
+    },
+    {
+      "name": "network.http.get",
+      "result": "PDNetErr",
+      "args": "HTTPConnection* conn, const char* path, const char* headers, size_t headerlen"
+    },
+    {
+      "name": "network.http.post",
+      "result": "PDNetErr",
+      "args": "HTTPConnection* conn, const char* path, const char* headers, size_t headerlen, const char* body, size_t bodylen"
+    },
+    {
+      "name": "network.http.query",
+      "result": "PDNetErr",
+      "args": "HTTPConnection* conn, const char* method, const char* path, const char* headers, size_t headerlen, const char* body, size_t bodylen"
+    },
+    {
+      "name": "network.http.getError",
+      "result": "PDNetErr",
+      "args": "HTTPConnection* connection"
+    },
+    {
+      "name": "network.http.getProgress",
+      "result": "void",
+      "args": "HTTPConnection* conn, int* read, int* total"
+    },
+    {
+      "name": "network.http.getResponseStatus",
+      "result": "int",
+      "args": "HTTPConnection* connection"
+    },
+    {
+      "name": "network.http.getBytesAvailable",
+      "result": "size_t",
+      "args": "HTTPConnection* conn"
+    },
+    {
+      "name": "network.http.setReadTimeout",
+      "result": "void",
+      "args": "HTTPConnection* conn, int ms"
+    },
+    {
+      "name": "network.http.setReadBufferSize",
+      "result": "void",
+      "args": "HTTPConnection* conn, int bytes"
+    },
+    {
+      "name": "network.http.read",
+      "result": "int",
+      "args": "HTTPConnection* conn, void* buf, unsigned int buflen"
+    },
+    {
+      "name": "network.http.close",
+      "result": "void",
+      "args": "HTTPConnection* connection"
+    },
+    {
+      "name": "network.http.setHeaderReceivedCallback",
+      "result": "void",
+      "args": "HTTPConnection* connection, HTTPHeaderCallback* headercb"
+    },
+    {
+      "name": "network.http.setHeadersReadCallback",
+      "result": "void",
+      "args": "HTTPConnection* connection, HTTPConnectionCallback* callback"
+    },
+    {
+      "name": "network.http.setResponseCallback",
+      "result": "void",
+      "args": "HTTPConnection* connection, HTTPConnectionCallback* callback"
+    },
+    {
+      "name": "network.http.setRequestCompleteCallback",
+      "result": "void",
+      "args": "HTTPConnection* connection, HTTPConnectionCallback* callback"
+    },
+    {
+      "name": "network.http.setConnectionClosedCallback",
+      "result": "void",
+      "args": "HTTPConnection* connection, HTTPConnectionCallback* callback"
+    },
+    {
+      "name": "network.tcp.requestAccess",
+      "result": "enum accessReply",
+      "args": "const char* server, int port, bool usessl, const char* purpose, AccessRequestCallback* requestCallback, void* userdata"
+    },
+    {
+      "name": "network.tcp.newConnection",
+      "result": "TCPConnection*",
+      "args": "const char* server, int port, bool usessl"
+    },
+    {
+      "name": "network.tcp.retain",
+      "result": "TCPConnection*",
+      "args": "TCPConnection* http"
+    },
+    {
+      "name": "network.tcp.release",
+      "result": "void",
+      "args": "TCPConnection* http"
+    },
+    {
+      "name": "network.tcp.getError",
+      "result": "PDNetErr",
+      "args": "TCPConnection* connection"
+    },
+    {
+      "name": "network.tcp.setConnectTimeout",
+      "result": "void",
+      "args": "TCPConnection* connection, int ms"
+    },
+    {
+      "name": "network.tcp.setUserdata",
+      "result": "void",
+      "args": "TCPConnection* connection, void* userdata"
+    },
+    {
+      "name": "network.tcp.getUserdata",
+      "result": "void*",
+      "args": "TCPConnection* connection"
+    },
+    {
+      "name": "network.tcp.open",
+      "result": "PDNetErr",
+      "args": "TCPConnection* conn, TCPOpenCallback cb, void* ud"
+    },
+    {
+      "name": "network.tcp.close",
+      "result": "PDNetErr",
+      "args": "TCPConnection* conn"
+    },
+    {
+      "name": "network.tcp.setConnectionClosedCallback",
+      "result": "void",
+      "args": "TCPConnection* conn, TCPConnectionCallback* callback"
+    },
+    {
+      "name": "network.tcp.setReadTimeout",
+      "result": "void",
+      "args": "TCPConnection* conn, int ms"
+    },
+    {
+      "name": "network.tcp.setReadBufferSize",
+      "result": "void",
+      "args": "TCPConnection* conn, int bytes"
+    },
+    {
+      "name": "network.tcp.getBytesAvailable",
+      "result": "size_t",
+      "args": "TCPConnection* conn"
+    },
+    {
+      "name": "network.tcp.read",
+      "result": "int",
+      "args": "TCPConnection* conn, void *buffer, size_t length"
+    },
+    {
+      "name": "network.tcp.write",
+      "result": "int",
+      "args": "TCPConnection* conn, const void *buffer, size_t length"
+    },
+    {
+      "name": "network.tcp.getSentBytesPending",
+      "result": "size_t",
+      "args": "TCPConnection* conn"
+    },
+    {
+      "name": "network.getStatus",
+      "result": "WifiStatus",
+      "args": "void"
+    },
+    {
+      "name": "network.setEnabled",
+      "result": "void",
+      "args": "bool flag, void (*callback)(PDNetErr err)"
+    }
+  ]
+}

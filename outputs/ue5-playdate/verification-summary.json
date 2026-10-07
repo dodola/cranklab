@@ -1,0 +1,114 @@
+{
+  "windowsUETextureVerification": "verification-ue.log",
+  "androidNativeExecution": {
+    "device": "CrankLabTest isolated AVD",
+    "abi": "x86_64",
+    "api": 36,
+    "results": "verification-android/results.json",
+    "scope": "Scripted loading, input, file, PCM and HTTP/HTTPS checks; complete gameplay not established"
+  },
+  "audioFixture": {
+    "format": "signed 16-bit stereo, 44100 Hz",
+    "expectedHz": 440,
+    "measuredPositiveCrossingsPerSecond": 440
+  },
+  "ueAndroidBuild": {
+    "platform": "arm64-v8a",
+    "nativeLibraryBundled": true,
+    "httpHelperInDex": true,
+    "apkBytes": 117303104,
+    "scope": "Earlier uncooked assembly; see cookedAndroidPackages for the current packages and execution scope."
+  },
+  "remaining": [
+    "Android SAF picker/callback and physical external keyboards; further manual touch/crank testing handed to the user",
+    "Complete target gameplay and general C extensions",
+    "Long-term memory stability, sustained performance and OS speaker verification"
+  ],
+  "ue3DScene": {
+    "modelNodes": 14,
+    "triangles": 15467,
+    "landscape": "verification-scene/landscape/results.json",
+    "portrait": "verification-scene/portrait/results.json",
+    "scope": "Windows scene rendering and original web material port. Connected ARM64 phone rendering and OS input evidence are recorded separately below.",
+    "renderVerification": "verification-render.json",
+    "errorPanel": "verification-scene/error/results.json"
+  },
+  "repeatedSessions": {
+    "sessions": 8,
+    "platform": "Windows C ABI",
+    "results": "verification-lifecycle/sessions/results.json",
+    "scope": "Bounded initialization and input-reset checks; long-term memory stability unverified"
+  },
+  "cookedAndroidPackages": {
+    "arm64": {
+      "abi": "arm64-v8a",
+      "apk": "android/arm64/CrankLab-arm64.apk",
+      "bytes": 162848962,
+      "sha256": "ea3840464ff2e7cf70edb724f17c1c120a75fc1674db826dd1d970b817bd7868",
+      "embeddedData": 45486556,
+      "elfLoadAlignment": {
+        "libcrank-core.so": 16384,
+        "libUnreal.so": 16384
+      },
+      "importHelperInDex": true,
+      "executionVerified": true,
+      "executionEvidence": [
+        "verification-phone/final-vulkan/results.json",
+        "verification-phone/final-opengl/results.json",
+        "verification-lifecycle/phone-final/results.json",
+        "verification-phone/crank/results.json",
+        "verification-phone/musicbox/results.json",
+        "verification-phone/touch-before/results.json"
+      ],
+      "executionScope": "Connected HONOR PPG-AN00 / Adreno 830 / Android 17. Native-resolution rendering, real Android key/touch dispatch, three Home/foreground cycles and checkpoint recovery. Full gameplay and sustained performance excluded.",
+      "installedApkHashMatched": true
+    },
+    "x64": {
+      "abi": "x86_64",
+      "apk": "android/x64/CrankLab-x64.apk",
+      "bytes": 172396602,
+      "sha256": "fb9bf0bb34f1db6c13d06544f9d9e49f9ec7b66165c829a41d5f9eabf598ec2b",
+      "embeddedData": 45486556,
+      "elfLoadAlignment": {
+        "libcrank-core.so": 16384,
+        "libUnreal.so": 16384
+      },
+      "importHelperInDex": true,
+      "executionVerified": false,
+      "executionScope": "Current HDR/DPI package rebuilt; this exact package has not been executed. Earlier LDR packages have isolated-emulator execution evidence."
+    }
+  },
+  "androidUEScene": {
+    "device": "CrankLabTest API 36.1 x86_64 isolated emulator",
+    "renderer": "SwiftShader Vulkan with AllowSoftwareRendering; emulator profile disables chunked PSO cache",
+    "landscape": "verification-android-scene/landscape/results.json",
+    "portrait": "verification-android-scene/portrait/results.json",
+    "scope": "Historical LDR x86_64 software Vulkan execution. Current HDR package is rebuilt; ARM64 phone execution uses the new path."
+  },
+  "phoneUEScene": {
+    "device": "HONOR PPG-AN00",
+    "gpu": "Adreno 830",
+    "api": 37,
+    "configuration": "Mobile HDR, neutral tone curve, 4x MSAA, native Adreno8xx resolution, Android DPI scaling",
+    "vulkan": "verification-phone/final-vulkan/results.json",
+    "opengl": "verification-phone/final-opengl/results.json",
+    "continuousCrank": "verification-phone/crank/results.json",
+    "multipointerButtons": "verification-phone/touch-before/results.json",
+    "normalMusicBoxStartup": "verification-phone/musicbox/results.json",
+    "reproduction": "verification-phone/black-screen/diagnosis.json",
+    "scope": "Connected HONOR PPG-AN00 / Adreno 830 / Android 17. Native-resolution rendering, real Android key/touch dispatch, three Home/foreground cycles and checkpoint recovery. Full gameplay and sustained performance excluded."
+  },
+  "milestoneAcceptance": {
+    "date": "2026-10-02",
+    "status": "complete",
+    "scope": "Current UE5 Android prototype and verified phone black-screen repair accepted by the user; further automated phone testing stopped.",
+    "manualTestingOwner": "user",
+    "manualTestingScope": "Subsequent touch and direct crank-drag testing; existing compatibility limits remain documented."
+  },
+  "lifecycle": {
+    "windowsCAbi": "verification-lifecycle/windows/results.json",
+    "androidIsolated": "verification-lifecycle/android-isolated/results.json",
+    "phone": "verification-lifecycle/phone-final/results.json",
+    "scope": "Worker and relative clock suspension, PCM pause/resume at C ABI, actual Android lifecycle callbacks and checkpoint recovery; phone touch and Android key dispatch."
+  }
+}

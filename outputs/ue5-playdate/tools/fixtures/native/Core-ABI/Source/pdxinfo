@@ -1,0 +1,5 @@
+name=Native core ABI fixture
+author=CrankLab
+bundleID=com.cranklab.native-abi
+version=1.0
+buildNumber=1

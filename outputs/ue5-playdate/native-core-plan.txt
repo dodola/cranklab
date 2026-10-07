@@ -1,0 +1,16 @@
+CrankLab 内核完善目标（基于 Cranked 架构，2026-10-02）
+
+实现目标
+在现有 Lua / 图形 / 音频 / 输入 / SDK 菜单 / UE5 Android 架构中新增通用 ARM 设备二进制执行能力，以及 Playdate C API 与 C/Lua 互调。保留已验证的 Lua 游戏体验。
+
+必要交付与验证
+1. pdex.bin 头解析、解压、重定位、32 位 guest 内存、Cortex-M7 Thumb / 浮点执行；输入错误文件时不能崩溃。
+2. 从本机 SDK 生成 API 表布局；复用现有功能；尚未实现的调用必须产生具体诊断，不能静默假装支持。
+3. 纯 C 初始化/update、混合游戏 InitLua、Lua 调用 C、C 调用 Lua，以及对象/位图的生命周期。
+4. 原生事件与现有暂停、锁屏、恢复、终止及输入保持一致；停止失控 C 循环不能卡死宿主。
+5. 官方纯 C 示例、独立 ABI/生命周期夹具和 PDGames 原生二维码扩展实际运行。Lua 三游戏、音频、菜单回归。
+6. Windows 和 Android ARM64 内核构建，UE5 接口、导入能力及打包同步，保留二阶段 APK。
+7. 记录已验证 API、未实现边界和复现命令。新版真机触控仍由用户验收。
+
+当前阶段
+本轮原生内核基础升级已完成。Windows／Android 内核、UE5 集成、APK 构建及必要的内核验证通过；安装包与完整边界记录在 native-core-handoff.txt 和 verification-native-core/delivery.json。软件模拟器 HDR 颜色验收未通过，作为独立渲染问题保留；新版真机验收由用户负责。

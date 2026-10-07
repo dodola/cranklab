@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cranklab.probe">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <application android:debuggable="true" android:label="Crank native verification" android:extractNativeLibs="true" android:usesCleartextTraffic="true"/>
+    <instrumentation android:name="com.cranklab.probe.Probe" android:targetPackage="com.cranklab.probe"/>
+</manifest>

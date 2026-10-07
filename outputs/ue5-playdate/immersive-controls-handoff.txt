@@ -1,0 +1,15 @@
+CrankLab - immersive controls fix (2026-10-08)
+
+APK: C:\Users\dodol\Documents\Codex\2026-10-01\https-play-date-https-play-date\outputs\ue5-playdate\android\immersive-controls-arm64\CrankLab-arm64.apk
+SHA256: c1324b3f5078d5b6911ec4ef5b53fd2a051054a1e18c62a374e177b98e3ccb2b
+
+Compact portrait toolbar icons now have centered, fixed-size geometry.
+Portrait immersive crank: 128-180 units, with matching drag area (previously 88-112).
+Landscape: adaptive dial up to 160 units, respecting short-screen height.
+
+Verified: Windows/Android ARM64 compilation, Android packaging, four UE automation tests, native rendered portrait/narrow/short-landscape input probes, settings and 3D sibling captures, strict UI audit, DESIGN lint.
+APK native loadable code matches this build; all native libraries are 16 KB aligned.
+Bundled game/resource contents match the previous immersive APK.
+No device installation or phone touch injection performed. User owns touch acceptance.
+
+Evidence: C:\Users\dodol\Documents\Codex\2026-10-01\https-play-date-https-play-date\outputs\ue5-playdate\verification-immersive-controls\delivery.json

@@ -1,0 +1,42 @@
+# Local builds, downloads, probes and model weights
+/work/
+/outputs/pdgamez-downloads/
+/outputs/ue5-playdate/bin/
+/outputs/ue5-playdate/android/
+/outputs/ue5-playdate/verification*/
+/outputs/ue5-playdate/verification-*.log
+/outputs/ue5-playdate/translation/deps/
+
+# Unreal regenerates these from source
+**/Unreal/Binaries/
+**/Unreal/Intermediate/
+**/Unreal/Saved/
+**/Unreal/DerivedDataCache/
+**/Unreal/Plugins/*/Binaries/
+**/Unreal/Plugins/*/Intermediate/
+*.sln
+.vs/
+.idea/
+
+# Tool caches and local game saves
+node_modules/
+__pycache__/
+*.pyc
+*.log
+user-data/
+*.gguf
+*.apk
+*.aab
+*.obb
+
+# Local credentials and machine-specific Android settings
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+*.key
+local.properties

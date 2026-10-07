@@ -1,0 +1,16 @@
+* text=auto
+*.diff text eol=lf
+*.patch text eol=lf
+*.sh text eol=lf
+*.uasset -text
+*.umap -text
+*.bin -text
+*.glb -text
+*.pdz -text
+*.pdi -text
+*.pdt -text
+*.pds -text
+*.pft -text
+*.fnt -text
+*.dll -text
+*.lib -text

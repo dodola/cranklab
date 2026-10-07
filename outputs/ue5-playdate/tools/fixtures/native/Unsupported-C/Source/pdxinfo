@@ -1,0 +1,5 @@
+name=Unsupported native API diagnostic
+author=CrankLab
+description=Verifies an explicit API diagnostic instead of silent emulation.
+bundleID=com.cranklab.unsupported-native
+version=1.0

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "sha256": "9575801a2fd660820289fb1f2315c64bf34670d96a50b6af659f16d38bab6783",
+  "files": [
+    "main.lua",
+    "pdxinfo",
+    "tone.wav"
+  ]
+}

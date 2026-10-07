@@ -1,0 +1,61 @@
+CrankLab 默认 PDGames 启动器交付 — 2026-10-07
+
+启动 CrankLab 后自动运行内置 PDGames 1.0.0（build 18）。
+游戏详情底部增加下载／运行操作条：
+  A 或单击操作条：下载并安装后运行；已安装时直接运行。
+  下载中再次激活：取消下载。失败后：Retry download。
+  Left / Up：回到原详情操作；Right：选择下载／运行操作。
+  原有截图全屏、二维码、搜索和账号页面保留。
+  游戏 Menu → 返回 PDGames：终止并保存当前游戏，恢复上次详情页。
+  PDGames Menu → 本地游戏库：打开已有的游戏库与导入功能。
+  双击显示屏仍切换掌机放大视图；不改为独立 2D 显示屏。
+
+下载行为
+  从发布者当前公开的 itch.io 下载按钮获取临时链接，不保存签名 CDN 地址。
+  预置来源索引包含 2220 个数据库 ID，其中 1315 条公开包方案；实际可用性会再次校验。
+  不在 APK 中打包 D:/PlaydateGames 的游戏集合。
+  试玩版单独标记，安装索引保留其类型。
+  没有公开、可识别 ZIP 的页面提供发布者入口与手动导入路径。
+  ZIP 下载／展开上限各为 512 MB，最多 20000 条目、32 层目录。
+  验证路径、CRC、单一 PDX、Lua 入口或有效 ARM pdex.bin，之后原子安装。
+  相同包复用安装目录；每个 bundleID 的存档目录保持独立。
+  取消停止接收及解压，清理临时文件；启动时回收上次进程中断的下载文件。
+  离开详情或打开面板后完成的下载只加入本地库，不强制切换游戏。
+  已安装游戏运行不需要再次查询下载服务。
+
+实现边界
+  用户提供的 Downloads/pdgames.pdx 未修改。内置副本保留原 main.pdz、ARM QR 扩展及资源。
+  宿主主动启动内置 PDGames 时才注入适配器；普通游戏没有启动器桥接。
+  会话令牌和任务版本拒绝过期请求，后台线程不直接操作 Lua 或切换 UE 游戏对象。
+  适配器固定支持 build 18；更新 PDGames 时需重新验证详情函数和输入行为。
+  对话中原来的 Lua-only 说明已与现有 ARM 内核能力及默认启动器行为对齐。
+  下载并安装成功不代表所有游戏达到完整兼容；SDK C/Lua API 仍有未实现部分。
+  本次补齐了下载样例需要的 Lua 时间转换 API，并纠正为 SDK 的 2000 年 UTC epoch。
+
+已验证
+  verification-launcher/bridge-final：真实 PDGames 操作条、截图、恢复详情、会话隔离。
+  verification-launcher/ue-flow：实际 UE 场景中首次下载 Dino-Run → 安装 → 运行 → 返回详情。
+  verification-launcher/live-resolution-results.json：不依赖预置来源索引，实时解析下载成功。
+  verification-launcher/archive-results.json：15 项安装与异常包检查全部通过。
+  verification-launcher/cancel-results-final.json：传输开始后取消，无发布游戏，无遗留下载文件。
+  verification-launcher/epoch：UTC epoch、闰日与本地／GMT 日期转换通过。
+  verification-launcher/baselines：music_box、PoohMiniMahjong、PDGames 各运行 180 帧通过。
+  verification-launcher/premium-audit.json：严格 UI 契约审查无问题。
+  verification-launcher/design-lint.log：设计上下文校验无错误、无警告。
+  Win64、Android ARM64 内核和 UE 工程编译通过。
+
+Android 交付文件与校验值见 verification-launcher/delivery.json。
+新版 APK 未安装到连接的手机；手机触控、陀螺仪、震动和网络验收仍由用户完成。
+保留此前 native-core-arm64 和 phase-two-arm64 等交付包。
+
+关键源文件
+  runtime/launcher/pdgames.lua
+  runtime/src/pd_host.c
+  Unreal/Plugins/CrankRuntime/Source/CrankRuntime/Private/CrankLauncher.cpp
+  Unreal/Plugins/CrankRuntime/Source/CrankRuntime/Private/CrankArchive.cpp
+  Unreal/Source/CrankLab/CrankDevicePawn.cpp
+
+设计对齐说明
+  原 3D 材质、相机、黄色掌机与石墨 HUD 保持既有设计。
+  原契约中“仅 Lua、普通启动进入 Home”已过时，按已验证内核与用户本次选择更新。
+  详情操作条属于原 PDGames 像素内容，宿主状态与恢复复用现有 Slate 样式和动作组件。

@@ -1,0 +1,498 @@
+{
+  "version": 1,
+  "source": "play.date intro-canvas asheville",
+  "unitScale": 8.0,
+  "nodes": [
+    {
+      "name": "device",
+      "parent": -1,
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sections": []
+    },
+    {
+      "name": "asheville-wip-v4",
+      "parent": 0,
+      "position": [
+        -0.4,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.7071068233333899,
+        0.0,
+        0.7071067390397027
+      ],
+      "scale": [
+        1.000000120000007,
+        1.0,
+        1.000000120000007
+      ],
+      "sections": []
+    },
+    {
+      "name": "crank",
+      "parent": 1,
+      "position": [
+        0.0,
+        -0.2479999808,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sections": []
+    },
+    {
+      "name": "axle",
+      "parent": 2,
+      "position": [
+        0.032,
+        -2.970624,
+        0.35512
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sections": [
+        {
+          "offset": 0,
+          "vertices": 500,
+          "indices": 1428,
+          "material": "asheville_crank"
+        }
+      ]
+    },
+    {
+      "name": "arm_pivot",
+      "parent": 3,
+      "position": [
+        -3.05175796e-08,
+        -0.069376,
+        0.01282801944
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sections": []
+    },
+    {
+      "name": "arm",
+      "parent": 4,
+      "position": [
+        -0.031999968,
+        3.04,
+        -0.3679480256
+      ],
+      "rotation": [
+        6.9388939e-18,
+        -1.20370625e-35,
+        -1.7347235e-18,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sections": [
+        {
+          "offset": 21712,
+          "vertices": 1212,
+          "indices": 4152,
+          "material": "asheville_crank"
+        }
+      ]
+    },
+    {
+      "name": "handle_pivot",
+      "parent": 5,
+      "position": [
+        1.672,
+        -3.056,
+        0.355999976
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        8.6736174e-19,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sections": []
+    },
+    {
+      "name": "handle_and_screw",
+      "parent": 6,
+      "position": [
+        -1.672,
+        3.056,
+        -0.355999976
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sections": [
+        {
+          "offset": 77104,
+          "vertices": 576,
+          "indices": 2004,
+          "material": "asheville_crank"
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "parent": 1,
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "sections": [
+        {
+          "offset": 103552,
+          "vertices": 2092,
+          "indices": 5796,
+          "material": "asheville_bolts"
+        },
+        {
+          "offset": 193680,
+          "vertices": 25,
+          "indices": 96,
+          "material": "asheville_screen"
+        },
+        {
+          "offset": 194864,
+          "vertices": 2673,
+          "indices": 7329,
+          "material": "asheville_backplate"
+        },
+        {
+          "offset": 309716,
+          "vertices": 918,
+          "indices": 2508,
+          "material": "asheville_cavities"
+        },
+        {
+          "offset": 349124,
+          "vertices": 184,
+          "indices": 516,
+          "material": "asheville_screen_border"
+        },
+        {
+          "offset": 357076,
+          "vertices": 3098,
+          "indices": 9936,
+          "material": "asheville_base"
+        }
+      ]
+    },
+    {
+      "name": "menu",
+      "parent": 8,
+      "position": [
+        -2.1532340049743652,
+        -2.680335521697998,
+        0.7239999771118164
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "sections": [
+        {
+          "offset": 495956,
+          "vertices": 222,
+          "indices": 888,
+          "material": "asheville_buttons"
+        }
+      ]
+    },
+    {
+      "name": "A",
+      "parent": 8,
+      "position": [
+        1.3113899230957031,
+        -1.7992072105407715,
+        0.6870700716972351
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "sections": [
+        {
+          "offset": 506612,
+          "vertices": 497,
+          "indices": 2520,
+          "material": "asheville_buttons"
+        }
+      ]
+    },
+    {
+      "name": "B",
+      "parent": 8,
+      "position": [
+        1.3113899230957031,
+        -0.6008073687553406,
+        0.6870700716972351
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "sections": [
+        {
+          "offset": 532596,
+          "vertices": 497,
+          "indices": 2520,
+          "material": "asheville_buttons"
+        }
+      ]
+    },
+    {
+      "name": "sleep",
+      "parent": 8,
+      "position": [
+        -3.0519700050354004,
+        -1.7994378805160522,
+        0.355943500995636
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "sections": [
+        {
+          "offset": 558580,
+          "vertices": 304,
+          "indices": 852,
+          "material": "asheville_buttons"
+        }
+      ]
+    },
+    {
+      "name": "dpad",
+      "parent": 8,
+      "position": [
+        1.7122722864151,
+        1.59979248046875,
+        0.718284010887146
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "sections": [
+        {
+          "offset": 571716,
+          "vertices": 1229,
+          "indices": 5856,
+          "material": "asheville_dpad"
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "asheville_base",
+      "color": 16777215,
+      "roughness": 0.0,
+      "metallic": 1,
+      "map": "base_AlbedoTransparency.jpg",
+      "packedPBRMap": "base_MetallicSmoothness_AO.jpg"
+    },
+    {
+      "name": "asheville_cavities",
+      "color": 16777215,
+      "roughness": 0.0,
+      "metallic": 1,
+      "map": "cavities_AlbedoTransparency.jpg",
+      "packedPBRMap": "cavities_MetallicSmoothness_AO.jpg"
+    },
+    {
+      "name": "asheville_screen",
+      "color": 12042167,
+      "roughness": 0.020000000000000018,
+      "metallic": 0.0,
+      "map": "hello.jpg"
+    },
+    {
+      "name": "asheville_dpad",
+      "color": 16754688,
+      "roughness": 0.04500000000000004,
+      "metallic": 0.0,
+      "aoMap": "dpad_AO.jpg"
+    },
+    {
+      "name": "asheville_backplate",
+      "color": 16777215,
+      "roughness": 0.0,
+      "metallic": 1,
+      "map": "backplate_AlbedoTransparency.jpg",
+      "normalMap": "backplate_Normal.png",
+      "packedPBRMap": "backplate_MetallicSmoothness_AO.jpg"
+    },
+    {
+      "name": "asheville_screen_border",
+      "color": 16777215,
+      "roughness": 0.0,
+      "metallic": 1,
+      "map": "screen_border_AlbedoTransparency.jpg",
+      "metalGlossMap": "screen_border_MetallicSmoothness.jpg"
+    },
+    {
+      "name": "asheville_crank",
+      "color": 16777215,
+      "roughness": 0.0,
+      "metallic": 1,
+      "map": "crank_AlbedoTransparency.jpg",
+      "normalMap": "crank_Normal.png",
+      "packedPBRMap": "crank_MetallicSmoothness_AO.jpg"
+    },
+    {
+      "name": "asheville_buttons",
+      "color": 16777215,
+      "roughness": 0.0,
+      "metallic": 1,
+      "map": "buttons_AlbedoTransparency.jpg",
+      "packedPBRMap": "buttons_MetallicSmoothness_AO.jpg"
+    },
+    {
+      "name": "asheville_bolts",
+      "color": 16777215,
+      "roughness": 0.0,
+      "metallic": 1,
+      "map": "bolts_AlbedoTransparency.jpg",
+      "packedPBRMap": "bolts_MetallicSmoothness_AO.jpg"
+    }
+  ],
+  "bytes": 634468,
+  "environmentSH": [
+    2.70917,
+    2.70917,
+    2.70917,
+    -0.648029,
+    -0.648029,
+    -0.648029,
+    -0.861624,
+    -0.861624,
+    -0.861624,
+    0.623458,
+    0.623458,
+    0.623458,
+    -0.294499,
+    -0.294499,
+    -0.294499,
+    0.243808,
+    0.243808,
+    0.243808,
+    -0.0422171,
+    -0.0422171,
+    -0.0422171,
+    -0.10246,
+    -0.10246,
+    -0.10246,
+    0.000123832,
+    0.000123832,
+    0.000123832
+  ]
+}
