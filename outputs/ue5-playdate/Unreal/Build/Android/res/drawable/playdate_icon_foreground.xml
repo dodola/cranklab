@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Keep the device and side crank inside Android's adaptive-icon safe circle. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="12%">
+    <bitmap android:src="@drawable/playdate_mark"
+        android:gravity="fill" android:filter="true"/>
+</inset>

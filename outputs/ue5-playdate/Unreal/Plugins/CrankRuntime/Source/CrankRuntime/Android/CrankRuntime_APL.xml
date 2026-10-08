@@ -6,6 +6,7 @@
         <addAttribute tag="application" name="android:usesCleartextTraffic" value="true"/>
         <!-- ggml's CPU dispatch opens backends from nativeLibraryDir. -->
         <addAttribute tag="application" name="android:extractNativeLibs" value="true"/>
+        <addAttribute tag="application" name="android:roundIcon" value="@drawable/icon"/>
     </androidManifestUpdates>
     <proguardAdditions>
         <insert>-keep class com.cranklab.CrankHttp { *; }</insert>

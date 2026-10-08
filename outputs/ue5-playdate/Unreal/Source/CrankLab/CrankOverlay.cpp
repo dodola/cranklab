@@ -184,7 +184,7 @@ void SCrankOverlay::Construct(const FArguments& Args) {
       [SNew(SBox).MaxDesiredWidth(140).Visibility_Lambda([this]{return GetCachedGeometry().GetLocalSize().X<650 ? EVisibility::Collapsed : EVisibility::HitTestInvisible;})
        [SNew(SVerticalBox)
         +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,4)
-        [SNew(STextBlock).Text(FText::FromString(TEXT("CRANKLAB"))).Font(CrankTheme::Label()).ColorAndOpacity(CrankTheme::Ink())]
+        [SNew(STextBlock).Text(FText::FromString(TEXT("Playdate"))).Font(CrankTheme::Label()).ColorAndOpacity(CrankTheme::Ink())]
         +SVerticalBox::Slot().AutoHeight()
         [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(Device.IsValid() ? Device->GetGameTitle() : FString());})
          .Font(CrankTheme::Utility()).ColorAndOpacity(CrankTheme::Ink()).AutoWrapText(true)]]]

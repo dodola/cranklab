@@ -95,6 +95,14 @@ components:
 
 ## Overview
 
+The Android application name is **Playdate**. Its launcher icon is a miniature
+yellow handheld with a silver side crank and a friendly pixel screen. Startup
+uses a matching ivory Playdate lockup centered on graphite `#252C2C`; the
+horizontal and vertical layouts preserve the artwork's aspect ratio. Android
+system launch windows use the same icon/background. Branding masters and exact
+image_gen prompts live in `Build/Branding`; exported Android resources live in
+`Build/Android/res`. The internal CrankLab project name remains a build detail.
+
 The user's original brief keeps only the Playdate model, makes it larger, and
 allows pressing the buttons and continuously turning the crank. The signature
 is that physical yellow device playing a real game. It must not become a

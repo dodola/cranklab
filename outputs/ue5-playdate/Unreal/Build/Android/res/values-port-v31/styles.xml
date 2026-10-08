@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="UnrealSplashTheme" parent="UnrealBaseTheme">
+        <item name="android:windowBackground">@drawable/splashscreen_p</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowSplashScreenBackground">@color/playdate_graphite</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/icon</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/playdate_graphite</item>
+    </style>
+</resources>

@@ -1,6 +1,10 @@
-# CrankLab
+# Playdate（CrankLab）
 
 基于 Unreal Engine 5 的 Android Playdate 兼容模拟器原型，以及最初的网页版 3D 掌机参考项目。
+
+Android 应用名称为 **Playdate**，使用黄色掌机图标和配套启动画面。
+图标／启动页原始素材及生成提示位于 `outputs/ue5-playdate/Unreal/Build/Branding/`。
+内部 UE 项目仍为 CrankLab，包名保留 `com.cranklab.emulator`，便于覆盖安装与保留数据。
 
 目前支持 Lua 与未加密 `pdex.bin` ARM 游戏代码、掌机 3D 视角、沉浸式游戏屏幕、触控按键和摇柄、屏幕滑动模拟摇柄、运动跟随与震动设置。PDGames 是默认启动器，游戏详情内提供下载／运行和中文／原文切换。
 

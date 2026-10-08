@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/playdate_graphite"/>
+    <item android:width="240dp" android:height="240dp" android:gravity="center">
+        <bitmap android:src="@drawable/playdate_launch"
+            android:gravity="fill" android:filter="true"/>
+    </item>
+</layer-list>

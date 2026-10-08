@@ -19,7 +19,7 @@ int32 SCrankSystemScreen::OnPaint(const FPaintArgs& Args,const FGeometry& G,cons
     Rect({0,0},{400,240},false);
     const auto Mode=Device->GetSystemMode();
     if(Mode==ECrankSystemMode::Boot || Mode==ECrankSystemMode::Loading) {
-        Text(TEXT("CRANKLAB"),{102,72},28,true,true);
+        Text(TEXT("Playdate"),{136,72},28,true,true);
         Text(Mode==ECrankSystemMode::Boot ? TEXT("正在启动掌机") : TEXT("正在载入游戏"),{130,116},16);
         if(Mode==ECrankSystemMode::Loading) Text(Device->GetGameTitle().Left(24),{24,163},14);
         for(int I=0;I<5;I++) Rect({float(163+I*16),144},{8,8},I<=int(FPlatformTime::Seconds()*5)%5);
