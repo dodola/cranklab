@@ -61,6 +61,6 @@ npm start
 
 已验证本地真实翻译、缓存隔离与离线恢复、模型下载校验／取消、PDGames 中文／原文切换及 Android 原生库打包。STQ 的旧类型编号通过针对已校验文件的读取适配处理；详见 `outputs/ue5-playdate/translation/STQ-NOTES.md`。
 
-1.25Bit 的个别译法弱于 Q4。Windows 通用 STQ 路径较慢，Android 使用专门的 ARM 内核；真机翻译速度、内存和持续运行表现尚未测量。后续手机触控验收由用户进行。
+1.25Bit 的个别译法弱于 Q4。Windows 通用 STQ 路径较慢，Android 使用专门的 ARM 内核。已完成 Pixel 4 原生 CPU 测量与 LiteRT-LM CPU／GPU 探索实验；Qwen3-0.6B 的候选量化文件仍有漏译和操作说明错误，因此正式 App 继续使用 HY-MT2 CPU 后端，尚未启用 GPU／NPU 推理。实验配置与复现方法见 [LiteRT 翻译实验](outputs/ue5-playdate/translation/LITERT-EXPERIMENT.md)。后续手机触控验收由用户进行。
 
 构建产物、模型文件、私人游戏存档、编译缓存和测试工作目录不纳入 Git。开发交付与历史验证说明保留在源码目录中。

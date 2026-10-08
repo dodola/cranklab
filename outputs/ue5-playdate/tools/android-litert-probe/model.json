@@ -1,0 +1,9 @@
+{
+  "filename": "Qwen3-0.6B_dynamic_wi4b32_afp32.litertlm",
+  "url": "https://modelscope.cn/models/litert-community/Qwen3-0.6B/resolve/abe4e1a3db96a077121191a53e473d5581601969/Qwen3-0.6B_dynamic_wi4b32_afp32.litertlm",
+  "sha256": "03e7da1eb1108b50dffaa9bb52cc7bcbad2eb0c66ca990267f480c1e545d2856",
+  "bytes": 344671744,
+  "upstream": "https://huggingface.co/litert-community/Qwen3-0.6B/tree/a3c5d805ae362dff7f580bc25f2dfb9a5a7eaa76",
+  "contextTokens": 4096,
+  "quantization": "dynamic INT4, block 32, FP32 activations"
+}

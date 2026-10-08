@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cranklab.litertprobe">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="33"/>
+    <application android:debuggable="true" android:label="Playdate LiteRT experiment" android:extractNativeLibs="true">
+        <uses-native-library android:name="libvndksupport.so" android:required="false"/>
+        <uses-native-library android:name="libOpenCL.so" android:required="false"/>
+        <uses-native-library android:name="libOpenCL-pixel.so" android:required="false"/>
+        <activity android:name="com.cranklab.litertprobe.ProbeActivity" android:exported="true"/>
+    </application>
+    <instrumentation android:name="com.cranklab.litertprobe.LiteRtProbe" android:targetPackage="com.cranklab.litertprobe"/>
+</manifest>

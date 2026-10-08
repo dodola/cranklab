@@ -1,0 +1,9 @@
+{
+  "filename": "qwen3_0_6b_mixed_int4.litertlm",
+  "url": "https://modelscope.cn/models/litert-community/Qwen3-0.6B/resolve/abe4e1a3db96a077121191a53e473d5581601969/qwen3_0_6b_mixed_int4.litertlm",
+  "sha256": "7900eb4e7362d88c58782c6f9999bb7a129e03544aa98b8f338ea0cc5d8c22c1",
+  "bytes": 497516544,
+  "upstream": "https://huggingface.co/litert-community/Qwen3-0.6B/tree/a3c5d805ae362dff7f580bc25f2dfb9a5a7eaa76",
+  "contextTokens": 2048,
+  "quantization": "TorchAO mixed INT4, INT8 embeddings, floating KV"
+}

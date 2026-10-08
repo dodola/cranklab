@@ -27,15 +27,29 @@ static bool utf8(const std::string& text) {
     }
     return true;
 }
+static std::string jsonString(const char* value) {
+    std::string out="\"";
+    for(const auto* p=reinterpret_cast<const unsigned char*>(value);*p;++p) {
+        if(*p=='"' || *p=='\\') {out+='\\';out+=static_cast<char>(*p);}
+        else if(*p<0x20) {char escape[7];std::snprintf(escape,sizeof(escape),"\\u%04x",*p);out+=escape;}
+        else out+=static_cast<char>(*p);
+    }
+    return out+'"';
+}
+static jbyteArray bytes(JNIEnv* env,const std::string& value) {
+    auto out=env->NewByteArray(static_cast<jsize>(value.size()));
+    if(out)env->SetByteArrayRegion(out,0,static_cast<jsize>(value.size()),reinterpret_cast<const jbyte*>(value.data()));
+    return out;
+}
 struct Control {Clock::time_point begin;double first=-1;int updates=0;bool valid=true;std::string partial;};
 static int cancel(void* pointer){return seconds(static_cast<Control*>(pointer)->begin)>300?1:0;}
 static void progress(void*,int part,int total){__android_log_print(ANDROID_LOG_INFO,"PlaydatePerf","Part %d/%d",part,total);}
 static void stream(void* pointer,const char* value){auto& c=*static_cast<Control*>(pointer);if(c.first<0)c.first=seconds(c.begin);++c.updates;c.partial=value;c.valid&=utf8(c.partial);}
-extern "C" JNIEXPORT jstring JNICALL Java_com_cranklab_SpeedProbe_runNative(JNIEnv* env,jclass,jstring modelValue,jstring backendValue,jstring bridgeValue,jbyteArray input,jint repeats) {
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_cranklab_SpeedProbe_runNative(JNIEnv* env,jclass,jstring modelValue,jstring backendValue,jstring bridgeValue,jbyteArray input,jint repeats) {
     auto model=text(env,modelValue),backend=text(env,backendValue),bridge=text(env,bridgeValue);
     std::string source(env->GetArrayLength(input),'\0');env->GetByteArrayRegion(input,0,static_cast<jsize>(source.size()),reinterpret_cast<jbyte*>(source.data()));
     void* library=dlopen(bridge.c_str(),RTLD_NOW|RTLD_LOCAL);
-    if(!library)return env->NewStringUTF("[]");
+    if(!library)return bytes(env,"[]");
     auto run=reinterpret_cast<Run>(dlsym(library,"crank_translate"));
     auto live=reinterpret_cast<Live>(dlsym(library,"crank_translate_stream"));
     auto stats=reinterpret_cast<int(*)(char*,int)>(dlsym(library,"crank_translation_stats"));
@@ -47,8 +61,10 @@ extern "C" JNIEXPORT jstring JNICALL Java_com_cranklab_SpeedProbe_runNative(JNIE
             :run(model.c_str(),backend.c_str(),source.c_str(),output.data(),output.size(),error,sizeof(error),cancel,progress,&c);
         double total=seconds(c.begin);if(!stats || stats(metrics,sizeof(metrics))!=0)std::strcpy(metrics,"{}");
         bool valid=c.valid && utf8(output.data());bool match=live && c.partial==output.data();
-        char record[4096];std::snprintf(record,sizeof(record),"%s{\"run\":%d,\"code\":%d,\"seconds\":%.3f,\"firstStreamSeconds\":%.3f,\"streamUpdates\":%d,\"streamAvailable\":%s,\"streamMatchesOutput\":%s,\"utf8Valid\":%s,\"inputBytes\":%zu,\"outputBytes\":%zu,\"error\":\"%s\",\"metrics\":%s}",i?",":"",i,code,total,c.first,c.updates,live?"true":"false",match?"true":"false",valid?"true":"false",source.size(),std::strlen(output.data()),error,metrics);
-        report+=record;__android_log_print(ANDROID_LOG_INFO,"PlaydatePerf","Run %d: %.3f seconds, code %d",i,total,code);if(code!=0)break;
+        char record[4096];std::snprintf(record,sizeof(record),"%s{\"run\":%d,\"code\":%d,\"seconds\":%.3f,\"firstStreamSeconds\":%.3f,\"streamUpdates\":%d,\"streamAvailable\":%s,\"streamMatchesOutput\":%s,\"utf8Valid\":%s,\"inputBytes\":%zu,\"outputBytes\":%zu,\"error\":%s,\"metrics\":%s}",i?",":"",i,code,total,c.first,c.updates,live?"true":"false",match?"true":"false",valid?"true":"false",source.size(),std::strlen(output.data()),jsonString(error).c_str(),metrics);
+        std::string metric(record);metric.pop_back();
+        report+=metric+",\"output\":"+jsonString(output.data())+"}";
+        __android_log_print(ANDROID_LOG_INFO,"PlaydatePerf","Run %d: %.3f seconds, code %d",i,total,code);if(code!=0)break;
     }
-    if(release)release();dlclose(library);report+="]";return env->NewStringUTF(report.c_str());
+    if(release)release();dlclose(library);report+="]";return bytes(env,report);
 }

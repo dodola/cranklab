@@ -7,11 +7,12 @@ param(
     [string]$SdkDirectory='C:/Users/dodol/AppData/Local/Android/Sdk',
     [string]$JdkDirectory='C:/Program Files/Java/jdk-21',
     [string]$SigningKeystore='C:/Users/dodol/.android/debug.keystore',
-    [string]$VariantDirectory
+    [string]$VariantDirectory,
+    [string]$BuildDirectory
 )
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path -Parent $PSScriptRoot
-$buildRoot=[IO.Path]::GetFullPath((Join-Path $projectRoot '../../work/android-translation-performance'))
+$buildRoot=if($BuildDirectory){[IO.Path]::GetFullPath($BuildDirectory)}else{[IO.Path]::GetFullPath((Join-Path $projectRoot '../../work/android-translation-performance'))}
 $source=Join-Path $PSScriptRoot 'android-translation-speed'
 $classes=Join-Path $buildRoot 'classes';$dex=Join-Path $buildRoot 'dex'
 New-Item -ItemType Directory -Force -Path $buildRoot,$classes,$dex | Out-Null
