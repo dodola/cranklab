@@ -1,6 +1,7 @@
 #include "CrankTranslationVerifyCommandlet.h"
 #include "CrankTranslation.h"
 #include "CrankLauncher.h"
+#include "CrankGameFiles.h"
 #include "HttpModule.h"
 #include "HttpManager.h"
 #include "HAL/PlatformProcess.h"
@@ -11,7 +12,8 @@ UCrankTranslationVerifyCommandlet::UCrankTranslationVerifyCommandlet(){IsClient=
 int32 UCrankTranslationVerifyCommandlet::Main(const FString& Params) {
     // The launcher also supplies the established Windows system-proxy setup.
     auto Launcher=MakeShared<FCrankLauncher>();auto Service=MakeShared<FCrankTranslation>();
-    auto Pump=[&]{FHttpModule::Get().GetHttpManager().Tick(.02f);Service->Tick();FPlatformProcess::Sleep(.02f);};
+    bool SawStream=false;
+    auto Pump=[&]{FHttpModule::Get().GetHttpManager().Tick(.02f);Service->Tick();SawStream|=Service->GetState()==TEXT("translating") && !Service->GetTranslated().IsEmpty();FPlatformProcess::Sleep(.02f);};
     auto Wait=[&](TFunction<bool()> Pending,double Seconds){double Deadline=FPlatformTime::Seconds()+Seconds;while(Pending() && FPlatformTime::Seconds()<Deadline)Pump();return !Pending();};
     auto Result=MakeShared<FJsonObject>();bool Passed=true;
     Result->SetStringField(TEXT("modelProfile"),Service->IsLightModel()?TEXT("stq1"):TEXT("q4"));
@@ -36,13 +38,22 @@ int32 UCrankTranslationVerifyCommandlet::Main(const FString& Params) {
         Passed=!Service->HasModel() && !Service->IsModelBusy();Result->SetBoolField(TEXT("modelCancelPassed"),Passed);
         Result->SetBoolField(TEXT("bytesReceivedBeforeCancel"),Received);Passed&=Received;
     }
-    if(!FParse::Param(*Params,TEXT("ModelOnly")) && !FParse::Param(*Params,TEXT("ProfilesOnly"))) {
+    if(FParse::Param(*Params,TEXT("CancelStream"))) {
+        Service->Open(1058);Wait([&]{return Service->IsBusy() && !SawStream;},100);
+        Service->Cancel();Wait([&]{return Service->IsBusy();},15);
+        TArray<FString> CacheFiles;IFileManager::Get().FindFiles(CacheFiles,*(FCrankGameFiles::Root()/TEXT("Translation/Cache/*.json")),true,false);
+        Passed=SawStream && !Service->IsBusy() && Service->GetTranslated().IsEmpty() && CacheFiles.IsEmpty();
+        Result->SetBoolField(TEXT("partialWasVisible"),SawStream);Result->SetBoolField(TEXT("cancelDiscardsPartialAndCache"),Passed);
+    }
+    if(!FParse::Param(*Params,TEXT("ModelOnly")) && !FParse::Param(*Params,TEXT("ProfilesOnly")) && !FParse::Param(*Params,TEXT("CancelStream"))) {
         Service->Open(1058);bool Completed=Wait([&]{return Service->IsBusy();},180);
         const FString Source=Service->GetSource(),Translation=Service->GetTranslated();
         Passed=Passed && Completed && !Source.IsEmpty() && !Translation.IsEmpty() && Translation!=Source && Service->GetState()==TEXT("translated");
         bool Chinese=false;for(TCHAR C:Translation)Chinese|=C>=0x4e00 && C<=0x9fff;Passed&=Chinese;
         Result->SetStringField(TEXT("source"),Source);Result->SetStringField(TEXT("translation"),Translation);Result->SetStringField(TEXT("message"),Service->Message());
         Result->SetBoolField(TEXT("translationAvailablePassed"),Passed);
+        Result->SetBoolField(TEXT("streamVisibleBeforeCompletion"),SawStream);
+        if(FParse::Param(*Params,TEXT("ExpectStream")))Passed&=SawStream;
         Result->SetBoolField(TEXT("realInferencePerformed"),Service->Message().Contains(TEXT("本地翻译完成")));
         const bool Light=Service->IsLightModel();const FString Key=FCrankTranslation::CacheKey(1058,Source,Light);
         Result->SetBoolField(TEXT("sourceChangeInvalidatesCache"),Key!=FCrankTranslation::CacheKey(1058,Source+TEXT(" changed"),Light));

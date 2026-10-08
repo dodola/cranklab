@@ -238,10 +238,20 @@ The pinned STQ1 CPU patch supports baseline ARMv8 NEON and DotProd dispatch;
 upstream PR #22836 is still unmerged. A worker verifies SHA-256 before atomic rename;
 cancel/failure never exposes a partial model as ready. CPU dispatch retains a
 baseline ARMv8 backend and selects DotProd/FP16 only when the device supports it.
-The native C ABI uses llama.cpp with mmap, four threads and 2048 context tokens.
+The native C ABI uses llama.cpp with mmap, four decode threads and 2048 context tokens.
+Android prefill uses up to six threads while leaving two logical CPUs available.
 Descriptions are split without cutting UTF-8 characters; prefill batches respect
-the configured limit and only completed generations are cached. Worker-owned
-model/context/sampler objects are released after each job, including cancellation.
+the configured limit and only completed generations are cached. Streaming
+callbacks publish complete UTF-8 prefixes into the same PDGames detail area,
+at most once per 600 ms plus segment completion; cancellation/error restores
+the original and discards partial text. A warm model/context and only the fixed
+instruction's KV survive successful jobs while browsing. All source/output KV
+is removed before the next chunk/job. Native verification reuses an unchanged
+file stamp after a successful SHA-256 check; changed files are checked again.
+Model/context resources are released after 60 seconds of idle time, on game
+launch/background/model switch/shutdown, and on inference failure/cancellation.
+Native metrics record loading, verification, prefill, decode, first output,
+token counts and cache reuse without logging source text or partial translations.
 Translation cache keys include catalog ID, normalized source text, target language,
 model identity and prompt version. Public descriptions are cached independently
 so already-read introductions and completed translations remain usable offline.

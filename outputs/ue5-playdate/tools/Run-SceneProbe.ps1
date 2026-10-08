@@ -15,6 +15,7 @@ param(
     [switch]$TranslationLauncherEntry,
     [switch]$TranslationOriginal,
     [string]$TranslationModel,
+    [string]$TranslationDetailBase,
     [switch]$StageTwoProbe,
     [ValidateSet('None','Menu','Home','Lock','Flow')][string]$SystemProbe='None',
     [switch]$MobilePreview,
@@ -43,6 +44,7 @@ if($TranslationProbe) { $arguments+='-CrankTranslationProbe' }
 if($TranslationLauncherEntry) { $arguments+='-CrankTranslationLauncherEntry' }
 if($TranslationOriginal) { $arguments+='-CrankTranslationOriginalProbe' }
 if($TranslationModel) { $arguments+=('-CrankTranslationModel="'+[IO.Path]::GetFullPath($TranslationModel)+'"') }
+if($TranslationDetailBase) { $arguments+=('-CrankTranslationDetailBase='+$TranslationDetailBase) }
 if($StageTwoProbe) { $arguments+='-CrankStageTwoProbe' }
 if($SystemProbe -eq 'Menu') { $arguments+='-CrankSystemMenuProbe' }
 if($SystemProbe -eq 'Home') { $arguments+='-CrankHomeProbe' }

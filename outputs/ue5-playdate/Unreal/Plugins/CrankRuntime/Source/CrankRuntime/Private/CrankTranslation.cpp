@@ -64,7 +64,7 @@ void FCrankTranslation::ConfigureModel() {
 bool FCrankTranslation::SelectModel(bool Light) {
     if(bClosed || IsModelBusy())return false;
     if(Light==bLightModel)return true;
-    Cancel();bLightModel=Light;ConfigureModel();ModelPartial.Empty();
+    Cancel();ReleaseModel();bLightModel=Light;ConfigureModel();ModelPartial.Empty();
     Translated.Empty();State=Source.IsEmpty()?TEXT("idle"):TEXT("ready");Status.Empty();ReadTranslationCache();
     auto O=MakeShared<FJsonObject>();O->SetStringField(TEXT("profile"),Light?TEXT("stq1"):TEXT("q4"));
     if(!SaveJson(Storage/TEXT("model.json"),Encode(O)))ModelStatus=TEXT("模型已切换，但设置未能保存。");
@@ -106,6 +106,9 @@ bool FCrankTranslation::LoadNative() {
     if(!NativeHandle)return false;
     NativeTranslate=reinterpret_cast<FTranslate>(FPlatformProcess::GetDllExport(NativeHandle,TEXT("crank_translate")));
     NativeVerify=reinterpret_cast<FVerify>(FPlatformProcess::GetDllExport(NativeHandle,TEXT("crank_translation_verify_model")));
+    NativeTranslateStream=reinterpret_cast<FTranslateStream>(FPlatformProcess::GetDllExport(NativeHandle,TEXT("crank_translate_stream")));
+    NativeRelease=reinterpret_cast<FRelease>(FPlatformProcess::GetDllExport(NativeHandle,TEXT("crank_translation_release")));
+    NativeStats=reinterpret_cast<FStats>(FPlatformProcess::GetDllExport(NativeHandle,TEXT("crank_translation_stats")));
     if(NativeTranslate && NativeVerify)return true;
     FPlatformProcess::FreeDllHandle(NativeHandle);NativeHandle=nullptr;return false;
 }
@@ -159,22 +162,29 @@ void FCrankTranslation::Translate() {
     if(!LoadNative()){State=TEXT("error");Status=TEXT("翻译组件无法加载，请重新安装应用。");return;}
     State=TEXT("translating");Status=TEXT("正在准备本地翻译…");TaskCache=CacheKey(Id,Source,bLightModel);
     Control=MakeShared<FControl,ESPMode::ThreadSafe>();const auto C=Control;const uint64 Version=++Revision;
-    const FString M=ModelPath,B=BackendPath,Input=Source;const bool Verified=bModelVerified;const auto Run=NativeTranslate;const auto Verify=NativeVerify;
-    Task=Async(EAsyncExecution::Thread,[M,B,Input,C,Version,Verified,Run,Verify]() {
+    WarmModelDeadline=0;
+    const FString M=ModelPath,B=BackendPath,Input=Source;const bool Verified=bModelVerified;const auto Run=NativeTranslate;const auto Verify=NativeVerify;const auto Live=NativeTranslateStream;const auto Stats=NativeStats;
+    Task=Async(EAsyncExecution::Thread,[M,B,Input,C,Version,Verified,Run,Verify,Live,Stats]() {
         FResult R;R.Version=Version;
         auto Stop=+[](void* P)->int{return static_cast<FControl*>(P)->Cancelled.Load()?1:0;};
         auto Progress=+[](void* P,int Part,int Total){auto* X=static_cast<FControl*>(P);X->Part=Part;X->Total=Total;};
+        auto Stream=+[](void* P,const char* Text){auto* X=static_cast<FControl*>(P);if(X->Cancelled.Load())return;FScopeLock Lock(&X->StreamMutex);X->Partial=UTF8_TO_TCHAR(Text);};
+        const double VerifyStart=FPlatformTime::Seconds();
         if(!Verified && Verify(TCHAR_TO_UTF8(*M),Stop,C.Get())!=0){R.Error=C->Cancelled.Load()?TEXT("cancelled"):TEXT("model_invalid");return R;}
+        R.VerifyMs=(FPlatformTime::Seconds()-VerifyStart)*1000;
         R.ModelVerified=true;TArray<ANSICHAR> Output;Output.SetNumZeroed(262144);ANSICHAR Error[256]{};
-        const int Code=Run(TCHAR_TO_UTF8(*M),TCHAR_TO_UTF8(*B),TCHAR_TO_UTF8(*Input),Output.GetData(),Output.Num(),Error,UE_ARRAY_COUNT(Error),Stop,Progress,C.Get());
+        const int Code=Live?Live(TCHAR_TO_UTF8(*M),TCHAR_TO_UTF8(*B),TCHAR_TO_UTF8(*Input),Output.GetData(),Output.Num(),Error,UE_ARRAY_COUNT(Error),Stop,Progress,Stream,C.Get())
+            :Run(TCHAR_TO_UTF8(*M),TCHAR_TO_UTF8(*B),TCHAR_TO_UTF8(*Input),Output.GetData(),Output.Num(),Error,UE_ARRAY_COUNT(Error),Stop,Progress,C.Get());
+        ANSICHAR Metrics[2048]{};if(Stats && Stats(Metrics,UE_ARRAY_COUNT(Metrics))==0)R.Metrics=UTF8_TO_TCHAR(Metrics);
         if(Code==0)R.Text=FString(UTF8_TO_TCHAR(Output.GetData())).TrimStartAndEnd();else R.Error=UTF8_TO_TCHAR(Error);return R;
     });
 }
 void FCrankTranslation::Cancel() {
     ++Revision;bTranslationRequested=false;if(Control)Control->Cancelled=true;
     if(DetailRequest){DetailRequest->CancelRequest();DetailRequest.Reset();}
-    if(State==TEXT("loading") || State==TEXT("translating")){State=TEXT("ready");Status=TEXT("已取消，可再次翻译。");}
+    if(State==TEXT("loading") || State==TEXT("translating")){if(State==TEXT("translating"))Translated.Empty();State=TEXT("ready");Status=TEXT("已取消，可再次翻译。");}
 }
+void FCrankTranslation::ReleaseModel() {WarmModelDeadline=0;if(NativeRelease)NativeRelease();}
 void FCrankTranslation::DownloadModel() {
     if(bClosed || bModelReady || IsModelBusy())return;
 #if PLATFORM_ANDROID
@@ -231,6 +241,10 @@ void FCrankTranslation::CancelModelDownload() {
     ModelState=bModelReady?TEXT("ready"):TEXT("missing");ModelStatus=TEXT("已取消下载，可重新下载。");
 }
 void FCrankTranslation::Tick() {
+    if(WarmModelDeadline>0 && FPlatformTime::Seconds()>=WarmModelDeadline && !Task.IsValid())ReleaseModel();
+    if(Task.IsValid() && Control && !Control->Cancelled.Load() && State==TEXT("translating")) {
+        FScopeLock Lock(&Control->StreamMutex);if(!Control->Partial.IsEmpty())Translated=Control->Partial;
+    }
 #if PLATFORM_ANDROID
     if(AndroidModelJob && FPlatformTime::Seconds()>=ModelPollTime) {
         ModelPollTime=FPlatformTime::Seconds()+.1;
@@ -248,9 +262,12 @@ void FCrankTranslation::Tick() {
 #endif
     if(Task.IsValid() && Task.IsReady()) {
         auto R=Task.Get();Task=TFuture<FResult>();Control.Reset();
+        WarmModelDeadline=FPlatformTime::Seconds()+60;
+        if(R.Version==Revision && !R.Metrics.IsEmpty())UE_LOG(LogTemp,Display,TEXT("Crank translation metrics · profile=%s · hostVerifyMs=%.2f · %s"),bLightModel?TEXT("stq1"):TEXT("q4"),R.VerifyMs,*R.Metrics);
         if(R.Version==Revision && !bClosed) {
             bModelVerified=R.ModelVerified;
             if(!R.Error.IsEmpty() || R.Text.IsEmpty()) {
+                Translated.Empty();
                 State=TEXT("error");Status=R.Error==TEXT("model_invalid") ? TEXT("模型校验失败，请重新下载。") : TEXT("翻译未完成，请重试；原文仍可阅读。");
                 if(R.Error==TEXT("model_invalid")){bModelReady=false;ModelState=TEXT("error");ModelStatus=Status;}
             } else {
@@ -286,6 +303,7 @@ TOptional<float> FCrankTranslation::ModelProgress() const {return ModelState==TE
 void FCrankTranslation::Shutdown() {
     if(bClosed)return;bClosed=true;Cancel();CancelModelDownload();
     if(Task.IsValid())Task.Wait();if(ModelCheck.IsValid())ModelCheck.Wait();
+    ReleaseModel();
     if(!ModelPartial.IsEmpty())IFileManager::Get().Delete(*ModelPartial,false,true);
     if(NativeHandle){FPlatformProcess::FreeDllHandle(NativeHandle);NativeHandle=nullptr;}
 }

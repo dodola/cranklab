@@ -175,6 +175,7 @@ static const char pd_launcher_script[] =
 "        end\n"
 "        return '\u8fde\u63a5\u4e2d'\n"
 "    end\n"
+"    if wantChinese and t.state=='translating' then return '\u7ffb\u8bd1\u4e2d' end\n"
 "    if wantChinese and applied then return '\u539f\u6587' end\n"
 "    if wantChinese then\n"
 "        if t.modelState=='wifi' then return '\u9700Wi-Fi' end\n"

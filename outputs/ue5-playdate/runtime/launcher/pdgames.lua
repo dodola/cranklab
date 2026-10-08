@@ -173,6 +173,7 @@ local function languageLabel()
         end
         return '连接中'
     end
+    if wantChinese and t.state=='translating' then return '翻译中' end
     if wantChinese and applied then return '原文' end
     if wantChinese then
         if t.modelState=='wifi' then return '需Wi-Fi' end

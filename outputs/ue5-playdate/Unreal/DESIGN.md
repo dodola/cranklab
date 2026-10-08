@@ -239,6 +239,9 @@ layout, with UTF-8 boundaries, Latin word grouping and Chinese punctuation rules
 The model's one-time download, progress and retry controls live in settings and
 use CrankTheme's existing graphite, yellow accents and font roles. The detail
 language button also exposes explicit download/cancel/loading/retry states.
+During inference, UTF-8-complete partial results update the existing PDGames
+description area. The language action remains busy until generation finishes;
+returning to the original cancels the job. Partial results never enter the cache.
 Model downloads on Android use Wi-Fi only. The existing status slot keeps a
 two-line minimum footprint for connecting, percentage/bytes, verification and
 Wi-Fi retry messages. PDGames uses bounded whole percentages in its compact

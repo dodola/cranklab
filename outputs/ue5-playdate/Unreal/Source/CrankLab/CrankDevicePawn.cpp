@@ -166,7 +166,7 @@ void ACrankDevicePawn::BeginPlay() {
         PC->SetInputMode(Mode);
     }
     FPlatformApplicationMisc::EnableMotionData(bMotionFollow);
-    DeactivateHandle = FCoreDelegates::ApplicationWillDeactivateDelegate.AddLambda([this]{ReleaseInputs();if(Translation)Translation->Cancel();});
+    DeactivateHandle = FCoreDelegates::ApplicationWillDeactivateDelegate.AddLambda([this]{ReleaseInputs();if(Translation){Translation->Cancel();Translation->ReleaseModel();}});
     ReactivateHandle = FCoreDelegates::ApplicationHasReactivatedDelegate.AddUObject(this,&ACrankDevicePawn::ReleaseInputs);
     if (GEngine && GEngine->GameViewport) {
         ImmersiveWidget=SNew(SCrankImmersive).Device(this)
@@ -660,7 +660,7 @@ bool ACrankDevicePawn::PlayGame(const FString& Directory) {
     if (Save.IsEmpty()) { LastStartError=TEXT("无法访问游戏存档目录。"); return false; }
     ReleaseInputs(); Runtime->SetSystemMenuOpen(false);
     if (!Runtime->RequestGame(Directory,Save,Normal==LauncherDirectory)) { LastStartError=TEXT("游戏未能启动，请检查目录后重试。"); return false; }
-    LauncherSession=0;LauncherDetailId=0;LastLauncherReply.Empty();bInlineChinese=bInlineOriginal=false;if(Translation)Translation->Cancel();
+    LauncherSession=0;LauncherDetailId=0;LastLauncherReply.Empty();bInlineChinese=bInlineOriginal=false;if(Translation){Translation->Cancel();Translation->ReleaseModel();}
     SystemMode=ECrankSystemMode::Loading; bLaunchRecorded=false; SystemElapsed=0; ApplySystemPause();
     LastStartError.Empty(); ImportMessage.Empty(); GameTitle=FPaths::GetBaseFilename(Directory);
     CurrentGameDirectory=Normal;
