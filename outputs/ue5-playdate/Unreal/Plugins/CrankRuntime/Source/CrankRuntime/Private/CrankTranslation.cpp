@@ -48,8 +48,10 @@ FCrankTranslation::FCrankTranslation() {
 void FCrankTranslation::ConfigureModel() {
     ModelSize=bLightModel?461860800:1133080448;
     ModelFile=bLightModel?TEXT("Hy-MT2-1.8B-1.25Bit.gguf"):TEXT("Hy-MT2-1.8B-Q4_K_M.gguf");
-    ModelUrl=bLightModel?TEXT("https://huggingface.co/tencent/Hy-MT2-1.8B-1.25Bit-GGUF/resolve/9df5c824a00a744fb0512a29c640466f4d97dfb0/Hy-MT2-1.8B-1.25Bit.gguf?download=true")
-        :TEXT("https://huggingface.co/tencent/Hy-MT2-1.8B-GGUF/resolve/a0c709d9fac510f2c807aa3af52872340dc37a4a/Hy-MT2-1.8B-Q4_K_M.gguf?download=true");
+    // Tencent's ModelScope releases have the same bytes/hashes as the pinned
+    // original artifacts. Keep cache identity independent of the download host.
+    ModelUrl=bLightModel?TEXT("https://modelscope.cn/models/Tencent-Hunyuan/Hy-MT2-1.8B-1.25Bit-GGUF/resolve/a1ba5a8101d7b257d42c0980e0d6415d0bd9e1cf/Hy-MT2-1.8B-1.25Bit.gguf")
+        :TEXT("https://modelscope.cn/models/Tencent-Hunyuan/Hy-MT2-1.8B-GGUF/resolve/ef1d40b8b315575d30d1eb6579996130b8fc0bb2/Hy-MT2-1.8B-Q4_K_M.gguf");
     ModelPath=Storage/TEXT("Models")/ModelFile;
 #if !UE_BUILD_SHIPPING
     FString Override;if(FParse::Value(FCommandLine::Get(),TEXT("CrankTranslationModel="),Override)) ModelPath=FPaths::ConvertRelativePathToFull(Override);

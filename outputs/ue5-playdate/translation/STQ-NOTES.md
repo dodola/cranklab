@@ -6,6 +6,23 @@ revision `9df5c824a00a744fb0512a29c640466f4d97dfb0`, 461,860,800 bytes
 Q4_K_M remains independently selectable in Settings and is never deleted by
 switching profiles. Both profiles run locally with the same inline PDGames UI.
 
+## Model downloads
+
+Both profiles download from Tencent-Hunyuan's **ModelScope** repositories,
+redirecting to `cdn-lfs-cn-1.modelscope.cn`, without a Hugging Face request or
+login. The download URLs/revisions are recorded separately from the original
+artifact provenance in `dependency-lock.json`:
+
+- [1.25Bit](https://modelscope.cn/models/Tencent-Hunyuan/Hy-MT2-1.8B-1.25Bit-GGUF):
+  revision `a1ba5a8101d7b257d42c0980e0d6415d0bd9e1cf`.
+- [Q4_K_M](https://modelscope.cn/models/Tencent-Hunyuan/Hy-MT2-1.8B-GGUF):
+  revision `ef1d40b8b315575d30d1eb6579996130b8fc0bb2`.
+
+ModelScope file sizes and SHA-256 match the existing pinned artifacts. The
+transfer limits, native SHA-256 verification, atomic installation, model paths
+and translation-cache keys remain content-based. Existing downloaded models
+and saved translations are reused when upgrading.
+
 ## Backend compatibility
 
 The model requires the STQ1_0 kernel from llama.cpp PR #22836, still unmerged

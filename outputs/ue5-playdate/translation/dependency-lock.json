@@ -6,6 +6,10 @@
   "modelFile": "Hy-MT2-1.8B-Q4_K_M.gguf",
   "modelBytes": 1133080448,
   "modelSha256": "dc5f44fcf1fa496ee7ad725982c0c8c553a4de00259b53af84c4b89fb0c06699",
+  "modelDownloadProvider": "ModelScope",
+  "modelDownloadRepository": "Tencent-Hunyuan/Hy-MT2-1.8B-GGUF",
+  "modelDownloadRevision": "ef1d40b8b315575d30d1eb6579996130b8fc0bb2",
+  "modelDownloadUrl": "https://modelscope.cn/models/Tencent-Hunyuan/Hy-MT2-1.8B-GGUF/resolve/ef1d40b8b315575d30d1eb6579996130b8fc0bb2/Hy-MT2-1.8B-Q4_K_M.gguf",
   "stqPullRequest": "https://github.com/ggml-org/llama.cpp/pull/22836",
   "stqHeadRevision": "1e411d8f5a1e23525fa3265dfb4bd76265465397",
   "stqPatchFile": "patches/stq1-pinned.diff",
@@ -16,5 +20,8 @@
   "lightModelRevision": "9df5c824a00a744fb0512a29c640466f4d97dfb0",
   "lightModelFile": "Hy-MT2-1.8B-1.25Bit.gguf",
   "lightModelBytes": 461860800,
-  "lightModelSha256": "cc497fe8f033b52b3b8b00a7669e9661435432f9d4cd43f7ed24400c01507a93"
+  "lightModelSha256": "cc497fe8f033b52b3b8b00a7669e9661435432f9d4cd43f7ed24400c01507a93",
+  "lightModelDownloadRepository": "Tencent-Hunyuan/Hy-MT2-1.8B-1.25Bit-GGUF",
+  "lightModelDownloadRevision": "a1ba5a8101d7b257d42c0980e0d6415d0bd9e1cf",
+  "lightModelDownloadUrl": "https://modelscope.cn/models/Tencent-Hunyuan/Hy-MT2-1.8B-1.25Bit-GGUF/resolve/a1ba5a8101d7b257d42c0980e0d6415d0bd9e1cf/Hy-MT2-1.8B-1.25Bit.gguf"
 }
