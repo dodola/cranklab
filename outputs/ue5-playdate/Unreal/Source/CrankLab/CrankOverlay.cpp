@@ -31,24 +31,25 @@ TSharedRef<SWidget> SCrankOverlay::BuildTranslationModel() {
      +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,10)
      [SNew(SHorizontalBox)
       +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,6,0)
-      [SNew(SCrankAction).Device(Device).ShowIcon(false).Label(FText::FromString(TEXT("轻量 · 440 MiB")))
+      [SAssignNew(LightModelFocus,SCrankAction).Device(Device).ShowIcon(false).Label(FText::FromString(TEXT("轻量 · 440 MiB")))
        .Selected_Lambda([Service]{auto S=Service();return S && S->IsLightModel();})
        .IsEnabled_Lambda([Service]{auto S=Service();return S && !S->IsModelBusy();})
        .OnClicked_Lambda([Service]{if(auto S=Service())S->SelectModel(true);return FReply::Handled();})]
       +SHorizontalBox::Slot().FillWidth(1)
-      [SNew(SCrankAction).Device(Device).ShowIcon(false).Label(FText::FromString(TEXT("Q4 · 1.06 GiB")))
+      [SAssignNew(Q4ModelFocus,SCrankAction).Device(Device).ShowIcon(false).Label(FText::FromString(TEXT("Q4 · 1.06 GiB")))
        .Selected_Lambda([Service]{auto S=Service();return S && !S->IsLightModel();})
        .IsEnabled_Lambda([Service]{auto S=Service();return S && !S->IsModelBusy();})
        .OnClicked_Lambda([Service]{if(auto S=Service())S->SelectModel(false);return FReply::Handled();})]]
      +SVerticalBox::Slot().AutoHeight()
-     [SNew(STextBlock).Text_Lambda([Service]{auto S=Service();return FText::FromString(S?S->ModelMessage():FString());})
-      .Font(CrankTheme::Utility()).ColorAndOpacity_Lambda([Service]{auto S=Service();return S && S->HasModelError()?CrankTheme::HudError():CrankTheme::HudMuted();}).AutoWrapText(true)]
+     [SNew(SBox).MinDesiredHeight(32)
+      [SNew(STextBlock).Text_Lambda([Service]{auto S=Service();return FText::FromString(S?S->ModelMessage():FString());})
+       .Font(CrankTheme::Utility()).ColorAndOpacity_Lambda([Service]{auto S=Service();return S && S->HasModelError()?CrankTheme::HudError():CrankTheme::HudMuted();}).AutoWrapText(true)]]
      +SVerticalBox::Slot().AutoHeight().Padding(0,8,0,0)
      [SNew(SBox).HeightOverride(6).Visibility_Lambda([Service]{auto S=Service();return S && S->IsModelBusy()?EVisibility::Visible:EVisibility::Collapsed;})
       [SNew(SProgressBar).Style(&CrankTheme::Progress()).Percent_Lambda([Service]{auto S=Service();return S?S->ModelProgress():TOptional<float>();}).FillColorAndOpacity(CrankTheme::Accent())]]
      +SVerticalBox::Slot().AutoHeight().Padding(0,12,0,0)
      [SNew(SBox).Visibility_Lambda([Service]{auto S=Service();return S && !S->HasModel()?EVisibility::Visible:EVisibility::Collapsed;})
-      [SNew(SCrankAction).Device(Device).ShowIcon(false)
+      [SAssignNew(ModelDownloadFocus,SCrankAction).Device(Device).ShowIcon(false)
        .Label_Lambda([Service]{auto S=Service();return FText::FromString(S && S->IsModelBusy()?TEXT("取消模型下载"):S && S->HasModelError()?TEXT("重试模型下载"):TEXT("下载翻译模型"));})
        .OnClicked_Lambda([Service]{if(auto S=Service()){if(S->IsModelBusy())S->CancelModelDownload();else S->DownloadModel();}return FReply::Handled();})]];
 }
@@ -205,7 +206,7 @@ void SCrankOverlay::Construct(const FArguments& Args) {
           +SOverlay::Slot()
           [SAssignNew(GameScroll,SScrollBox).Visibility_Lambda([this]{return bLibraryOpen ? EVisibility::Visible : EVisibility::Collapsed;})+SScrollBox::Slot()[Library]]
           +SOverlay::Slot()
-          [SNew(SScrollBox).Visibility_Lambda([this]{return bSettingsOpen ? EVisibility::Visible : EVisibility::Collapsed;})+SScrollBox::Slot()[BuildSettings()]]]
+          [SAssignNew(SettingsScroll,SScrollBox).Visibility_Lambda([this]{return bSettingsOpen ? EVisibility::Visible : EVisibility::Collapsed;})+SScrollBox::Slot()[BuildSettings()]]]
          +SVerticalBox::Slot().AutoHeight().Padding(0,16,0,0)
      [Action(TEXT("返回游戏"),[this]{return ClosePanels();},true,ECrankGlyph::Reset)]]]]
       +SOverlay::Slot().HAlign(HAlign_Left).VAlign(VAlign_Bottom)
@@ -272,7 +273,23 @@ FReply SCrankOverlay::ClosePanels() {
     return FReply::Handled();
 }
 void SCrankOverlay::ShowLibrary() { if(!bLibraryOpen) ToggleLibrary(); }
-void SCrankOverlay::ShowSettings() { if(!bSettingsOpen) ToggleSettings(); }
+void SCrankOverlay::ShowSettings(bool TranslationModel) {
+    if(!bSettingsOpen)ToggleSettings();
+    if(TranslationModel && SettingsScroll && Device.IsValid()) {
+        const auto Service=Device->GetTranslation();
+        const auto Target=Service && Service->HasModel() ? (Service->IsLightModel()?LightModelFocus:Q4ModelFocus) : ModelDownloadFocus;
+        if(Target) {
+            FSlateApplication::Get().SetKeyboardFocus(Target,EFocusCause::SetDirectly);
+            SettingsScroll->ScrollDescendantIntoView(Target,false,EDescendantScrollDestination::IntoView,4);
+            // Auto-wrapped labels need a visible layout pass before their final height is known.
+            RegisterActiveTimer(.1f,FWidgetActiveTimerDelegate::CreateLambda([this,Weak=TWeakPtr<SWidget>(Target)](double,float) {
+                if(bSettingsOpen && SettingsScroll && Weak.IsValid())
+                    SettingsScroll->ScrollDescendantIntoView(Weak.Pin(),false,EDescendantScrollDestination::IntoView,4);
+                return EActiveTimerReturnType::Stop;
+            }));
+        }
+    }
+}
 FReply SCrankOverlay::ChooseGame(const FString& Directory) {
     if(Device.IsValid() && Device->PlayGame(Directory)) ClosePanels();
     return FReply::Handled();

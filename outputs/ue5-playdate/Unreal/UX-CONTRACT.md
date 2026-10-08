@@ -202,7 +202,7 @@ extra HUD row, and translation does not suspend the game. Screenshots, original
 headers, metadata, scrolling, B navigation and downloading/running are retained.
 The language action shows loading, translating, cancel, missing model, progress,
 empty and retry states. The first model transfer is an explicit second action
-labelled Download 1G; exact size is shown in settings. Original stays readable
+labelled with the selected model's size; exact size is shown in settings. Original stays readable
 until the completed translation is available. Original restores the original
 cached text and height. Closed details, switched games and backgrounding cancel
 inference and discard late completions. Model downloads may continue independently,
@@ -222,6 +222,18 @@ The 1.25Bit model is the default; Settings provides Q4 as a retained alternative
 Selection persists, never deletes another model, cancels active inference and
 uses independent cache identities. Selection is disabled during transfer or
 verification. Download labels and progress follow the selected model's size.
+PDGames floors a bounded percentage before integer formatting; fractional host
+progress never throws in Lua. Connecting, transferring, verifying and awaiting
+Wi-Fi have distinct labels. Download completion is separate from model readiness.
+Android model DNS, sockets and redirects bind to a validated physical Wi-Fi
+Network without changing the process-wide route. Cellular networks never carry
+model bytes. Wi-Fi loss stops the job and removes its private partial after
+the writer closes; reconnect requires explicit retry. Cancellation invalidates
+the job without blocking UE's UI thread. These rules apply to both the settings
+download button and the PDGames detail action; other app downloads retain their
+existing behavior. Already downloaded models and cached translations work offline.
+The model-settings entry reuses the same settings scroller and can position it
+at the model controls; the development scene probe captures this area directly.
 The pinned STQ1 CPU patch supports baseline ARMv8 NEON and DotProd dispatch;
 upstream PR #22836 is still unmerged. A worker verifies SHA-256 before atomic rename;
 cancel/failure never exposes a partial model as ready. CPU dispatch retains a

@@ -1,5 +1,6 @@
 #include "CrankTranslation.h"
 #include "CrankGameFiles.h"
+#include "CrankModelDownload.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Interfaces/IPluginManager.h"
@@ -176,17 +177,28 @@ void FCrankTranslation::Cancel() {
 }
 void FCrankTranslation::DownloadModel() {
     if(bClosed || bModelReady || IsModelBusy())return;
+#if PLATFORM_ANDROID
+    if(!CrankModelDownload::HasWifi()){ModelState=TEXT("wifi");ModelStatus=TEXT("模型仅通过 Wi-Fi 下载，请连接可联网的 Wi-Fi 后重试。");return;}
+#endif
     if(!LoadNative()){ModelState=TEXT("error");ModelStatus=TEXT("翻译组件无法加载，请重新安装应用。");return;}
     const FString Folder=FPaths::GetPath(ModelPath);IFileManager::Get().MakeDirectory(*Folder,true);
     uint64 Total=0,Free=0;if(FPlatformMisc::GetDiskTotalAndFreeSpace(Folder,Total,Free) && Free<uint64(ModelSize+128*1024*1024)){ModelState=TEXT("error");ModelStatus=bLightModel?TEXT("存储空间不足，请至少留出 600 MB 后重试。"):TEXT("存储空间不足，请至少留出 1.3 GB 后重试。");return;}
     const uint64 Version=++ModelRevision;const FString Partial=ModelPath+FString::Printf(TEXT(".part-%llu"),Version);ModelPartial=Partial;
-    ModelBytes=MakeShared<TAtomic<int64>,ESPMode::ThreadSafe>(0);auto Stream=MakeShared<FModelStream>(Partial,ModelBytes.ToSharedRef(),ModelSize);ModelStream=Stream;
-    if(Stream->IsError()){ModelState=TEXT("error");ModelStatus=TEXT("无法写入模型，请检查剩余空间后重试。");ModelStream.Reset();return;}
+    ModelBytes=MakeShared<TAtomic<int64>,ESPMode::ThreadSafe>(0);
     ModelState=TEXT("downloading");ModelStatus.Empty();ModelControl=MakeShared<FControl,ESPMode::ThreadSafe>();
     FString Url=ModelUrl;
 #if !UE_BUILD_SHIPPING
     FParse::Value(FCommandLine::Get(),TEXT("CrankTranslationModelUrl="),Url);
 #endif
+#if PLATFORM_ANDROID
+    AndroidModelJob=CrankModelDownload::Begin(Url,Partial,ModelSize);ModelPollTime=0;
+    if(AndroidModelJob<=0) {
+        ModelState=AndroidModelJob==-1?TEXT("wifi"):TEXT("error");
+        ModelStatus=AndroidModelJob==-1?TEXT("模型仅通过 Wi-Fi 下载，请连接可联网的 Wi-Fi 后重试。"):TEXT("无法开始下载，请重试。");AndroidModelJob=0;
+    }
+#else
+    auto Stream=MakeShared<FModelStream>(Partial,ModelBytes.ToSharedRef(),ModelSize);ModelStream=Stream;
+    if(Stream->IsError()){ModelState=TEXT("error");ModelStatus=TEXT("无法写入模型，请检查剩余空间后重试。");ModelStream.Reset();return;}
     auto R=FHttpModule::Get().CreateRequest();ModelRequest=R;R->SetURL(Url);R->SetVerb(TEXT("GET"));R->SetTimeout(1800);R->SetActivityTimeout(45);
     R->SetResponseBodyReceiveStream(Stream);
     R->OnProcessRequestComplete().BindLambda([Weak=AsWeak(),Version,Stream,Partial](FHttpRequestPtr,FHttpResponsePtr Response,bool Ok) {
@@ -196,19 +208,44 @@ void FCrankTranslation::DownloadModel() {
         if(!Ok || !Closed || !Response || !EHttpResponseCodes::IsOk(Response->GetResponseCode()) || S->ModelBytes->Load()!=S->ModelSize) {
             IFileManager::Get().Delete(*Partial,false,true);S->ModelState=TEXT("error");S->ModelStatus=TEXT("模型下载失败，请检查网络和空间后重试。");return;
         }
-        S->ModelState=TEXT("verifying");const auto Verify=S->NativeVerify;const auto C=S->ModelControl;
-        S->ModelCheck=Async(EAsyncExecution::Thread,[Partial,Verify,C] {return Verify(TCHAR_TO_UTF8(*Partial),+[](void* P)->int{return static_cast<FControl*>(P)->Cancelled.Load()?1:0;},C.Get())==0;});
+        S->VerifyDownloadedModel(Partial);
     });
     if(!R->ProcessRequest()){CancelModelDownload();ModelState=TEXT("error");ModelStatus=TEXT("无法开始下载，请重试。");}
+#endif
+}
+void FCrankTranslation::VerifyDownloadedModel(const FString& Partial) {
+    if(!ModelBytes || ModelBytes->Load()!=ModelSize || IFileManager::Get().FileSize(*Partial)!=ModelSize) {
+        IFileManager::Get().Delete(*Partial,false,true);ModelState=TEXT("error");ModelStatus=TEXT("模型文件不完整，请重新下载。");return;
+    }
+    ModelState=TEXT("verifying");const auto Verify=NativeVerify;const auto C=ModelControl;
+    ModelCheck=Async(EAsyncExecution::Thread,[Partial,Verify,C] {return Verify(TCHAR_TO_UTF8(*Partial),+[](void* P)->int{return static_cast<FControl*>(P)->Cancelled.Load()?1:0;},C.Get())==0;});
 }
 void FCrankTranslation::CancelModelDownload() {
     ++ModelRevision;if(ModelControl)ModelControl->Cancelled=true;
+#if PLATFORM_ANDROID
+    if(AndroidModelJob){CrankModelDownload::Cancel(AndroidModelJob);AndroidModelJob=0;ModelPartial.Empty();}
+#endif
     if(ModelRequest){ModelRequest->CancelRequest();ModelRequest.Reset();}
     if(ModelStream){ModelStream->Close();ModelStream.Reset();}
     if(!ModelCheck.IsValid() && !ModelPartial.IsEmpty())IFileManager::Get().Delete(*ModelPartial,false,true);
     ModelState=bModelReady?TEXT("ready"):TEXT("missing");ModelStatus=TEXT("已取消下载，可重新下载。");
 }
 void FCrankTranslation::Tick() {
+#if PLATFORM_ANDROID
+    if(AndroidModelJob && FPlatformTime::Seconds()>=ModelPollTime) {
+        ModelPollTime=FPlatformTime::Seconds()+.1;
+        const auto Download=CrankModelDownload::Poll(AndroidModelJob);
+        if(ModelBytes)ModelBytes->Store(FMath::Clamp(Download.Bytes,int64(0),ModelSize));
+        if(Download.State!=1) {
+            CrankModelDownload::Release(AndroidModelJob);AndroidModelJob=0;
+            if(Download.State==2)VerifyDownloadedModel(ModelPartial);
+            else {
+                ModelState=Download.State==3?TEXT("wifi"):TEXT("error");
+                ModelStatus=Download.State==3?TEXT("Wi-Fi 已断开，下载已停止。连接 Wi-Fi 后可重试。"):TEXT("模型下载失败，请检查网络和空间后重试。");
+            }
+        }
+    }
+#endif
     if(Task.IsValid() && Task.IsReady()) {
         auto R=Task.Get();Task=TFuture<FResult>();Control.Reset();
         if(R.Version==Revision && !bClosed) {
@@ -233,14 +270,19 @@ FString FCrankTranslation::Message() const {
     return Status;
 }
 FString FCrankTranslation::ModelMessage() const {
-    if(ModelState==TEXT("downloading"))return FString::Printf(TEXT("下载模型 · %.0f / %.0f MiB"),ModelBytes?ModelBytes->Load()/1048576.0:0,ModelSize/1048576.0);
+    if(ModelState==TEXT("downloading")) {
+        const int64 Bytes=ModelBytes?FMath::Clamp(ModelBytes->Load(),int64(0),ModelSize):0;
+        if(!Bytes)return TEXT("正在连接模型下载…");
+        const int Percent=FMath::FloorToInt(100.0*Bytes/ModelSize);
+        return FString::Printf(TEXT("下载模型 · %d%% · %.1f / %.1f MiB"),Percent,Bytes/1048576.0,ModelSize/1048576.0);
+    }
     if(ModelState==TEXT("verifying"))return TEXT("正在校验模型文件…");
     if(!ModelStatus.IsEmpty())return ModelStatus;
     return bModelReady?(bLightModel?TEXT("1.25Bit 轻量模型已就绪 · 支持离线翻译"):TEXT("Q4 模型已就绪 · 支持离线翻译"))
-        :(bLightModel?TEXT("轻量版约 440 MiB；下载一次，在本机离线翻译。"):TEXT("Q4 版约 1.06 GiB；下载一次，在本机离线翻译。"));
+        :(bLightModel?TEXT("轻量版约 440 MiB；仅通过 Wi-Fi 下载，之后可离线翻译。"):TEXT("Q4 版约 1.06 GiB；仅通过 Wi-Fi 下载，之后可离线翻译。"));
 }
 FString FCrankTranslation::ModelDownloadLabel() const {return bLightModel?TEXT("下载440M"):TEXT("下载1G");}
-TOptional<float> FCrankTranslation::ModelProgress() const {return ModelState==TEXT("downloading") && ModelBytes?TOptional<float>(float(ModelBytes->Load())/ModelSize):TOptional<float>();}
+TOptional<float> FCrankTranslation::ModelProgress() const {return ModelState==TEXT("downloading") && ModelBytes && ModelSize>0?TOptional<float>(float(FMath::Clamp(double(ModelBytes->Load())/ModelSize,0.0,1.0))):TOptional<float>();}
 void FCrankTranslation::Shutdown() {
     if(bClosed)return;bClosed=true;Cancel();CancelModelDownload();
     if(Task.IsValid())Task.Wait();if(ModelCheck.IsValid())ModelCheck.Wait();

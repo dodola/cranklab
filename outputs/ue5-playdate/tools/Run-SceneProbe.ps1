@@ -10,6 +10,7 @@ param(
     [switch]$Immersive,
     [switch]$ImmersiveInput,
     [switch]$SettingsProbe,
+    [switch]$ModelSettings,
     [switch]$TranslationProbe,
     [switch]$TranslationLauncherEntry,
     [switch]$TranslationOriginal,
@@ -37,6 +38,7 @@ if($Enlarged) { $arguments+='-CrankEnlarged' }
 if($Immersive -or $ImmersiveInput) { $arguments+='-CrankImmersive' }
 if($ImmersiveInput) { $arguments+='-CrankImmersiveProbe' }
 if($SettingsProbe) { $arguments+='-CrankSettingsProbe' }
+if($ModelSettings) { $arguments+='-CrankSettingsProbe'; $arguments+='-CrankModelSettingsProbe' }
 if($TranslationProbe) { $arguments+='-CrankTranslationProbe' }
 if($TranslationLauncherEntry) { $arguments+='-CrankTranslationLauncherEntry' }
 if($TranslationOriginal) { $arguments+='-CrankTranslationOriginalProbe' }

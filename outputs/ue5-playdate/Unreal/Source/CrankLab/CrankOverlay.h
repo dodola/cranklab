@@ -11,7 +11,7 @@ public:
     SLATE_BEGIN_ARGS(SCrankOverlay) {} SLATE_ARGUMENT(TWeakObjectPtr<ACrankDevicePawn>,Device) SLATE_END_ARGS()
     void Construct(const FArguments& Args);
     void ShowLibrary();
-    void ShowSettings();
+    void ShowSettings(bool TranslationModel=false);
     void RefreshGames();
     virtual FReply OnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     void Tick(const FGeometry& Geometry,double Time,float DeltaTime) override;
@@ -32,7 +32,9 @@ private:
     TSharedPtr<SWidget> SettingsButton;
     TSharedPtr<SBox> PanelContainer;
     TSharedPtr<SWidget> SettingsFocus;
+    TSharedPtr<SWidget> LightModelFocus,Q4ModelFocus,ModelDownloadFocus;
     TSharedPtr<SScrollBox> GameScroll;
+    TSharedPtr<SScrollBox> SettingsScroll;
     TArray<TSharedRef<SWidget>> GameButtons;
     int32 FocusedGame=0;
     bool bLibraryOpen=false;

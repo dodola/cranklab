@@ -506,7 +506,7 @@ void ACrankDevicePawn::Tick(float DeltaTime) {
         FString Json; FJsonSerializer::Serialize(Result,TJsonWriterFactory<>::Create(&Json));
         FFileHelper::SaveStringToFile(Json,*(InputProbeDirectory/TEXT("input.json")));
     }
-    if (!ProbeDirectory.IsEmpty() && ProbeElapsed>3.5f && !bOverlayOpen && FParse::Param(FCommandLine::Get(),TEXT("CrankSettingsProbe"))) Overlay->ShowSettings();
+    if (!ProbeDirectory.IsEmpty() && ProbeElapsed>3.5f && !bOverlayOpen && FParse::Param(FCommandLine::Get(),TEXT("CrankSettingsProbe"))) Overlay->ShowSettings(FParse::Param(FCommandLine::Get(),TEXT("CrankModelSettingsProbe")));
     if(!ProbeDirectory.IsEmpty() && ProbeElapsed>3.5f && ProbeElapsed<3.7f) {
         if(FParse::Param(FCommandLine::Get(),TEXT("CrankSystemMenuProbe")) && SystemMode==ECrankSystemMode::Playing) ToggleSystemMenu();
         if(FParse::Param(FCommandLine::Get(),TEXT("CrankHomeProbe")) && SystemMode==ECrankSystemMode::Playing) ReturnHome();
@@ -1094,6 +1094,7 @@ void ACrankDevicePawn::UpdateLauncher() {
             T->SetNumberField(TEXT("id"),Translation->GetId());T->SetStringField(TEXT("state"),Translation->GetState());
             T->SetStringField(TEXT("text"),Translation->GetTranslated());T->SetBoolField(TEXT("modelReady"),Translation->HasModel());
             T->SetBoolField(TEXT("modelBusy"),Translation->IsModelBusy());T->SetBoolField(TEXT("modelError"),Translation->HasModelError());
+            T->SetStringField(TEXT("modelState"),Translation->GetModelState());
             T->SetStringField(TEXT("modelDownloadLabel"),Translation->ModelDownloadLabel());
             if(auto Progress=Translation->ModelProgress();Progress.IsSet())T->SetNumberField(TEXT("modelProgress"),Progress.GetValue());
             Snapshot->SetObjectField(TEXT("translation"),T);

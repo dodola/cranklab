@@ -165,9 +165,17 @@ function detail:downButtonDown(...) return original.downButtonDown(self,...) end
 local function languageLabel()
     local t=state.translation or {}
     if t.id~= (game and game.id) then return '中文' end
-    if t.modelBusy then return t.modelProgress and ('下载%d%%'):format(t.modelProgress*100) or '校验中' end
+    if t.modelBusy then
+        if t.modelState=='verifying' then return '校验中' end
+        local progress=tonumber(t.modelProgress)
+        if progress and progress==progress then
+            return ('下载%d%%'):format(math.floor(math.max(0,math.min(1,progress))*100))
+        end
+        return '连接中'
+    end
     if wantChinese and applied then return '原文' end
     if wantChinese then
+        if t.modelState=='wifi' then return '需Wi-Fi' end
         if t.state=='loading' then return '读取中' end
         if t.state=='translating' then return '翻译中' end
         if t.modelError then return '重试下载' end

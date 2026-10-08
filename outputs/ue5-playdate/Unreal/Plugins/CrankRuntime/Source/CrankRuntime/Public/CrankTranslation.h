@@ -25,6 +25,7 @@ public:
     bool HasModelError() const {return ModelState==TEXT("error");}
     bool HasError() const {return State==TEXT("error");}
     FString GetState() const {return State;}
+    FString GetModelState() const {return ModelState;}
     FString GetTitle() const {return Title;}
     FString GetSource() const {return Source;}
     FString GetTranslated() const {return Translated;}
@@ -45,6 +46,8 @@ private:
     FString State=TEXT("idle"),ModelState=TEXT("missing"),ModelStatus;
     int32 Id=0;
     uint64 Revision=0,ModelRevision=0;
+    int64 AndroidModelJob=0;
+    double ModelPollTime=0;
     bool bClosed=false,bModelReady=false,bModelVerified=false,bTranslationRequested=false;
     TSharedPtr<IHttpRequest,ESPMode::ThreadSafe> DetailRequest,ModelRequest;
     TSharedPtr<FArchive> ModelStream;
@@ -62,6 +65,7 @@ private:
     FVerify NativeVerify=nullptr;
     bool LoadNative();
     void ConfigureModel();
+    void VerifyDownloadedModel(const FString& Partial);
     void AcceptDescription(const FString& Text);
     bool ReadTranslationCache();
     bool SaveJson(const FString& Path,const FString& Text);

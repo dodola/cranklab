@@ -239,6 +239,10 @@ layout, with UTF-8 boundaries, Latin word grouping and Chinese punctuation rules
 The model's one-time download, progress and retry controls live in settings and
 use CrankTheme's existing graphite, yellow accents and font roles. The detail
 language button also exposes explicit download/cancel/loading/retry states.
+Model downloads on Android use Wi-Fi only. The existing status slot keeps a
+two-line minimum footprint for connecting, percentage/bytes, verification and
+Wi-Fi retry messages. PDGames uses bounded whole percentages in its compact
+language action and shows a Wi-Fi requirement after a network interruption.
 The immersive screen retains its full area; there is no new action above it.
 Model button depression approaches its target immediately, then returns when
 released. Crank motion uses elapsed time, acceleration and interpolation;
