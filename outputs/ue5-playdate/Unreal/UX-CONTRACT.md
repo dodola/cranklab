@@ -240,6 +240,10 @@ cancel/failure never exposes a partial model as ready. CPU dispatch retains a
 baseline ARMv8 backend and selects DotProd/FP16 only when the device supports it.
 The native C ABI uses llama.cpp with mmap, four decode threads and 2048 context tokens.
 Android prefill uses up to six threads while leaving two logical CPUs available.
+On heterogeneous CPUs it counts cores whose maximum frequency is at least 75%
+of the fastest core, so equal-sized input jobs do not wait on little cores.
+Unavailable frequency data falls back to at most four prefill threads. Decode
+still uses four threads; CPU affinity and supported instruction sets are unchanged.
 Descriptions are split without cutting UTF-8 characters; prefill batches respect
 the configured limit and only completed generations are cached. Streaming
 callbacks publish complete UTF-8 prefixes into the same PDGames detail area,

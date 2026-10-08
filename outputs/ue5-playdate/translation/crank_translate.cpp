@@ -34,6 +34,30 @@ struct Control {Cancel cancel;void* data;};
 static bool abort_decode(void* p) {auto* c=static_cast<Control*>(p);return c->cancel && c->cancel(c->data);}
 static bool load_progress(float,void* p) {return !abort_decode(p);}
 static void quiet_log(ggml_log_level,const char*,void*) {}
+static int prefill_threads() {
+#ifdef __ANDROID__
+    static const int count=[] {
+        const int cores=static_cast<int>(std::thread::hardware_concurrency());
+        const int available=std::min(6,std::max(2,cores-2));
+        std::vector<uint64_t> frequencies;
+        for(int cpu=0;cpu<cores;++cpu) {
+            std::ifstream file("/sys/devices/system/cpu/cpu"+std::to_string(cpu)+"/cpufreq/cpuinfo_max_freq");
+            uint64_t frequency=0;if(!(file>>frequency) || frequency==0)return std::min(4,available);
+            frequencies.push_back(frequency);
+        }
+        if(frequencies.empty())return 4;
+        const auto peak=*std::max_element(frequencies.begin(),frequencies.end());
+        // Equal-sized jobs stall behind little cores on heterogeneous phones.
+        // Count the faster clusters, retaining a conservative fallback if sysfs
+        // is unavailable. Never force affinity or change the supported CPU ISA.
+        const int fast=static_cast<int>(std::count_if(frequencies.begin(),frequencies.end(),[peak](uint64_t f){return f*4>=peak*3;}));
+        return std::min(available,std::max(2,fast));
+    }();
+    return count;
+#else
+    return 4;
+#endif
+}
 
 struct Stamp {
     std::string path;uintmax_t size=0;std::filesystem::file_time_type time{};
@@ -196,10 +220,7 @@ static int run(const char* model_path,const char* backend_path,const char* text,
             auto suffix=tokenize(u8"<｜hy_Assistant｜>",true);tokens.insert(tokens.end(),suffix.begin(),suffix.end());
             if(tokens.empty() || tokens.size()>900) return fail(error,error_capacity,"input_chunk_too_long");
             auto cp=llama_context_default_params();cp.n_ctx=2048;cp.n_batch=256;cp.n_ubatch=128;
-            cp.n_threads=4;cp.n_threads_batch=4;
-#ifdef __ANDROID__
-            cp.n_threads_batch=std::min(6,std::max(2,static_cast<int>(std::thread::hardware_concurrency())-2));
-#endif
+            cp.n_threads=4;cp.n_threads_batch=prefill_threads();
             cp.abort_callback=abort_decode;cp.abort_callback_data=&engine->control;
             auto& ctx=engine->context;if(!ctx)ctx.reset(llama_init_from_model(model.get(),cp));lastStats.batchThreads=cp.n_threads_batch;
             if(!ctx) return fail(error,error_capacity,"context_failed");
