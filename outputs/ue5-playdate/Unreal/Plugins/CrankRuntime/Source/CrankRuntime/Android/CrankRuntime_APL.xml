@@ -2,6 +2,7 @@
 <root xmlns:android="http://schemas.android.com/apk/res/android">
     <androidManifestUpdates>
         <addPermission android:name="android.permission.INTERNET"/>
+        <addPermission android:name="android.permission.VIBRATE"/>
         <!-- Playdate games can request HTTP, including PDGames' thumbnail CDN. -->
         <addAttribute tag="application" name="android:usesCleartextTraffic" value="true"/>
         <!-- ggml's CPU dispatch opens backends from nativeLibraryDir. -->
@@ -11,10 +12,12 @@
     <proguardAdditions>
         <insert>-keep class com.cranklab.CrankHttp { *; }</insert>
         <insert>-keep class com.cranklab.CrankPdxImport { *; }</insert>
+        <insert>-keep class com.cranklab.CrankHaptics { *; }</insert>
     </proguardAdditions>
     <prebuildCopies>
         <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankHttp.java" dst="$S(BuildDir)/src/com/cranklab/CrankHttp.java"/>
         <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankPdxImport.java" dst="$S(BuildDir)/src/com/cranklab/CrankPdxImport.java"/>
+        <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankHaptics.java" dst="$S(BuildDir)/src/com/cranklab/CrankHaptics.java"/>
     </prebuildCopies>
     <resourceCopies>
         <isArch arch="arm64-v8a">

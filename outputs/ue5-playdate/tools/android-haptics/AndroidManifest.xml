@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cranklab.hapticsprobe">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <application android:debuggable="true" android:label="Playdate haptic verification" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name="com.cranklab.HapticsActivity" android:exported="false"/>
+    </application>
+    <instrumentation android:name="com.cranklab.HapticsProbe" android:targetPackage="com.cranklab.hapticsprobe"/>
+</manifest>

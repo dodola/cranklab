@@ -260,8 +260,10 @@ render resolution. These settings retain the verified mobile HDR/MSAA path.
 Gyroscope input is
 fused with the UE tilt sample, calibrated to the current pose and damped with
 a dead zone and angle limit (10 degrees normally, 5 when enlarged). Physical
-button presses and angular crank detents send short, frequency-limited Android
-vibration pulses. Sensor/haptic feel is reserved for user device acceptance.
+button presses and angular crank detents send frequency-limited Android click/tick
+feedback. Unsupported primitives fall back to finite pulses sized for the motor's
+amplitude capability, with strength retained and Android touch preferences honored.
+Sensor/haptic feel is reserved for user device acceptance.
 Reduced UI motion removes transition/press interpolation; real crank and
 sensor-driven movement remain responsive to input.
 

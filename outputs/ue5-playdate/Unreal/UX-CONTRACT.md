@@ -140,8 +140,14 @@ non-modal panel shell, one active inner scroller and a reachable return action.
 Opening either suspends game input/audio; closing restores focus to its trigger.
 
 Experience switches save independently to app-private storage through a
-temporary file and atomic replacement. Disabling haptics cancels vibration;
-disabling follow stops motion acquisition and resets its offset. Foreground
+temporary file and atomic replacement. Disabling haptics cancels vibration.
+Android uses hardware-supported click/tick primitives or a finite amplitude-aware
+one-shot fallback, classified as touch feedback. Non-amplitude motors use default
+amplitude and vary pulse duration with strength. Cancellation invalidates queued
+UI-thread pulses; inactive windows never start feedback. System touch preferences
+remain authoritative. Button/crank frequency limits are shared by 3D and immersive
+input, and neither mode uses UE gamepad force feedback for the phone motor.
+Disabling follow stops motion acquisition and resets its offset. Foreground
 reactivation recalibrates the motion origin. Missing motion samples preserve
 manual camera controls. User acceptance covers device-specific sensor/haptic
 feel and physical touch operations; development captures do not prove it.

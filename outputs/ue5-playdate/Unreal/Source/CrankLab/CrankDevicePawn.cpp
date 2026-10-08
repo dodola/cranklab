@@ -3,6 +3,7 @@
 #include "CrankLauncher.h"
 #include "CrankTranslation.h"
 #include "CrankGameFiles.h"
+#include "CrankHaptics.h"
 #include "CrankOverlay.h"
 #include "CrankImmersive.h"
 #include "CrankSystemScreen.h"
@@ -604,10 +605,7 @@ void ACrankDevicePawn::ReleaseInputs() {
     PendingScreenTapTime=-1;
     CalibrateMotion();
     if (auto* PC=Cast<APlayerController>(GetController())) PC->FlushPressedKeys();
-#if PLATFORM_ANDROID
-    extern void AndroidThunkCpp_Vibrate(int32 Intensity,int32 Duration);
-    AndroidThunkCpp_Vibrate(0,0);
-#endif
+    FCrankHaptics::Cancel();
     Runtime->SetButtons(0);
 }
 void ACrankDevicePawn::SetOverlayOpen(bool Open) { if(Open && Translation)Translation->Cancel(); ReleaseInputs(); bOverlayOpen=Open; ApplySystemPause(); }
@@ -701,10 +699,6 @@ void ACrankDevicePawn::EndPlay(const EEndPlayReason::Type Reason) {
     ImmersiveWidget.Reset();
     Overlay.Reset(); ReleaseInputs(); FPlatformApplicationMisc::EnableMotionData(false);
     SystemWidget.Reset(); if(SystemRenderer) {BeginCleanup(SystemRenderer); SystemRenderer=nullptr;}
-#if PLATFORM_ANDROID
-    extern void AndroidThunkCpp_Vibrate(int32 Intensity,int32 Duration);
-    AndroidThunkCpp_Vibrate(0,0);
-#endif
     Super::EndPlay(Reason);
 }
 
@@ -849,9 +843,7 @@ void ACrankDevicePawn::SetMotionFollow(bool Enabled) {
 }
 void ACrankDevicePawn::SetHaptics(bool Enabled) {
     bHaptics=Enabled; SaveExperience();
-#if PLATFORM_ANDROID
-    if(!Enabled) { extern void AndroidThunkCpp_Vibrate(int32 Intensity,int32 Duration); AndroidThunkCpp_Vibrate(0,0); }
-#endif
+    if(!Enabled) {FCrankHaptics::Cancel(); LastHapticTime=-1;}
 }
 void ACrankDevicePawn::SetMotionSensitivity(float Value) { MotionSensitivity=FMath::Clamp(Value,.1f,.8f); SaveExperience(); }
 void ACrankDevicePawn::SetHapticStrength(float Value) { HapticStrength=FMath::Clamp(Value,.1f,1.f); SaveExperience(); }
@@ -864,10 +856,7 @@ void ACrankDevicePawn::PulseHaptic(bool CrankTick) {
     const double Now=FPlatformTime::Seconds();
     if(!bHaptics || Now-LastHapticTime<(CrankTick ? .085 : .035)) return;
     LastHapticTime=Now;
-#if PLATFORM_ANDROID
-    extern void AndroidThunkCpp_Vibrate(int32 Intensity,int32 Duration);
-    AndroidThunkCpp_Vibrate(FMath::RoundToInt((CrankTick ? 80 : 170)*HapticStrength),CrankTick ? 7 : 13);
-#endif
+    FCrankHaptics::Pulse(CrankTick,HapticStrength);
 }
 void ACrankDevicePawn::UpdateMotion(float DeltaTime) {
     if(!bMotionFollow || bImmersive || bOverlayOpen || Pointers.Num()) return;
