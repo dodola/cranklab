@@ -76,8 +76,8 @@ try:
  # Real inference output was verified separately; exercise the actual Lua bitmap
  # update, original restoration and ID guard through the scoped native bridge.
  translated=json.loads((Path(a.translation_report) if a.translation_report else root/'verification-translation/service.json').read_text('utf-8-sig'))['translation']
- def translation_reply(catalog,text='',state='translated',model=True):
-  body=dict(id=1058,state='installed',label='Run game',busy=False,translation=dict(id=catalog,state=state,text=text,modelReady=model,modelBusy=False))
+ def translation_reply(catalog,text='',state='translated'):
+  body=dict(id=1058,state='installed',label='Run game',busy=False,translation=dict(id=catalog,state=state,text=text))
   assert c.crank_launcher_reply(token,json.dumps(body,ensure_ascii=False).encode())==1
   advance(.5)
  assert c.crank_launcher_detail_action(2)==1;assert request()['action']=='translate'
@@ -92,10 +92,10 @@ try:
  assert c.crank_launcher_detail_action(2)==1;assert request()['action']=='translate'
  translation_reply(1058,'','translating')
  assert c.crank_launcher_detail_action(2)==1;assert request()['action']=='trans_cancel'
- translation_reply(1058,'','ready',False)
+ translation_reply(1058,'','error')
  assert c.crank_launcher_detail_action(2)==1;assert request()['action']=='translate'
- translation_reply(1058,'','ready',False)
- assert c.crank_launcher_detail_action(2)==1;assert request()['action']=='model'
+ translation_reply(1058,'','translating')
+ assert c.crank_launcher_detail_action(2)==1;assert request()['action']=='trans_cancel'
  reply(token,'installed','Run game')
  # Original screenshot controls must remain available through the Details tab.
  # PDGames opens its QR link when the body is selected. Select the image row

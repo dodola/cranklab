@@ -10,11 +10,10 @@ param(
     [switch]$Immersive,
     [switch]$ImmersiveInput,
     [switch]$SettingsProbe,
-    [switch]$ModelSettings,
+    [switch]$TranslationSettings,
     [switch]$TranslationProbe,
     [switch]$TranslationLauncherEntry,
     [switch]$TranslationOriginal,
-    [string]$TranslationModel,
     [string]$TranslationDetailBase,
     [switch]$StageTwoProbe,
     [ValidateSet('None','Menu','Home','Lock','Flow')][string]$SystemProbe='None',
@@ -39,11 +38,10 @@ if($Enlarged) { $arguments+='-CrankEnlarged' }
 if($Immersive -or $ImmersiveInput) { $arguments+='-CrankImmersive' }
 if($ImmersiveInput) { $arguments+='-CrankImmersiveProbe' }
 if($SettingsProbe) { $arguments+='-CrankSettingsProbe' }
-if($ModelSettings) { $arguments+='-CrankSettingsProbe'; $arguments+='-CrankModelSettingsProbe' }
+if($TranslationSettings) { $arguments+='-CrankSettingsProbe'; $arguments+='-CrankTranslationSettingsProbe' }
 if($TranslationProbe) { $arguments+='-CrankTranslationProbe' }
 if($TranslationLauncherEntry) { $arguments+='-CrankTranslationLauncherEntry' }
 if($TranslationOriginal) { $arguments+='-CrankTranslationOriginalProbe' }
-if($TranslationModel) { $arguments+=('-CrankTranslationModel="'+[IO.Path]::GetFullPath($TranslationModel)+'"') }
 if($TranslationDetailBase) { $arguments+=('-CrankTranslationDetailBase='+$TranslationDetailBase) }
 if($StageTwoProbe) { $arguments+='-CrankStageTwoProbe' }
 if($SystemProbe -eq 'Menu') { $arguments+='-CrankSystemMenuProbe' }

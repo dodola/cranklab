@@ -166,7 +166,7 @@ void ACrankDevicePawn::BeginPlay() {
         PC->SetInputMode(Mode);
     }
     FPlatformApplicationMisc::EnableMotionData(bMotionFollow);
-    DeactivateHandle = FCoreDelegates::ApplicationWillDeactivateDelegate.AddLambda([this]{ReleaseInputs();if(Translation){Translation->Cancel();Translation->ReleaseModel();}});
+    DeactivateHandle = FCoreDelegates::ApplicationWillDeactivateDelegate.AddLambda([this]{ReleaseInputs();if(Translation){Translation->Cancel();}});
     ReactivateHandle = FCoreDelegates::ApplicationHasReactivatedDelegate.AddUObject(this,&ACrankDevicePawn::ReleaseInputs);
     if (GEngine && GEngine->GameViewport) {
         ImmersiveWidget=SNew(SCrankImmersive).Device(this)
@@ -506,7 +506,7 @@ void ACrankDevicePawn::Tick(float DeltaTime) {
         FString Json; FJsonSerializer::Serialize(Result,TJsonWriterFactory<>::Create(&Json));
         FFileHelper::SaveStringToFile(Json,*(InputProbeDirectory/TEXT("input.json")));
     }
-    if (!ProbeDirectory.IsEmpty() && ProbeElapsed>3.5f && !bOverlayOpen && FParse::Param(FCommandLine::Get(),TEXT("CrankSettingsProbe"))) Overlay->ShowSettings(FParse::Param(FCommandLine::Get(),TEXT("CrankModelSettingsProbe")));
+    if (!ProbeDirectory.IsEmpty() && ProbeElapsed>3.5f && !bOverlayOpen && FParse::Param(FCommandLine::Get(),TEXT("CrankSettingsProbe"))) Overlay->ShowSettings(FParse::Param(FCommandLine::Get(),TEXT("CrankTranslationSettingsProbe")));
     if(!ProbeDirectory.IsEmpty() && ProbeElapsed>3.5f && ProbeElapsed<3.7f) {
         if(FParse::Param(FCommandLine::Get(),TEXT("CrankSystemMenuProbe")) && SystemMode==ECrankSystemMode::Playing) ToggleSystemMenu();
         if(FParse::Param(FCommandLine::Get(),TEXT("CrankHomeProbe")) && SystemMode==ECrankSystemMode::Playing) ReturnHome();
@@ -523,7 +523,7 @@ void ACrankDevicePawn::Tick(float DeltaTime) {
     }
     if(TranslationProbe && bTranslationProbeOpened && !bTranslationProbeDone && !Translation->IsBusy()) {
         if(OriginalProbe && bInlineChinese && !bTranslationOriginalTapped) {ScreenTap({150,224});bTranslationOriginalTapped=true;}
-        const bool Applied=Translation->HasModel() ? (OriginalProbe?bInlineOriginal:bInlineChinese) : !Translation->GetSource().IsEmpty();
+        const bool Applied=OriginalProbe?bInlineOriginal:bInlineChinese;
         if(Applied) {
             bTranslationOriginalPassed=OriginalProbe && bInlineOriginal;
             bTranslationProbeDone=true;TranslationProbeCompletedAt=ProbeElapsed;
@@ -562,7 +562,7 @@ void ACrankDevicePawn::Tick(float DeltaTime) {
         const bool Passed=Nodes.Num()==14 && (bImmersive || FitsViewport) && AttachmentError<.001 && Runtime->GetFrameNumber()>30 && (TranslationProbe || (CrankAngle>100 && bProbePressed && bProbeReleased)) && ExpectedState && Runtime->LastError.IsEmpty() && (!bStageTwoProbeRan || bStageTwoProbePassed) && (!FParse::Param(FCommandLine::Get(),TEXT("CrankImmersiveProbe")) || (bImmersiveProbePassed && bImmersiveTouchProbePassed)) && (!FParse::Param(FCommandLine::Get(),TEXT("CrankSystemFlowProbe")) || bSystemFlowPassed);
         auto Result=MakeShared<FJsonObject>();
         Result->SetBoolField(TEXT("launcherFlowPassed"),bLauncherProbePassed);
-        if(TranslationProbe && Translation){Result->SetBoolField(TEXT("translationEntryPassed"),bTranslationEntryPassed);Result->SetBoolField(TEXT("translationOriginalPassed"),bTranslationOriginalPassed);Result->SetBoolField(TEXT("inlineChineseApplied"),bInlineChinese);Result->SetBoolField(TEXT("dialogAbsent"),!bOverlayOpen);Result->SetStringField(TEXT("translationState"),Translation->GetState());Result->SetStringField(TEXT("translated"),Translation->GetTranslated());Result->SetBoolField(TEXT("translationPassed"),!bOverlayOpen && !Translation->HasError() && !Translation->GetSource().IsEmpty() && (!Translation->HasModel() || !Translation->GetTranslated().IsEmpty()) && bTranslationEntryPassed && (!OriginalProbe || bTranslationOriginalPassed));}
+        if(TranslationProbe && Translation){Result->SetBoolField(TEXT("translationEntryPassed"),bTranslationEntryPassed);Result->SetBoolField(TEXT("translationOriginalPassed"),bTranslationOriginalPassed);Result->SetBoolField(TEXT("inlineChineseApplied"),bInlineChinese);Result->SetBoolField(TEXT("dialogAbsent"),!bOverlayOpen);Result->SetStringField(TEXT("translationState"),Translation->GetState());Result->SetStringField(TEXT("translated"),Translation->GetTranslated());Result->SetBoolField(TEXT("translationPassed"),!bOverlayOpen && !Translation->HasError() && !Translation->GetSource().IsEmpty() && !Translation->GetTranslated().IsEmpty() && bTranslationEntryPassed && (!OriginalProbe || bTranslationOriginalPassed));}
         Result->SetBoolField(TEXT("immersive"),bImmersive);
         Result->SetBoolField(TEXT("immersiveInputPassed"),bImmersiveProbePassed);
         Result->SetBoolField(TEXT("immersiveTouchProbeRan"),bImmersiveTouchProbeRan);
@@ -660,7 +660,7 @@ bool ACrankDevicePawn::PlayGame(const FString& Directory) {
     if (Save.IsEmpty()) { LastStartError=TEXT("无法访问游戏存档目录。"); return false; }
     ReleaseInputs(); Runtime->SetSystemMenuOpen(false);
     if (!Runtime->RequestGame(Directory,Save,Normal==LauncherDirectory)) { LastStartError=TEXT("游戏未能启动，请检查目录后重试。"); return false; }
-    LauncherSession=0;LauncherDetailId=0;LastLauncherReply.Empty();bInlineChinese=bInlineOriginal=false;if(Translation){Translation->Cancel();Translation->ReleaseModel();}
+    LauncherSession=0;LauncherDetailId=0;LastLauncherReply.Empty();bInlineChinese=bInlineOriginal=false;if(Translation){Translation->Cancel();}
     SystemMode=ECrankSystemMode::Loading; bLaunchRecorded=false; SystemElapsed=0; ApplySystemPause();
     LastStartError.Empty(); ImportMessage.Empty(); GameTitle=FPaths::GetBaseFilename(Directory);
     CurrentGameDirectory=Normal;
@@ -1076,8 +1076,6 @@ void ACrankDevicePawn::UpdateLauncher() {
         else if(Translation && Id==LauncherDetailId && CurrentGameDirectory==LauncherDirectory) {
             if(Action==TEXT("translate")) Translation->Open(Id);
             else if(Action==TEXT("original") || Action==TEXT("trans_cancel")) Translation->Cancel();
-            else if(Action==TEXT("model")) Translation->DownloadModel();
-            else if(Action==TEXT("model_cancel")) Translation->CancelModelDownload();
             else if(Action==TEXT("lang_zh")) {bInlineChinese=true;bInlineOriginal=false;}
             else if(Action==TEXT("lang_en")) {bInlineOriginal=true;bInlineChinese=false;}
             else if(Action==TEXT("play")) Launcher->Play(Id);
@@ -1092,11 +1090,7 @@ void ACrankDevicePawn::UpdateLauncher() {
         if(FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Launcher->Snapshot()),Snapshot)) {
             auto T=MakeShared<FJsonObject>();
             T->SetNumberField(TEXT("id"),Translation->GetId());T->SetStringField(TEXT("state"),Translation->GetState());
-            T->SetStringField(TEXT("text"),Translation->GetTranslated());T->SetBoolField(TEXT("modelReady"),Translation->HasModel());
-            T->SetBoolField(TEXT("modelBusy"),Translation->IsModelBusy());T->SetBoolField(TEXT("modelError"),Translation->HasModelError());
-            T->SetStringField(TEXT("modelState"),Translation->GetModelState());
-            T->SetStringField(TEXT("modelDownloadLabel"),Translation->ModelDownloadLabel());
-            if(auto Progress=Translation->ModelProgress();Progress.IsSet())T->SetNumberField(TEXT("modelProgress"),Progress.GetValue());
+            T->SetStringField(TEXT("text"),Translation->GetTranslated());
             Snapshot->SetObjectField(TEXT("translation"),T);
             FString Json;FJsonSerializer::Serialize(Snapshot.ToSharedRef(),TJsonWriterFactory<>::Create(&Json));
             if(Json!=LastLauncherReply && Runtime->ReplyLauncher(LauncherSession,Json))LastLauncherReply=Json;

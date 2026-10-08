@@ -13,7 +13,7 @@ if($Platform -eq 'Android') {
     $env:ANDROID_HOME=$SdkDirectory; $env:ANDROID_SDK_ROOT=$SdkDirectory
     $env:NDKROOT="$SdkDirectory/ndk/27.2.12479018"; $env:JAVA_HOME=$JdkDirectory
 }
-$arguments=@($target,$Platform,'Development',"-Project=$project",'-WaitMutex','-NoHotReload')
+$arguments=@($target,$Platform,'Development',"-Project=$project",'-WaitMutex','-NoHotReload','-NoUBTMakefiles')
 if($Platform -eq 'Android' -and $Architecture) { $arguments+="-Architecture=$Architecture" }
 & "$EngineDirectory/Engine/Build/BatchFiles/Build.bat" @arguments
 if($LASTEXITCODE) { throw 'Unreal compilation/packaging failed' }

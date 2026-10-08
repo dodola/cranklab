@@ -15,6 +15,7 @@ if(!$OutputDirectory) { $OutputDirectory=Join-Path $root "android/$Architecture"
 $OutputDirectory=[IO.Path]::GetFullPath($OutputDirectory)
 $env:ANDROID_HOME=$SdkDirectory; $env:ANDROID_SDK_ROOT=$SdkDirectory
 $env:NDKROOT="$SdkDirectory/ndk/27.2.12479018"; $env:JAVA_HOME=$JdkDirectory
+& "$PSScriptRoot/Remove-ObsoleteTranslationStage.ps1"
 & python "$PSScriptRoot/manifest-fixture.py"
 if($LASTEXITCODE) { throw 'Fixture manifest creation failed' }
 $arguments=@('BuildCookRun',"-project=$project",'-noP4','-unattended',

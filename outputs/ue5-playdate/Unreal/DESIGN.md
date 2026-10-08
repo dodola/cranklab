@@ -236,17 +236,16 @@ only the cached description bitmap, preserving screenshots, metadata, scrolling
 and the download/run action. Original restores the source text and layout.
 Chinese uses pocket-reader's Source Han Sans 20px atlas and glyph-width-based
 layout, with UTF-8 boundaries, Latin word grouping and Chinese punctuation rules.
-The model's one-time download, progress and retry controls live in settings and
-use CrankTheme's existing graphite, yellow accents and font roles. The detail
-language button also exposes explicit download/cancel/loading/retry states.
-During inference, UTF-8-complete partial results update the existing PDGames
-description area. The language action remains busy until generation finishes;
-returning to the original cancels the job. Partial results never enter the cache.
-Model downloads on Android use Wi-Fi only. The existing status slot keeps a
-two-line minimum footprint for connecting, percentage/bytes, verification and
-Wi-Fi retry messages. PDGames uses bounded whole percentages in its compact
-language action and shows a Wi-Fi requirement after a network interruption.
-The immersive screen retains its full area; there is no new action above it.
+Online translation keeps the same language action and cached description bitmap.
+The original stays visible while a request runs. The action shows loading,
+translating, cancel, empty and retry states; only completed responses are cached.
+Returning to original, leaving the detail or backgrounding cancels the request.
+Settings reuses canonical graphite actions for automatic, Microsoft and Tencent
+selection, with the active choice highlighted. Automatic prefers Microsoft and
+tries Tencent once after a failed or malformed response. Public descriptions are
+sent to the selected service; no account data or game save is sent. Completed
+translations remain readable offline. No model download or inference progress is
+shown; response time is not represented as a percentage.
 Model button depression approaches its target immediately, then returns when
 released. Crank motion uses elapsed time, acceleration and interpolation;
 continuous rotation represents user input. There is no decorative idle motion.
@@ -282,11 +281,12 @@ image on the left. Dpad/A/B, crank and delayed screen taps navigate these
 states. This is a compatibility shell, with no original firmware bundled.
 
 Translation stays within PDGames' original monochrome detail view: the middle
-footer action switches Chinese/original without a second panel. First-use model
-size and progress appear in that same action. Native model settings use two
-equal canonical action buttons, with the active profile visibly selected:
-lightweight 440 MiB by default and Q4 1.06 GiB as an alternative. Settings never
-remove another profile's downloaded file or mix its cached translations.
+footer action switches Chinese/original without a second panel. Online-service
+settings use the same focus, press and selection appearance as render settings.
+The circular crank remains the signature HUD instrument. URL, PDX filename and
+button-glyph protection preserves instructions through the translation service.
+Known app-private models from the earlier implementation are removed on upgrade;
+public description caches, translations and game saves are preserved.
 
 ## Do's and Don'ts
 

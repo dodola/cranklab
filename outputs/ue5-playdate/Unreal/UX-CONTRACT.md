@@ -200,64 +200,37 @@ footer tap uses the same scoped Lua action. Chinese replaces only the descriptio
 inside the original cached content bitmap. There is no introduction dialog or
 extra HUD row, and translation does not suspend the game. Screenshots, original
 headers, metadata, scrolling, B navigation and downloading/running are retained.
-The language action shows loading, translating, cancel, missing model, progress,
-empty and retry states. The first model transfer is an explicit second action
-labelled with the selected model's size; exact size is shown in settings. Original stays readable
-until the completed translation is available. Original restores the original
-cached text and height. Closed details, switched games and backgrounding cancel
-inference and discard late completions. Model downloads may continue independently,
-but never start inference after cancellation. Replies are scoped to launcher
-session and catalog ID; ordinary games have no launcher/translation bridge.
+The language action shows loading, translating, cancel, empty and retry states.
+Original stays readable until a complete translation is available. Original
+restores the original cached text and height. Closed details, switched games and
+backgrounding cancel outstanding HTTP requests and ignore late completions.
+Replies are scoped to launcher session, catalog ID and request revision; ordinary
+games have no launcher/translation bridge. Partial or malformed responses never
+replace the original or enter the cache.
 
 Chinese uses pocket-reader's Source Han Sans 20px monochrome glyph atlas,
 compiled into a host-owned PFT. UTF-8 glyph widths wrap within 384 pixels; Latin
 words remain together and closing Chinese punctuation avoids leading a line.
 Unsupported glyphs use a visible replacement. Font lookup uses a sorted codepoint
 index, and parsed fonts are released on game exit. Long descriptions scroll
-through PDGames' original content bitmap; model settings use the canonical HUD.
-The model is downloaded separately to private physical storage from a pinned
-official Tencent GGUF revision. Transfers stream to unique temporary files with
-a strict selected-model byte bound (461,860,800 for STQ1; 1,133,080,448 for Q4).
-The 1.25Bit model is the default; Settings provides Q4 as a retained alternative.
-Selection persists, never deletes another model, cancels active inference and
-uses independent cache identities. Selection is disabled during transfer or
-verification. Download labels and progress follow the selected model's size.
-PDGames floors a bounded percentage before integer formatting; fractional host
-progress never throws in Lua. Connecting, transferring, verifying and awaiting
-Wi-Fi have distinct labels. Download completion is separate from model readiness.
-Android model DNS, sockets and redirects bind to a validated physical Wi-Fi
-Network without changing the process-wide route. Cellular networks never carry
-model bytes. Wi-Fi loss stops the job and removes its private partial after
-the writer closes; reconnect requires explicit retry. Cancellation invalidates
-the job without blocking UE's UI thread. These rules apply to both the settings
-download button and the PDGames detail action; other app downloads retain their
-existing behavior. Already downloaded models and cached translations work offline.
-The model-settings entry reuses the same settings scroller and can position it
-at the model controls; the development scene probe captures this area directly.
-The pinned STQ1 CPU patch supports baseline ARMv8 NEON and DotProd dispatch;
-upstream PR #22836 is still unmerged. A worker verifies SHA-256 before atomic rename;
-cancel/failure never exposes a partial model as ready. CPU dispatch retains a
-baseline ARMv8 backend and selects DotProd/FP16 only when the device supports it.
-The native C ABI uses llama.cpp with mmap, four decode threads and 2048 context tokens.
-Android prefill uses up to six threads while leaving two logical CPUs available.
-On heterogeneous CPUs it counts cores whose maximum frequency is at least 75%
-of the fastest core, so equal-sized input jobs do not wait on little cores.
-Unavailable frequency data falls back to at most four prefill threads. Decode
-still uses four threads; CPU affinity and supported instruction sets are unchanged.
-Descriptions are split without cutting UTF-8 characters; prefill batches respect
-the configured limit and only completed generations are cached. Streaming
-callbacks publish complete UTF-8 prefixes into the same PDGames detail area,
-at most once per 600 ms plus segment completion; cancellation/error restores
-the original and discards partial text. A warm model/context and only the fixed
-instruction's KV survive successful jobs while browsing. All source/output KV
-is removed before the next chunk/job. Native verification reuses an unchanged
-file stamp after a successful SHA-256 check; changed files are checked again.
-Model/context resources are released after 60 seconds of idle time, on game
-launch/background/model switch/shutdown, and on inference failure/cancellation.
-Native metrics record loading, verification, prefill, decode, first output,
-token counts and cache reuse without logging source text or partial translations.
-Translation cache keys include catalog ID, normalized source text, target language,
-model identity and prompt version. Public descriptions are cached independently
-so already-read introductions and completed translations remain usable offline.
-No account data or inference API is involved. Android CPU throughput, memory and
-touch behavior still require user device acceptance; Windows tests do not prove them.
+through PDGames' original content bitmap; translation settings use the canonical HUD.
+Translation is online; no local inference backend or model download is packaged.
+Settings provides automatic, Microsoft and Tencent choices through SCrankAction.
+Selection persists, cancels outstanding work and scopes cache identities by the
+actual provider. Automatic tries Microsoft first and Tencent at most once after
+failure. Each request has an 8-second timeout and a 1-MiB response bound. Source
+text is capped at 24,000 characters and batched without splitting UTF-16 pairs.
+All batch items and protected tokens must return before a result can be cached.
+URLs, PDX filenames, Playdate, direction-key terms, docking phrases and button
+symbols survive via typed placeholders. Vendor-inserted spacing or case changes
+inside placeholders are accepted; missing/duplicated markers reject the result.
+
+First-use translation sends only the public description to the online service.
+No API key, game save or account data is involved. Cached translations appear
+immediately while a description refresh runs, and remain readable offline.
+Source changes invalidate the old cache and cancel its request. Fresh-cache reads
+never depend on the old HY-MT2 profile. Upgrade cleanup deletes only the two known
+app-private HY-MT2 files, their partials and the obsolete model preference file.
+Other user-selected files, public description caches and game saves are retained.
+The UPL receipt stages only the game runtime. Packaging removes obsolete
+inference-library and downloader-class copies from generated Android staging.

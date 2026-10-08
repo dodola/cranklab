@@ -8,19 +8,19 @@ Android 应用名称为 **Playdate**，使用黄色掌机图标和配套启动�
 
 目前支持 Lua 与未加密 `pdex.bin` ARM 游戏代码、掌机 3D 视角、沉浸式游戏屏幕、触控按键和摇柄、屏幕滑动模拟摇柄、运动跟随与震动设置。PDGames 是默认启动器，游戏详情内提供下载／运行和中文／原文切换。
 
-游戏介绍在本机通过 HY-MT2 1.8B 翻译，默认使用约 440 MiB 的 1.25Bit 模型，设置中可以切换 Q4。模型首次单独下载，不包含在仓库或 APK 中。系统界面由兼容层实现，没有捆绑原厂固件；完整游戏兼容性和 Android 性能仍需逐项验证。
+游戏介绍改为在线翻译，参考 kiss-translator 的接口适配：默认优先微软、失败时尝试腾讯，设置里也可固定选择。中文仍直接显示在 PDGames 详情中；翻译结果保存在本机，可离线阅读。首次翻译需要网络，不需要密钥或下载模型。应用不再加载或打包本地推理库，升级时清理旧的应用私有 HY-MT2 模型，保留游戏存档和译文缓存。
 
-两个翻译模型均从腾讯的 ModelScope 魔搭仓库及国内 CDN 下载，固定版本并校验 SHA-256，已有模型与译文缓存可继续使用。
+系统界面由兼容层实现，没有捆绑原厂固件；完整游戏兼容性仍需逐项验证。
 
 ## 项目结构
 
 - `outputs/ue5-playdate/Unreal/`：UE5 C++ 项目、CrankRuntime 插件、内容资产、设计与交互约定。
 - `outputs/ue5-playdate/runtime/`：Lua、C API 兼容层和基于 Unicorn 的 ARM 执行后端。
-- `outputs/ue5-playdate/translation/`：本地翻译后端、锁定的模型／依赖版本及 STQ 补丁。
+- `outputs/ue5-playdate/translation/`：中文字体及历史本地翻译实验资料（不参与应用构建）。
 - `outputs/ue5-playdate/tools/`：构建、资产转换与验证脚本。
 - `outputs/playdate-local/`：原始模型、材质与交互的网页版参考实现。
 
-Unicorn 使用锁定提交的 Git 子模块。SDL、SDL_mixer、zlib 和兼容 Lua 源码保留在项目中；llama.cpp 由翻译构建脚本按锁定版本下载并应用补丁。来源记录见 `outputs/ue5-playdate/third-party.json` 和各依赖内的说明文件。
+Unicorn 使用锁定提交的 Git 子模块。SDL、SDL_mixer、zlib 和兼容 Lua 源码保留在项目中。来源记录见 `outputs/ue5-playdate/third-party.json` 和各依赖内的说明文件。
 
 ## 获取与构建
 
@@ -35,7 +35,6 @@ cd cranklab/outputs/ue5-playdate
 
 ```powershell
 ./tools/Build-Runtime.ps1
-./tools/Build-Translation.ps1 -Platform Win64
 ./tools/Build-Unreal.ps1
 ```
 
@@ -43,7 +42,6 @@ cd cranklab/outputs/ue5-playdate
 
 ```powershell
 ./tools/Build-AndroidRuntime.ps1 -Abi arm64-v8a
-./tools/Build-Translation.ps1 -Platform Android
 ./tools/Build-Unreal.ps1 -Platform Android -Architecture arm64
 ./tools/Cook-Unreal.ps1 -Architecture arm64 -SkipBuild
 ```
@@ -59,8 +57,8 @@ npm start
 
 ## 当前验证与限制
 
-已验证本地真实翻译、缓存隔离与离线恢复、模型下载校验／取消、PDGames 中文／原文切换及 Android 原生库打包。STQ 的旧类型编号通过针对已校验文件的读取适配处理；详见 `outputs/ue5-playdate/translation/STQ-NOTES.md`。
+已完成 Pixel 4 在线接口实测：微软六次请求为 0.21–0.87 秒，腾讯最新三次为 0.57–3.92 秒。这些数据是请求耗时，不包含打开详情的网络加载。具体译法仍可能有误，保留原文供对照。
 
-1.25Bit 的个别译法弱于 Q4。Windows 通用 STQ 路径较慢，Android 使用专门的 ARM 内核。已完成 Pixel 4 原生 CPU 测量与 LiteRT-LM CPU／GPU 探索实验；Qwen3-0.6B 的候选量化文件仍有漏译和操作说明错误，因此正式 App 继续使用 HY-MT2 CPU 后端，尚未启用 GPU／NPU 推理。实验配置与复现方法见 [LiteRT 翻译实验](outputs/ue5-playdate/translation/LITERT-EXPERIMENT.md)。后续手机触控验收由用户进行。
+无密钥接口来自服务的网页／浏览器入口，可能变化或限流；应用提供备用服务、明确重试和本地译文缓存。源码与复现脚本见 `outputs/ue5-playdate/tools/probe-online-translation.py`，项目集成报告见 [在线翻译](outputs/ue5-playdate/translation/ONLINE-TRANSLATION.md)。历史本地 CPU／LiteRT 实验保留供参考，正式应用无需运行其构建脚本。后续手机触控验收由用户进行。
 
 构建产物、模型文件、私人游戏存档、编译缓存和测试工作目录不纳入 Git。开发交付与历史验证说明保留在源码目录中。

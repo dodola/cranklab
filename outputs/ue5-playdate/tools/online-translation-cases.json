@@ -1,0 +1,138 @@
+[
+  {
+    "name": "short",
+    "input": "A puzzle game for ZXQK000QXZ. Turn the crank to rotate the board and find the path. Use the ZXQK001QXZ to move, press A to select and B to go back. Each level introduces a new challenge. Your progress is saved automatically, so you can stop at any time and continue later. Try to complete all levels with as few moves as possible.",
+    "source": "A puzzle game for Playdate. Turn the crank to rotate the board and find the path. Use the D-pad to move, press A to select and B to go back. Each level introduces a new challenge. Your progress is saved automatically, so you can stop at any time and continue later. Try to complete all levels with as few moves as possible.",
+    "keep": [
+      [
+        "ZXQK000QXZ",
+        "Playdate"
+      ],
+      [
+        "ZXQK001QXZ",
+        "方向键"
+      ]
+    ]
+  },
+  {
+    "name": "controls",
+    "input": "Controls: Press A to jump and hold B to brake. Turn the crank clockwise to speed up; turn it counterclockwise to slow down. Do not undock the crank during calibration. Double-tap the screen to exit fullscreen. There are 12 levels, 3 difficulty settings, and no in-app purchases. Your progress is saved automatically. An internet connection is only needed to download new games.",
+    "source": "Controls: Press A to jump and hold B to brake. Turn the crank clockwise to speed up; turn it counterclockwise to slow down. Do not undock the crank during calibration. Double-tap the screen to exit fullscreen. There are 12 levels, 3 difficulty settings, and no in-app purchases. Your progress is saved automatically. An internet connection is only needed to download new games.",
+    "keep": []
+  },
+  {
+    "name": "long",
+    "input": "Friday, 4:54 PM. The waiting room is quiet. The back door is right there. You tiptoe toward freedom. Then Barb, the receptionist, steps out from behind it. She has been standing there the whole time. She is holding a stack of charts.\n\n\"Five more. They're all quick.\"\n\nVet's Quest I: The Lump is a short, gross comedy adventure for ZXQK000QXZ, in the spirit of the old Sierra games. See five patients, one a minute. Each one comes with a close-up you play with the crank, the tilt sensor, the mic or the buttons. At 5:00 you can go home.\n\n**Tonight's patients**\n\n• Mr. Snuggles, a pug. The lump has its own weather. Also, he scoots.\n\n• Duchess, a Persian. Her owner says she's not a biter. She has a hairball and a sense of theater.\n\n• Biscuit, a 14-year-old golden retriever. His breath is visible.\n\n• Pickles, a puppy with a roundworm. The family would like it in a jar.\n\n• Chunk, a Labrador walk-in. You've seen his x-ray. You know what's coming.\n\n**What you'll be doing**\n\n• Crank to squeeze a lump. Crank to express anal glands, and tilt to keep the paper towel where it needs to be.\n\n• Slide a kidney dish under a cat who likes to fake you out.\n\n• Blow into the mic to push dog breath back where it came from.\n\n• Reel out a roundworm. Not too fast. Not too slow.\n\n• Rub a belly, catch what comes up in a bucket, and name it.\n\n• Die a lot. Every death comes with a message.\n\nWash your hands between patients, or the next owner might faint. It's one shift, made for one sitting, and you finish with a score out of 100 and a rank somewhere between Kennel Assistant and Legend of the Exam Room.\n\n**Two ways to play**\n\n• On a ZXQK001QXZ. Download ZXQK002QXZ and sideload it (steps below). This is the real game, with the real crank.\n\n• In your browser. Press Run game above. There's an on-screen crank and ZXQK003QXZ, and it works with a keyboard, a mouse or a touchscreen.\n\nBoth save as you go. Come back later and pick Continue on the title to pick up where you left off, or New shift to start over.\n\n**Controls**\n\nZXQK004QXZ\n\n• ZXQK005QXZ walks. ZXQK006QXZ does whatever the line at the bottom of the screen says. ZXQK007QXZ backs out of a close-up, and turns the sound on and off in the rooms.\n\n• Crank: squeeze, scale, reel and rub.\n\n• Tilt: the paper towel, the kidney dish and the bucket.\n\n• Mic: blow at Biscuit's breath, or hold ZXQK008QXZ instead.\n\nBrowser\n\n• Arrow keys walk. X is ZXQK009QXZ. Z is ZXQK010QXZ.\n\n• Crank: drag the on-screen crank clockwise, scroll over the console, or hold ZXQK011QXZ (ZXQK012QXZ turns it back).\n\n• Tilt: ZXQK013QXZ and ZXQK014QXZ.\n\n• Blow: hold X.\n\n• Biscuit's teeth: ZXQK015QXZ cranks, ZXQK016QXZ ZXQK017QXZ picks a tooth. Pickles' worm: ZXQK018QXZ reels fast, ZXQK019QXZ reels slow.\n\n**Installing on ZXQK020QXZ**\n\n• Download ZXQK021QXZ.\n\n• Sign in at ZXQK022QXZ and upload the zip as it is. No need to unzip it.\n\n• On your ZXQK023QXZ, open the Game Library (Settings > Games on older system software), refresh, and download Vet's Quest.\n\nSafari sometimes unzips downloads on its own. If you end up with a ZXQK024QXZ folder instead of a zip, right-click it, choose Compress, and upload that.\n\nYou can also skip the website: put the ZXQK025QXZ in Data Disk mode (Settings > System > Reboot to Data Disk) and copy the unzipped ZXQK026QXZ folder into its Games folder.\n\n**Credits**\n\nDesign: Brian Hur\n Music: \"Greensleeves\", traditional\n\nNo anal glands were harmed. Several were expressed.",
+    "source": "Friday, 4:54 PM. The waiting room is quiet. The back door is right there. You tiptoe toward freedom. Then Barb, the receptionist, steps out from behind it. She has been standing there the whole time. She is holding a stack of charts.\n\n\"Five more. They're all quick.\"\n\nVet's Quest I: The Lump is a short, gross comedy adventure for Playdate, in the spirit of the old Sierra games. See five patients, one a minute. Each one comes with a close-up you play with the crank, the tilt sensor, the mic or the buttons. At 5:00 you can go home.\n\n**Tonight's patients**\n\n• Mr. Snuggles, a pug. The lump has its own weather. Also, he scoots.\n\n• Duchess, a Persian. Her owner says she's not a biter. She has a hairball and a sense of theater.\n\n• Biscuit, a 14-year-old golden retriever. His breath is visible.\n\n• Pickles, a puppy with a roundworm. The family would like it in a jar.\n\n• Chunk, a Labrador walk-in. You've seen his x-ray. You know what's coming.\n\n**What you'll be doing**\n\n• Crank to squeeze a lump. Crank to express anal glands, and tilt to keep the paper towel where it needs to be.\n\n• Slide a kidney dish under a cat who likes to fake you out.\n\n• Blow into the mic to push dog breath back where it came from.\n\n• Reel out a roundworm. Not too fast. Not too slow.\n\n• Rub a belly, catch what comes up in a bucket, and name it.\n\n• Die a lot. Every death comes with a message.\n\nWash your hands between patients, or the next owner might faint. It's one shift, made for one sitting, and you finish with a score out of 100 and a rank somewhere between Kennel Assistant and Legend of the Exam Room.\n\n**Two ways to play**\n\n• On a Playdate. Download VetsQuest.pdx.zip and sideload it (steps below). This is the real game, with the real crank.\n\n• In your browser. Press Run game above. There's an on-screen crank and d-pad, and it works with a keyboard, a mouse or a touchscreen.\n\nBoth save as you go. Come back later and pick Continue on the title to pick up where you left off, or New shift to start over.\n\n**Controls**\n\nPlaydate\n\n• ✛ walks. Ⓐ does whatever the line at the bottom of the screen says. Ⓑ backs out of a close-up, and turns the sound on and off in the rooms.\n\n• Crank: squeeze, scale, reel and rub.\n\n• Tilt: the paper towel, the kidney dish and the bucket.\n\n• Mic: blow at Biscuit's breath, or hold Ⓐ instead.\n\nBrowser\n\n• Arrow keys walk. X is Ⓐ. Z is Ⓑ.\n\n• Crank: drag the on-screen crank clockwise, scroll over the console, or hold ▲ (▼ turns it back).\n\n• Tilt: ◀ and ▶.\n\n• Blow: hold X.\n\n• Biscuit's teeth: ▲ cranks, ◀ ▶ picks a tooth. Pickles' worm: ▲ reels fast, ▼ reels slow.\n\n**Installing on Playdate**\n\n• Download VetsQuest.pdx.zip.\n\n• Sign in at play.date/account/sideload and upload the zip as it is. No need to unzip it.\n\n• On your Playdate, open the Game Library (Settings > Games on older system software), refresh, and download Vet's Quest.\n\nSafari sometimes unzips downloads on its own. If you end up with a VetsQuest.pdx folder instead of a zip, right-click it, choose Compress, and upload that.\n\nYou can also skip the website: put the Playdate in Data Disk mode (Settings > System > Reboot to Data Disk) and copy the unzipped VetsQuest.pdx folder into its Games folder.\n\n**Credits**\n\nDesign: Brian Hur\n Music: \"Greensleeves\", traditional\n\nNo anal glands were harmed. Several were expressed.",
+    "keep": [
+      [
+        "ZXQK000QXZ",
+        "Playdate"
+      ],
+      [
+        "ZXQK001QXZ",
+        "Playdate"
+      ],
+      [
+        "ZXQK002QXZ",
+        "VetsQuest.pdx.zip"
+      ],
+      [
+        "ZXQK003QXZ",
+        "方向键"
+      ],
+      [
+        "ZXQK004QXZ",
+        "Playdate"
+      ],
+      [
+        "ZXQK005QXZ",
+        "✛"
+      ],
+      [
+        "ZXQK006QXZ",
+        "Ⓐ"
+      ],
+      [
+        "ZXQK007QXZ",
+        "Ⓑ"
+      ],
+      [
+        "ZXQK008QXZ",
+        "Ⓐ"
+      ],
+      [
+        "ZXQK009QXZ",
+        "Ⓐ"
+      ],
+      [
+        "ZXQK010QXZ",
+        "Ⓑ"
+      ],
+      [
+        "ZXQK011QXZ",
+        "▲"
+      ],
+      [
+        "ZXQK012QXZ",
+        "▼"
+      ],
+      [
+        "ZXQK013QXZ",
+        "◀"
+      ],
+      [
+        "ZXQK014QXZ",
+        "▶"
+      ],
+      [
+        "ZXQK015QXZ",
+        "▲"
+      ],
+      [
+        "ZXQK016QXZ",
+        "◀"
+      ],
+      [
+        "ZXQK017QXZ",
+        "▶"
+      ],
+      [
+        "ZXQK018QXZ",
+        "▲"
+      ],
+      [
+        "ZXQK019QXZ",
+        "▼"
+      ],
+      [
+        "ZXQK020QXZ",
+        "Playdate"
+      ],
+      [
+        "ZXQK021QXZ",
+        "VetsQuest.pdx.zip"
+      ],
+      [
+        "ZXQK022QXZ",
+        "play.date/account/sideload"
+      ],
+      [
+        "ZXQK023QXZ",
+        "Playdate"
+      ],
+      [
+        "ZXQK024QXZ",
+        "VetsQuest.pdx"
+      ],
+      [
+        "ZXQK025QXZ",
+        "Playdate"
+      ],
+      [
+        "ZXQK026QXZ",
+        "VetsQuest.pdx"
+      ]
+    ]
+  }
+]

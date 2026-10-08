@@ -25,33 +25,23 @@ static TSharedRef<STextBlock> HudText(const FString& Text,bool Title=false) {
     return SNew(STextBlock).Text(FText::FromString(Text)).Font(Title ? CrankTheme::Title() : CrankTheme::Body())
         .ColorAndOpacity(CrankTheme::HudText()).AutoWrapText(true);
 }
-TSharedRef<SWidget> SCrankOverlay::BuildTranslationModel() {
+TSharedRef<SWidget> SCrankOverlay::BuildTranslationSettings() {
     auto Service=[this]{return Device.IsValid()?Device->GetTranslation():nullptr;};
+    auto Choice=[this,Service](const FString& Label,const FString& Provider) {
+        return Action(Label,[Service,Provider]{if(auto S=Service())S->SelectProvider(Provider);return FReply::Handled();},true,ECrankGlyph::Settings,
+            [Service,Provider]{auto S=Service();return S && S->GetProvider()==Provider;},false);
+    };
+    TranslationSettingsFocus=Choice(TEXT("自动选择"),TEXT("auto"));
     return SNew(SVerticalBox)
+     +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,8)[TranslationSettingsFocus.ToSharedRef()]
      +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,10)
      [SNew(SHorizontalBox)
-      +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,6,0)
-      [SAssignNew(LightModelFocus,SCrankAction).Device(Device).ShowIcon(false).Label(FText::FromString(TEXT("轻量 · 440 MiB")))
-       .Selected_Lambda([Service]{auto S=Service();return S && S->IsLightModel();})
-       .IsEnabled_Lambda([Service]{auto S=Service();return S && !S->IsModelBusy();})
-       .OnClicked_Lambda([Service]{if(auto S=Service())S->SelectModel(true);return FReply::Handled();})]
-      +SHorizontalBox::Slot().FillWidth(1)
-      [SAssignNew(Q4ModelFocus,SCrankAction).Device(Device).ShowIcon(false).Label(FText::FromString(TEXT("Q4 · 1.06 GiB")))
-       .Selected_Lambda([Service]{auto S=Service();return S && !S->IsLightModel();})
-       .IsEnabled_Lambda([Service]{auto S=Service();return S && !S->IsModelBusy();})
-       .OnClicked_Lambda([Service]{if(auto S=Service())S->SelectModel(false);return FReply::Handled();})]]
+      +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,6,0)[Choice(TEXT("微软翻译"),TEXT("microsoft"))]
+      +SHorizontalBox::Slot().FillWidth(1)[Choice(TEXT("腾讯翻译"),TEXT("tencent"))]]
      +SVerticalBox::Slot().AutoHeight()
      [SNew(SBox).MinDesiredHeight(32)
-      [SNew(STextBlock).Text_Lambda([Service]{auto S=Service();return FText::FromString(S?S->ModelMessage():FString());})
-       .Font(CrankTheme::Utility()).ColorAndOpacity_Lambda([Service]{auto S=Service();return S && S->HasModelError()?CrankTheme::HudError():CrankTheme::HudMuted();}).AutoWrapText(true)]]
-     +SVerticalBox::Slot().AutoHeight().Padding(0,8,0,0)
-     [SNew(SBox).HeightOverride(6).Visibility_Lambda([Service]{auto S=Service();return S && S->IsModelBusy()?EVisibility::Visible:EVisibility::Collapsed;})
-      [SNew(SProgressBar).Style(&CrankTheme::Progress()).Percent_Lambda([Service]{auto S=Service();return S?S->ModelProgress():TOptional<float>();}).FillColorAndOpacity(CrankTheme::Accent())]]
-     +SVerticalBox::Slot().AutoHeight().Padding(0,12,0,0)
-     [SNew(SBox).Visibility_Lambda([Service]{auto S=Service();return S && !S->HasModel()?EVisibility::Visible:EVisibility::Collapsed;})
-      [SAssignNew(ModelDownloadFocus,SCrankAction).Device(Device).ShowIcon(false)
-       .Label_Lambda([Service]{auto S=Service();return FText::FromString(S && S->IsModelBusy()?TEXT("取消模型下载"):S && S->HasModelError()?TEXT("重试模型下载"):TEXT("下载翻译模型"));})
-       .OnClicked_Lambda([Service]{if(auto S=Service()){if(S->IsModelBusy())S->CancelModelDownload();else S->DownloadModel();}return FReply::Handled();})]];
+      [SNew(STextBlock).Text_Lambda([Service]{auto S=Service();return FText::FromString(S?S->ProviderMessage():FString());})
+       .Font(CrankTheme::Utility()).ColorAndOpacity(CrankTheme::HudMuted()).AutoWrapText(true)]];
 }
 TSharedRef<SWidget> SCrankOverlay::BuildSettings() {
     auto Content=SNew(SVerticalBox);
@@ -114,7 +104,7 @@ TSharedRef<SWidget> SCrankOverlay::BuildSettings() {
     [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(Device.IsValid() ? Device->GetExperienceError() : FString());})
      .Font(CrankTheme::Body()).ColorAndOpacity(CrankTheme::HudError()).AutoWrapText(true)];
     Content->AddSlot().AutoHeight().Padding(0,20,0,8)[HudText(TEXT("游戏介绍翻译"),true)];
-    Content->AddSlot().AutoHeight()[BuildTranslationModel()];
+    Content->AddSlot().AutoHeight()[BuildTranslationSettings()];
     return Content;
 }
 void SCrankOverlay::Construct(const FArguments& Args) {
@@ -273,18 +263,17 @@ FReply SCrankOverlay::ClosePanels() {
     return FReply::Handled();
 }
 void SCrankOverlay::ShowLibrary() { if(!bLibraryOpen) ToggleLibrary(); }
-void SCrankOverlay::ShowSettings(bool TranslationModel) {
+void SCrankOverlay::ShowSettings(bool TranslationSettings) {
     if(!bSettingsOpen)ToggleSettings();
-    if(TranslationModel && SettingsScroll && Device.IsValid()) {
-        const auto Service=Device->GetTranslation();
-        const auto Target=Service && Service->HasModel() ? (Service->IsLightModel()?LightModelFocus:Q4ModelFocus) : ModelDownloadFocus;
+    if(TranslationSettings && SettingsScroll && Device.IsValid()) {
+        const auto Target=TranslationSettingsFocus;
         if(Target) {
             FSlateApplication::Get().SetKeyboardFocus(Target,EFocusCause::SetDirectly);
-            SettingsScroll->ScrollDescendantIntoView(Target,false,EDescendantScrollDestination::IntoView,4);
+            SettingsScroll->ScrollToEnd();
             // Auto-wrapped labels need a visible layout pass before their final height is known.
             RegisterActiveTimer(.1f,FWidgetActiveTimerDelegate::CreateLambda([this,Weak=TWeakPtr<SWidget>(Target)](double,float) {
                 if(bSettingsOpen && SettingsScroll && Weak.IsValid())
-                    SettingsScroll->ScrollDescendantIntoView(Weak.Pin(),false,EDescendantScrollDestination::IntoView,4);
+                    SettingsScroll->ScrollToEnd();
                 return EActiveTimerReturnType::Stop;
             }));
         }

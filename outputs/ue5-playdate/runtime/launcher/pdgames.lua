@@ -125,9 +125,7 @@ function cranklabLauncherTranslate()
     refresh();focus=1
     local t=state.translation or {}
     if wantChinese and applied then wantChinese=false;host.send('original',game.id);applyDescription(nil)
-    elseif t.id==game.id and t.modelBusy then host.send('model_cancel',game.id);wantChinese=false
     elseif wantChinese and t.id==game.id and (t.state=='loading' or t.state=='translating') then wantChinese=false;host.send('trans_cancel',game.id)
-    elseif wantChinese and t.id==game.id and not t.modelReady then host.send('model',game.id)
     else wantChinese=true;host.send('translate',game.id) end
 end
 function cranklabLauncherDetails()
@@ -165,24 +163,13 @@ function detail:downButtonDown(...) return original.downButtonDown(self,...) end
 local function languageLabel()
     local t=state.translation or {}
     if t.id~= (game and game.id) then return '中文' end
-    if t.modelBusy then
-        if t.modelState=='verifying' then return '校验中' end
-        local progress=tonumber(t.modelProgress)
-        if progress and progress==progress then
-            return ('下载%d%%'):format(math.floor(math.max(0,math.min(1,progress))*100))
-        end
-        return '连接中'
-    end
     if wantChinese and t.state=='translating' then return '翻译中' end
     if wantChinese and applied then return '原文' end
     if wantChinese then
-        if t.modelState=='wifi' then return '需Wi-Fi' end
         if t.state=='loading' then return '读取中' end
         if t.state=='translating' then return '翻译中' end
-        if t.modelError then return '重试下载' end
         if t.state=='error' then return '重试翻译' end
         if t.state=='empty' then return '暂无介绍' end
-        if not t.modelReady then return t.modelError and '重试下载' or (t.modelDownloadLabel or '下载440M') end
     end
     return '中文'
 end
