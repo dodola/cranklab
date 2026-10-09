@@ -125,6 +125,9 @@ activate stale item IDs. A pending value change is flushed before termination.
 The system screen combines up to three custom entries with continue, restart,
 home and settings. The game menu image is retained on the left of the 400×240
 screen. The selected row is black with white text.
+The game preview is clipped to the left half. The opaque right menu panel,
+divider and selected-row background paint above game textures; menu text paints
+above those surfaces in both 3D and immersive modes.
 
 Home supports selection/launch and links to library/settings. Returning to the
 launcher stops the game asynchronously and invokes termination/save behavior. The model

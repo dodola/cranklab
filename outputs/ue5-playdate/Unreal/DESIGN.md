@@ -277,7 +277,10 @@ The 400×240 device display also owns the monochrome boot, home, loading,
 SDK menu and lock screens. `SCrankSystemScreen` draws into a UE render target
 on the same physical screen mesh. Home uses game metadata and covers; the SDK
 menu shows a black selected row with white text and supports the game's menu
-image on the left. Dpad/A/B, crank and delayed screen taps navigate these
+image on the left. The preview is clipped to the left 200 pixels; the opaque
+right panel and selection paint above images, with text on a separate top layer.
+This composition is shared by the physical 3D screen and immersive view.
+Dpad/A/B, crank and delayed screen taps navigate these
 states. This is a compatibility shell, with no original firmware bundled.
 
 Translation stays within PDGames' original monochrome detail view: the middle
