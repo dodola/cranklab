@@ -40,3 +40,6 @@ user-data/
 *.pem
 *.key
 local.properties
+
+# libretro build outputs
+/outputs/ue5-playdate/libretro/dist/

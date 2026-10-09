@@ -48,6 +48,19 @@ cd cranklab/outputs/ue5-playdate
 
 Unreal 项目入口是 `outputs/ue5-playdate/Unreal/CrankLab.uproject`。仓库保留内容资产，因此普通源码构建无需重新执行资产转换。
 
+## RetroArch（libretro）核心
+
+`outputs/ue5-playdate/libretro/` 把同一个运行时做成 libretro 核心，可以在 RetroArch 里运行，目前只支持 Linux（x86_64，以及 ArkOS、EmuELEC 一类掌机系统的 aarch64 / armhf）。支持 Lua 与 ARM `pdex.bin` 游戏、摇柄（L/R 键、右摇杆、L3）、画在画面上的 Playdate 系统菜单，并随 RetroArch 的快进、暂停同步。不支持即时存档和联网。
+
+```sh
+cd outputs/ue5-playdate/libretro
+git submodule update --init
+./build.sh native
+tests/run-tests.sh dist/native/cranklab_libretro.so
+```
+
+x86_64 上 57 项自动化测试通过；aarch64 / armhf 产物只确认能编译，尚未在真机运行。详见 [libretro/README.md](outputs/ue5-playdate/libretro/README.md) 和 [详细文档](outputs/ue5-playdate/libretro/docs/GUIDE.md)。
+
 网页版参考：
 
 ```powershell

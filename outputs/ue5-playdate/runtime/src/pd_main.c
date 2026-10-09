@@ -635,7 +635,12 @@ static void run_game_loop(lua_State *L) {
         uint64_t now = SDL_GetTicks64();
         uint32_t frame_time = (uint32_t)(now - frame_start);
         uint32_t frame_delay=g_pd.refresh_rate>0 ? (uint32_t)(1000.0f/g_pd.refresh_rate) : 0;
-        if (!getenv("PD_FAST") && frame_time < frame_delay)
+        if (pd_host_lockstep()) {
+            if (!pd_host_step_wait(L)) {
+                if (crank_status()==3) runtime_failed=1;
+                break;
+            }
+        } else if (!getenv("PD_FAST") && frame_time < frame_delay)
             SDL_Delay(frame_delay - frame_time);
     }
 }

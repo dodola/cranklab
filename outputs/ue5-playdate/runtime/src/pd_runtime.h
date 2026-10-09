@@ -154,6 +154,8 @@ void pd_network_register(lua_State *L);
 int pd_network_pump(lua_State *L);
 void pd_network_shutdown(lua_State *L);
 int pd_host_active(void);
+int pd_host_lockstep(void);
+int pd_host_step_wait(lua_State *L);
 int pd_host_should_stop(void);
 const char *pd_host_save_path(void);
 void pd_host_fail(const char *error);
@@ -207,6 +209,10 @@ int pd_flip_arg(lua_State *L, int idx);
 int pd_drawmode_arg(lua_State *L, int idx);
 LCDBitmap *pd_load_pdi(const char *path);
 LCDFont *pd_load_pft(const char *path);
+int pd_font_glyph_bitmap(LCDFont *font, uint32_t cp, const uint8_t **data, const uint8_t **mask,
+                         int *width, int *height, int *rowbytes);
+void pd_font_release(LCDFont *font);
+LCDFont *pd_load_pft_detached(const char *path);
 void pd_setup_imports(lua_State *L);
 
 void pd_call_input_handlers(int button, int pressed);
