@@ -16,7 +16,21 @@
 
 static int audio_ready = 0;
 static int host_suspended = 0;
+#ifdef CRANK_EXTERNAL_SDL
+static SDL_atomic_t host_volume = { 100 };
+/* A device-wide postmix gain preserves each game's own player/channel volume. */
+void crank_switch_volume(int percent) {
+    SDL_AtomicSet(&host_volume, percent<0 ? 0 : percent>100 ? 100 : percent);
+}
+#endif
 static void capture_mix(void *unused, Uint8 *stream, int bytes) {
+#ifdef CRANK_EXTERNAL_SDL
+    int volume=SDL_AtomicGet(&host_volume);
+    if(volume!=100) {
+        int16_t *samples=(int16_t*)stream;
+        for(int i=0;i<bytes/(int)sizeof(int16_t);i++) samples[i]=(int16_t)((int)samples[i]*volume/100);
+    }
+#endif
     pd_host_audio((const int16_t *)stream, bytes / (int)sizeof(int16_t));
 }
 
@@ -29,7 +43,14 @@ void pd_sound_shutdown(void) {
 void pd_sound_set_suspended(int suspended) {
     host_suspended = suspended != 0;
     /* Pause the device, preserving each channel's own playing/paused state. */
-    if (audio_ready > 0) Mix_PauseAudio(host_suspended);
+    if (audio_ready > 0) {
+#if SDL_MIXER_VERSION_ATLEAST(2,6,0)
+        Mix_PauseAudio(host_suspended);
+#else
+        /* devkitPro's SDL_mixer 2.0 uses SDL's legacy default audio device. */
+        SDL_PauseAudio(host_suspended);
+#endif
+    }
 }
 
 static void ensure_audio(void) {
@@ -38,7 +59,7 @@ static void ensure_audio(void) {
         Mix_AllocateChannels(32);
         if (pd_host_active()) Mix_SetPostMix(capture_mix, NULL);
         audio_ready = 1;
-        if (host_suspended) Mix_PauseAudio(1);
+        if (host_suspended) pd_sound_set_suspended(1);
     } else {
         fprintf(stderr, "sound: Mix_OpenAudio failed: %s\n", Mix_GetError());
         audio_ready = -1;

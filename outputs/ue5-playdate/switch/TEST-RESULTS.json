@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-10",
+  "scope": "NRO only; Lua games; no UE5 or translation",
+  "baseCommit": "3717505",
+  "artifact": {
+    "size": 12041386,
+    "sha256": "1c98a1611e8746d639998bc77d905817cfb8828ba60f98696c646ffa627b8440"
+  },
+  "crossBuild": {
+    "passed": true,
+    "architecture": "AArch64",
+    "compiler": "devkitA64 GCC 15.2.0"
+  },
+  "hostTests": {
+    "core": "PASS; frames, 3 restarts, suspend/resume, PCM, master mute, datastore, SDK check callback, crank, fit, UTC",
+    "services": "PASS; 15 ZIP fixtures, local TLS, cancellation, source/session isolation, demo labels, persistent offline index"
+  },
+  "pdgames": {
+    "passed": true,
+    "luaOnly": true,
+    "requests": [
+      {
+        "session": 1,
+        "id": 1058,
+        "action": "inspect"
+      },
+      {
+        "session": 1,
+        "id": 1058,
+        "action": "play"
+      },
+      {
+        "session": 1,
+        "id": 1058,
+        "action": "leave"
+      },
+      {
+        "session": 1,
+        "id": 1058,
+        "action": "inspect"
+      }
+    ],
+    "menu": {
+      "items": [
+        {
+          "value": 0,
+          "title": "Show QR",
+          "kind": 0,
+          "id": 1
+        }
+      ],
+      "imageOffset": 0,
+      "hasImage": false
+    },
+    "captures": [
+      {
+        "name": "detail",
+        "frame": 86,
+        "error": ""
+      },
+      {
+        "name": "images",
+        "frame": 132,
+        "error": ""
+      },
+      {
+        "name": "qr",
+        "frame": 392,
+        "error": ""
+      },
+      {
+        "name": "back",
+        "frame": 440,
+        "error": ""
+      }
+    ]
+  },
+  "qr": {
+    "passed": true,
+    "decoded": "https://pdgamez.com/game/1058",
+    "image": "qr.png"
+  },
+  "visualReview": [
+    "settings (Noto Sans CJK, 1280x720)",
+    "empty library (1280x720)",
+    "filled library including unsupported C entry (1280x720)",
+    "actual PDGames detail/action bar and QR"
+  ],
+  "staticUiAudit": {
+    "strict": true,
+    "findings": 0,
+    "limitation": "Does not inspect SDL/C++ drawing; native renders were reviewed separately"
+  },
+  "switchHardwareVerified": false,
+  "onlineListVerified": false,
+  "networkObservation": "PDGamez list request timed out in this environment; cached detail + desktop navigation hook tested the real screens and Lua QR implementation"
+}

@@ -1,0 +1,17 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src", "launcher"],
+  "locale": "zh-CN",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": [],
+  "ownership": {},
+  "requiredCommands": ["core", "services", "nro", "visual"],
+  "commands": {
+    "core": "ctest --test-dir build-host -R core --output-on-failure",
+    "services": "ctest --test-dir build-host -R services --output-on-failure",
+    "nro": "bash build.sh switch && python3 tools/verify_artifact.py --build build-switch --output dist",
+    "visual": "PLAYDATE_UI_FONT=/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy build-host/playdate-switch --settings --frames 10 --screenshot verification/settings.bmp"
+  },
+  "evidence": {"failurePaths": "tests/run_services.py"},
+  "nativeReview": "The auditor does not analyze SDL/C++ drawing or gamepad behavior. Those require host renders, runtime tests and separate Switch hardware review."
+}

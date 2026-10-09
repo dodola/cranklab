@@ -769,8 +769,15 @@ int main(int argc, char *argv[]) {
     }
 
     SDL_SetMainReady();
+#ifndef CRANK_EXTERNAL_SDL
     if (pd_host_active()) SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
-    if (SDL_Init(pd_host_active() ? SDL_INIT_TIMER | SDL_INIT_AUDIO :
+#define PD_SDL_INIT SDL_Init
+#else
+    /* A native host owns its window/controllers and shares SDL with the game.
+       Mixer uses the real device; stopping a game must keep the host alive. */
+#define PD_SDL_INIT SDL_InitSubSystem
+#endif
+    if (PD_SDL_INIT(pd_host_active() ? SDL_INIT_TIMER | SDL_INIT_AUDIO :
                  SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) < 0) {
         fprintf(stderr, "SDL init failed: %s\n", SDL_GetError());
         return 1;
@@ -986,7 +993,11 @@ int main(int argc, char *argv[]) {
     free(g_pd.pdx_dir); free(g_pd.save_dir); g_pd.pdx_dir=g_pd.save_dir=NULL;
     SDL_DestroyRenderer(g_pd.renderer);
     SDL_DestroyWindow(g_pd.window);
+#ifdef CRANK_EXTERNAL_SDL
+    SDL_QuitSubSystem(SDL_INIT_TIMER | SDL_INIT_AUDIO);
+#else
     SDL_Quit();
+#endif
 
     return runtime_failed ? 2 : 0;
 }

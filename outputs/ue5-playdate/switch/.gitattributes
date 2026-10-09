@@ -1,0 +1,2 @@
+# Keep the pinned upstream header byte-for-byte, including its blank-line spaces.
+vendor/picojson.h -whitespace

@@ -44,7 +44,10 @@ static char launcher_reply[262144];
 typedef struct { int id; char action[16]; } LauncherCommand;
 static LauncherCommand launcher_commands[16];
 static int launcher_command_count=0;
-#include "pd_launcher_script.inc"
+#ifndef PD_LAUNCHER_SCRIPT_INCLUDE
+#define PD_LAUNCHER_SCRIPT_INCLUDE "pd_launcher_script.inc"
+#endif
+#include PD_LAUNCHER_SCRIPT_INCLUDE
 
 static int launcher_send(lua_State *L) {
     const char *action=luaL_checkstring(L,1); int id=(int)luaL_optinteger(L,2,0);
@@ -297,7 +300,13 @@ static int start_session(const char *pdx, const char *save,int launcher) {
     SDL_CrankAudioSetGate(lockstep,lockstep ? 2048 : 0);
 #endif
     active=1; SDL_AtomicSet(&state,1);
+#ifdef __SWITCH__
+    /* PDGames snapshots alone use 256 KiB of stack; libnx's SDL default is
+       smaller. Keep Lua/SDK callbacks on an explicitly sized game stack. */
+    game_thread=SDL_CreateThreadWithStackSize(run,"crank-game",1024*1024,NULL);
+#else
     game_thread=SDL_CreateThread(run,"crank-game",NULL);
+#endif
     if(!game_thread) { pd_host_fail(SDL_GetError()); active=0; return 0; }
     return 1;
 #else

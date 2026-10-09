@@ -123,7 +123,12 @@ static int get(lua_State *L) {
     fprintf(stderr, "[http request] GET %s://%s:%d%s\n", h->ssl ? "https" : "http", h->server, h->port, h->request.path);
     SDL_AtomicSet(&h->ready, 0);
     lua_pushvalue(L, 1); h->self_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+#ifdef __SWITCH__
+    /* TLS and HTTP parsing need more stack than libnx SDL's small default. */
+    h->worker = SDL_CreateThreadWithStackSize(worker, "pd-http", 512*1024, h);
+#else
     h->worker = SDL_CreateThread(worker, "pd-http", h);
+#endif
     if (!h->worker) {
         free_request(h); luaL_unref(L, LUA_REGISTRYINDEX, h->self_ref); h->self_ref = LUA_NOREF;
         lua_pushboolean(L, 0); lua_pushstring(L, SDL_GetError()); return 2;

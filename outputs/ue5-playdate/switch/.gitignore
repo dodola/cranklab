@@ -1,0 +1,14 @@
+/build*/
+/dist/
+/deps/
+/romfs/
+/verification/
+/premium-audit.json
+*.nro
+*.nsp
+*.nso
+*.nacp
+*.elf
+*.map
+prod.keys
+keys.dat

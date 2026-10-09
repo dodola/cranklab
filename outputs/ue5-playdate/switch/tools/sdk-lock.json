@@ -1,0 +1,15 @@
+{
+  "repository": "devkitpro/devkita64",
+  "manifestDigest": "sha256:82575ea78651b530b2e232bb3799cfd1fe331514e053d5f724bb4b28191fb79d",
+  "source": "https://github.com/devkitPro/docker",
+  "compiler": "devkitA64 GCC 15.2.0",
+  "libnx": "SDK image snapshot",
+  "portlibs": {
+    "SDL2": "2.28.5",
+    "SDL_mixer": "2.0.4",
+    "SDL_ttf": "2.22.0",
+    "libcurl": "7.69.1",
+    "zlib": "1.3.1"
+  },
+  "dockerRuntimeUsed": false
+}
