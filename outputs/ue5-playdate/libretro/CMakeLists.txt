@@ -28,6 +28,16 @@ set(UNICORN_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(UNICORN_INSTALL OFF CACHE BOOL "" FORCE)
 set(UNICORN_LEGACY_STATIC_ARCHIVE OFF CACHE BOOL "" FORCE)
 add_subdirectory("${PD_DEPS_ROOT}/unicorn" "${CMAKE_BINARY_DIR}/unicorn")
+# Unicorn's configure/create_config subprocesses do not propagate shell failures.
+# Check the generated ARM config before continuing into the expensive SDL probes.
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/config-host.h" OR
+   NOT EXISTS "${CMAKE_BINARY_DIR}/arm-softmmu/config-target.h")
+    message(FATAL_ERROR "Unicorn configuration failed; inspect the shell errors above. Linux/WSL builds require LF line endings in the dependency scripts.")
+endif()
+file(STRINGS "${CMAKE_BINARY_DIR}/arm-softmmu/config-target.h" UC_ARM_CONFIG REGEX "^#define TARGET_ARM ")
+if(NOT UC_ARM_CONFIG)
+    message(FATAL_ERROR "Unicorn generated an incomplete ARM configuration; inspect the shell errors above.")
+endif()
 get_property(PD_UNICORN_TARGETS DIRECTORY "${PD_DEPS_ROOT}/unicorn" PROPERTY BUILDSYSTEM_TARGETS)
 foreach(uc_target ${PD_UNICORN_TARGETS})
     get_target_property(uc_type ${uc_target} TYPE)

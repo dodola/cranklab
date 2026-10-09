@@ -42,6 +42,8 @@ pip install ziglang
 ZIG="python3 -m ziglang" ./build.sh aarch64     # 也可以是 x86_64、armhf
 ```
 
+从 Windows / WSL 构建时，主仓库和 Unicorn 子模块的 shell 脚本都必须使用 LF 换行。建议在 WSL 中克隆源码；Windows 导出子模块时请关闭 `core.autocrlf`，详见[构建说明](docs/GUIDE.md#4-构建)。
+
 部署到 EmuELEC、ArkOS 一类掌机系统（自动检测架构、读取设备上的目录、拷贝并校验）：
 
 ```sh

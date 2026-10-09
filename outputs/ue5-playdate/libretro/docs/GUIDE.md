@@ -136,6 +136,8 @@ nm -D --defined-only dist/x86_64/cranklab_libretro.so | grep -v ' retro_'   # �
 
 首次构建前要拉取 Unicorn 子模块：`git submodule update --init`。SDL2 2.30.12、SDL_mixer 2.8.1、zlib、Lua 的源码已经在仓库里（`runtime/deps/`、`runtime/vendor/`），不依赖系统里安装的 SDL。
 
+Windows / WSL 构建需要注意换行：主仓库已通过 `.gitattributes` 为 shell 脚本和无扩展名的 `cmake/zig-*` 包装器指定 LF；Unicorn 子模块不会继承主仓库的属性。建议在 WSL 中克隆。若从 Windows 导出子模块源码，使用 `git -c core.autocrlf=false -c core.eol=lf archive ...` 保留 LF。遇到 `/bin/sh^M`、`configure: not found` 或配置文件缺失时，先检查依赖脚本的换行。CMake 会在 Unicorn 没有生成有效的 ARM 配置时立即停止。
+
 ### 命令
 
 ```sh
@@ -504,9 +506,10 @@ gcc -O1 -Iinclude tests/harness.c -o harness -ldl -lm
 | x86_64 Linux 上用测试前端的全部项目 | 真正的 RetroArch |
 | zig 交叉工具链编出的 x86_64 产物同样通过 | aarch64、armhf 产物的运行（只确认了能编、glibc 2.17、无多余导出） |
 | 摇柄逻辑与方向 | 摇杆死区、转速的实际手感 |
+| 2026-10-09：Windows 运行时重新编译，输入/音频、生命周期、SDK 菜单回归通过 | 本次构建没有新增 Android 真机操作回归 |
+| 2026-10-09：Android ARM64 运行时与 UE 应用重新构建，APK 签名、在线翻译打包、原生库 16 KiB 对齐检查通过 | |
 | | ArkOS、EmuELEC 上的目录、EmulationStation 配置 |
 | | 菜单在小屏幕上的可读性 |
-| | 对 Windows / Android 运行时构建的影响（只做了语法检查） |
 
 ## 12. 排错
 
@@ -543,7 +546,7 @@ gcc -O1 -Iinclude tests/harness.c -o harness -ldl -lm
 | `runtime/deps/sdl-source/src/audio/SDL_audio.c` | `CRANK_LOCKSTEP_AUDIO` 宏保护的额度控制代码，只在 libretro 构建里打开 |
 | `third-party.json` | 记录了上面的 SDL 改动 |
 
-**这些改动没有在 Windows 和 Android 上实际编译验证。** 我只在去掉 `CRANK_LOCKSTEP_AUDIO` 的配置下对改过的三个 C 文件做了语法检查。合入前请在这两个平台各编译一遍。
+2026-10-09 已重新编译 Windows 和 Android ARM64 运行时，并完成 Android UE 应用构建和 APK 校验。Windows 的输入/音频、生命周期及 SDK 菜单探针通过。Android 保持默认的实时模式，锁步音频只在 libretro 构建中启用；本次构建没有新增 Android 真机操作回归。
 
 ## 14. 许可与第三方
 
