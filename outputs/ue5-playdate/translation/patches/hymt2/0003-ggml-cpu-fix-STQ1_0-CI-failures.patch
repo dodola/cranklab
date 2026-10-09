@@ -1,0 +1,261 @@
+From a3fab1f85c208ffd3aae0dad0be657b441aca0de Mon Sep 17 00:00:00 2001
+From: jinlongsong <jinlongsong@tencent.com>
+Date: Fri, 22 May 2026 17:45:55 +0800
+Subject: [PATCH 3/5] ggml-cpu : fix STQ1_0 CI failures
+
+---
+ ggml/src/ggml-cpu/arch-fallback.h   |  1 -
+ ggml/src/ggml-cpu/arch/arm/quants.c | 47 ++++++++++-------------------
+ ggml/src/ggml-cpu/ggml-cpu.c        | 10 ------
+ ggml/src/ggml-cpu/quants.c          |  6 +++-
+ ggml/src/ggml-cpu/quants.h          |  5 ---
+ ggml/src/ggml-quants.c              | 24 ++++++++++-----
+ tests/test-quantize-fns.cpp         |  4 ++-
+ 7 files changed, 41 insertions(+), 56 deletions(-)
+
+diff --git a/ggml/src/ggml-cpu/arch-fallback.h b/ggml/src/ggml-cpu/arch-fallback.h
+index 9d1e024..2b48f3b 100644
+--- a/ggml/src/ggml-cpu/arch-fallback.h
++++ b/ggml/src/ggml-cpu/arch-fallback.h
+@@ -227,7 +227,6 @@
+ // quants.c
+ #define ggml_vec_dot_nvfp4_q8_0_generic ggml_vec_dot_nvfp4_q8_0
+ #define ggml_vec_dot_q2_0_q8_0_generic ggml_vec_dot_q2_0_q8_0
+-#define ggml_vec_dot_stq_0_q8_K_generic ggml_vec_dot_stq_0_q8_K
+ #define ggml_vec_dot_stq1_0_q8_K_generic ggml_vec_dot_stq1_0_q8_K
+ // repack.cpp
+ #define ggml_quantize_mat_q8_0_4x1_generic ggml_quantize_mat_q8_0_4x1
+diff --git a/ggml/src/ggml-cpu/arch/arm/quants.c b/ggml/src/ggml-cpu/arch/arm/quants.c
+index 03d835d..3324e14 100644
+--- a/ggml/src/ggml-cpu/arch/arm/quants.c
++++ b/ggml/src/ggml-cpu/arch/arm/quants.c
+@@ -1682,21 +1682,6 @@ void ggml_vec_dot_tq2_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const vo
+ #endif
+ }
+ 
+-// repack q8_K qs from contiguous to planar layout (in-place, per 64-byte chunk)
+-// after repack, vld1q_s8 reads produce the same values as vld4q_s8 de-interleave
+-void stq1_0_repack_q8_K_inplace(void * vy, int nb) {
+-    block_q8_K * y = (block_q8_K *) vy;
+-    for (int i = 0; i < nb; ++i) {
+-        for (int j = 0; j < QK_K; j += 64) {
+-            const int8x16x4_t v = vld4q_s8(y[i].qs + j);
+-            vst1q_s8(y[i].qs + j +  0, v.val[0]);
+-            vst1q_s8(y[i].qs + j + 16, v.val[1]);
+-            vst1q_s8(y[i].qs + j + 32, v.val[2]);
+-            vst1q_s8(y[i].qs + j + 48, v.val[3]);
+-        }
+-    }
+-}
+-
+ void ggml_vec_dot_stq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc) {
+     assert(nrc == 1);
+     UNUSED(nrc);
+@@ -1714,7 +1699,7 @@ void ggml_vec_dot_stq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const v
+ 
+     const uint8x16_t m3 = vdupq_n_u8(3);
+     const uint8x16_t mask_0f = vdupq_n_u8(0x0F);
+-    const uint8_t (*sign_lut_16)[8] = (const uint8_t (*)[8]) table_b2b_0;
++    const uint8_t * sign_lut_16 = (const uint8_t *)(const void *) table_b2b_0;
+ 
+ #if defined(__ARM_FEATURE_DOTPROD)
+     // dotprod path: single 32-byte tbl lookup + native vdotq.
+@@ -1736,9 +1721,9 @@ void ggml_vec_dot_stq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const v
+ #endif
+ 
+     // Each half processes 16 bytes of x.qs (32 codes), 4 bytes of x.sign,
+-    // and 128 bytes of y.qs (4 lanes × 16 bytes × 2 wide-blocks).
+-    // sumi0..sumi3, mask_0f, sign_lut_16, m3, STQ1_0_LOOKUP, STQ1_0_DOT are
+-    // captured from the enclosing scope.
++    // and 128 bytes of y.qs (2 chunks of 64 B). Stride-16 grouping lets each
++    // lane plane be a contiguous 16-byte slice of y (offsets 0/16/32/48 within
++    // a chunk), so we read it with plain vld1q_s8 — no deinterleave needed.
+ #define STQ1_0_DOT_HALF(QS_PTR, SIGN_PTR, YP_PTR) do {                                \
+     const uint8x16_t packed = vld1q_u8(QS_PTR);                                     \
+     const uint8x16_t lo     = vandq_u8(packed, mask_0f);                            \
+@@ -1746,10 +1731,10 @@ void ggml_vec_dot_stq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const v
+     const uint8x16_t idx0   = vzip1q_u8(lo, hi);                                    \
+     const uint8x16_t idx1   = vzip2q_u8(lo, hi);                                    \
+     const uint8_t * sp      = (SIGN_PTR);                                           \
+-    const uint8x16_t s0 = vcombine_u8(vld1_u8(sign_lut_16[sp[0]]),                  \
+-                                      vld1_u8(sign_lut_16[sp[1]]));                 \
+-    const uint8x16_t s1 = vcombine_u8(vld1_u8(sign_lut_16[sp[2]]),                  \
+-                                      vld1_u8(sign_lut_16[sp[3]]));                 \
++    const uint8x16_t s0 = vcombine_u8(vld1_u8(sign_lut_16 + 8*sp[0]),               \
++                                      vld1_u8(sign_lut_16 + 8*sp[1]));              \
++    const uint8x16_t s1 = vcombine_u8(vld1_u8(sign_lut_16 + 8*sp[2]),               \
++                                      vld1_u8(sign_lut_16 + 8*sp[3]));              \
+     const uint8x16_t sel_0 = STQ1_0_LOOKUP(vorrq_u8(idx0, s0));                       \
+     const uint8x16_t sel_1 = STQ1_0_LOOKUP(vorrq_u8(idx1, s1));                       \
+     const int8x16_t sqx0 = vreinterpretq_s8_u8(vandq_u8(sel_0, m3));                \
+@@ -1761,14 +1746,14 @@ void ggml_vec_dot_stq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const v
+     const int8x16_t sqx6 = vreinterpretq_s8_u8(vandq_u8(vshrq_n_u8(sel_1, 4), m3)); \
+     const int8x16_t sqx7 = vreinterpretq_s8_u8(vshrq_n_u8(sel_1, 6));               \
+     const int8_t * yp = (YP_PTR);                                                   \
+-    sumi0 = STQ1_0_DOT(sumi0, sqx0, vld1q_s8(yp +   0));                              \
+-    sumi1 = STQ1_0_DOT(sumi1, sqx1, vld1q_s8(yp +  16));                              \
+-    sumi2 = STQ1_0_DOT(sumi2, sqx2, vld1q_s8(yp +  32));                              \
+-    sumi3 = STQ1_0_DOT(sumi3, sqx3, vld1q_s8(yp +  48));                              \
+-    sumi0 = STQ1_0_DOT(sumi0, sqx4, vld1q_s8(yp +  64));                              \
+-    sumi1 = STQ1_0_DOT(sumi1, sqx5, vld1q_s8(yp +  80));                              \
+-    sumi2 = STQ1_0_DOT(sumi2, sqx6, vld1q_s8(yp +  96));                              \
+-    sumi3 = STQ1_0_DOT(sumi3, sqx7, vld1q_s8(yp + 112));                              \
++    sumi0 = STQ1_0_DOT(sumi0, sqx0, vld1q_s8(yp +   0));                            \
++    sumi1 = STQ1_0_DOT(sumi1, sqx1, vld1q_s8(yp +  16));                            \
++    sumi2 = STQ1_0_DOT(sumi2, sqx2, vld1q_s8(yp +  32));                            \
++    sumi3 = STQ1_0_DOT(sumi3, sqx3, vld1q_s8(yp +  48));                            \
++    sumi0 = STQ1_0_DOT(sumi0, sqx4, vld1q_s8(yp +  64));                            \
++    sumi1 = STQ1_0_DOT(sumi1, sqx5, vld1q_s8(yp +  80));                            \
++    sumi2 = STQ1_0_DOT(sumi2, sqx6, vld1q_s8(yp +  96));                            \
++    sumi3 = STQ1_0_DOT(sumi3, sqx7, vld1q_s8(yp + 112));                            \
+ } while (0)
+ 
+     for (int i = 0; i < nb; ++i) {
+diff --git a/ggml/src/ggml-cpu/ggml-cpu.c b/ggml/src/ggml-cpu/ggml-cpu.c
+index 1560fac..67405b8 100644
+--- a/ggml/src/ggml-cpu/ggml-cpu.c
++++ b/ggml/src/ggml-cpu/ggml-cpu.c
+@@ -1377,16 +1377,6 @@ UseGgmlGemm1:;
+                         from_float((const float *) src1_row, wdata_row, ne10_block_size);
+                     }
+ 
+-#if defined(__aarch64__) || defined(__arm__) || defined(_M_ARM) || defined(_M_ARM64)
+-                    // STQ1_0 NEON vec_dot wants Q8_K activations in planar
+-                    // layout (vld1q reads); deinterleave once here so the
+-                    // per-row dot loop amortizes it across all M weight rows.
+-                    if (src0->type == GGML_TYPE_STQ1_0) {
+-                        stq1_0_repack_q8_K_inplace(
+-                            wdata_row,
+-                            (int)(ne10_block_end - ne10_block_start));
+-                    }
+-#endif
+                 }
+             }
+         }
+diff --git a/ggml/src/ggml-cpu/quants.c b/ggml/src/ggml-cpu/quants.c
+index 9f4133a..e4b7e53 100644
+--- a/ggml/src/ggml-cpu/quants.c
++++ b/ggml/src/ggml-cpu/quants.c
+@@ -583,14 +583,18 @@ void ggml_vec_dot_stq1_0_q8_K_generic(int n, float * GGML_RESTRICT s, size_t bs,
+     for (int i = 0; i < nb; ++i) {
+         int32_t sumi = 0;
+ 
++        // Groups are stride-16 within each 64-byte chunk: group g (chunk-local
++        // in 0..15) pairs with {y[c*64 + g + p*16] : p in 0..3}.
+         for (int g = 0; g < QK_K/4; ++g) {
+             const uint8_t code = (x[i].qs[g/2] >> (4 * (g & 1))) & 0x0F;
+             const uint8_t sign = (x[i].sign[g/8] >> (g % 8)) & 0x01;
+             const uint8_t qpack = stq1_0_codebook[((uint32_t) sign << 4) | code];
+ 
++            const int chunk = g / 16;
++            const int gloc  = g % 16;
+             for (int p = 0; p < 4; ++p) {
+                 const int q = (qpack >> (2*p)) & 0x3;
+-                sumi += (q - 1) * y[i].qs[g*4 + p];
++                sumi += (q - 1) * y[i].qs[chunk*64 + gloc + p*16];
+             }
+         }
+ 
+diff --git a/ggml/src/ggml-cpu/quants.h b/ggml/src/ggml-cpu/quants.h
+index e1fc061..412da24 100644
+--- a/ggml/src/ggml-cpu/quants.h
++++ b/ggml/src/ggml-cpu/quants.h
+@@ -59,11 +59,6 @@ void ggml_vec_dot_q6_K_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const voi
+ void ggml_vec_dot_tq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+ void ggml_vec_dot_tq2_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+ void ggml_vec_dot_stq1_0_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+-#if defined(__aarch64__) || defined(__arm__) || defined(_M_ARM) || defined(_M_ARM64)
+-// STQ1_0 ARM NEON path uses planar Q8_K activation; the in-place repack
+-// is only declared on ARM and called from ggml_compute_forward_mul_mat.
+-void stq1_0_repack_q8_K_inplace(void * vy, int nb);
+-#endif
+ 
+ void ggml_vec_dot_iq2_xxs_q8_K(int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+ void ggml_vec_dot_iq2_xs_q8_K (int n, float * GGML_RESTRICT s, size_t bs, const void * GGML_RESTRICT vx, size_t bx, const void * GGML_RESTRICT vy, size_t by, int nrc);
+diff --git a/ggml/src/ggml-quants.c b/ggml/src/ggml-quants.c
+index b050df8..53f275d 100644
+--- a/ggml/src/ggml-quants.c
++++ b/ggml/src/ggml-quants.c
+@@ -2427,15 +2427,19 @@ void quantize_row_stq1_0_ref(const float * GGML_RESTRICT x, block_stq1_0 * GGML_
+         }
+         y[i].d = GGML_FP32_TO_FP16(amax);
+ 
+-        // STQ1_0 forces exactly one zero per group of 4. Pick the smallest-|x|
+-        // lane as that zero; project the other 3 onto {-d, +d} via sign.
++        // STQ1_0 forces exactly one zero per group of 4. Groups are stride-16
++        // within each 64-weight chunk: group g (chunk-local in 0..15) covers
++        // {x[c*64 + g + p*16] : p in 0..3}. Pick the smallest-|x| lane as zero;
++        // project the other 3 onto {-d, +d} via sign.
+         for (int g = 0; g < QK_K/4; ++g) {
+-            const float * xv = x + g*4;
++            const int chunk = g / 16;
++            const int gloc  = g % 16;
++            const float * base = x + chunk*64 + gloc;
+ 
+             int   zero_pos = 0;
+-            float min_abs  = fabsf(xv[0]);
++            float min_abs  = fabsf(base[0]);
+             for (int p = 1; p < 4; ++p) {
+-                const float a = fabsf(xv[p]);
++                const float a = fabsf(base[p*16]);
+                 if (a < min_abs) { min_abs = a; zero_pos = p; }
+             }
+ 
+@@ -2446,7 +2450,7 @@ void quantize_row_stq1_0_ref(const float * GGML_RESTRICT x, block_stq1_0 * GGML_
+                 if (p == zero_pos) {
+                     lane = 0x1;
+                 } else {
+-                    lane = (xv[p] < 0.0f) ? 0x0 : 0x2;
++                    lane = (base[p*16] < 0.0f) ? 0x0 : 0x2;
+                 }
+                 qpack |= (uint8_t)(lane << (2*p));
+             }
+@@ -2549,16 +2553,22 @@ void dequantize_row_stq1_0(const block_stq1_0 * GGML_RESTRICT x, float * GGML_RE
+     for (int64_t i = 0; i < nb; ++i) {
+         const float d = GGML_FP16_TO_FP32(x[i].d);
+ 
++        // Groups are stride-16 within each 64-weight chunk: group g (chunk-local
++        // in 0..15) writes to {y[c*64 + g + p*16] : p in 0..3}.
+         for (int g = 0; g < QK_K/4; ++g) {
+             const uint8_t code = (x[i].qs[g/2] >> (4 * (g & 1))) & 0x0F;
+             const uint8_t sign = (x[i].sign[g/8] >> (g % 8)) & 0x01;
+             const uint8_t qpack = stq1_0_codebook[((uint32_t) sign << 4) | code];
+ 
++            const int chunk = g / 16;
++            const int gloc  = g % 16;
+             for (int p = 0; p < 4; ++p) {
+                 const int q = (qpack >> (2*p)) & 0x3;
+-                *y++ = (float) (q - 1) * d;
++                y[chunk*64 + gloc + p*16] = (float) (q - 1) * d;
+             }
+         }
++
++        y += QK_K;
+     }
+ }
+ 
+diff --git a/tests/test-quantize-fns.cpp b/tests/test-quantize-fns.cpp
+index 1930a09..fb5b9f5 100644
+--- a/tests/test-quantize-fns.cpp
++++ b/tests/test-quantize-fns.cpp
+@@ -189,6 +189,8 @@ static int test_vec_dot_q(bool verbose) {
+             const float total_error = total_quantization_error(qfns, qfns_cpu, test_size, test_data.data());
+             const float max_quantization_error =
+                 type == GGML_TYPE_Q1_0    ? MAX_QUANTIZATION_TOTAL_ERROR_BINARY :
++                // STQ1_0 is QAT-based: inputs sit on a {-a, 0, +a} grid; binary bound fits.
++                type == GGML_TYPE_STQ1_0  ? MAX_QUANTIZATION_TOTAL_ERROR_BINARY :
+                 type == GGML_TYPE_TQ1_0   ? MAX_QUANTIZATION_TOTAL_ERROR_TERNARY :
+                 type == GGML_TYPE_TQ2_0   ? MAX_QUANTIZATION_TOTAL_ERROR_TERNARY :
+                 type == GGML_TYPE_Q2_0    ? MAX_QUANTIZATION_TOTAL_ERROR_TERNARY :
+@@ -215,7 +217,7 @@ static int test_vec_dot_q(bool verbose) {
+             const float max_allowed_error = type == GGML_TYPE_Q2_K || type == GGML_TYPE_IQ2_XS || type == GGML_TYPE_IQ2_XXS ||
+                 type == GGML_TYPE_IQ3_XXS || type == GGML_TYPE_IQ3_S || type == GGML_TYPE_IQ2_S
+                 ? MAX_DOT_PRODUCT_ERROR_LOWBIT
+-                : type == GGML_TYPE_Q1_0
++                : type == GGML_TYPE_Q1_0 || type == GGML_TYPE_STQ1_0
+                 ? MAX_DOT_PRODUCT_ERROR_BINARY
+                 : type == GGML_TYPE_TQ1_0 || type == GGML_TYPE_TQ2_0 || type == GGML_TYPE_Q2_0
+                 ? MAX_DOT_PRODUCT_ERROR_TERNARY
+-- 
+2.47.1
+

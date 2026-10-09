@@ -1,0 +1,39 @@
+From caadec84020f04667a8a145e5076d20b905af0e3 Mon Sep 17 00:00:00 2001
+From: dev <dev@local>
+Date: Fri, 9 Oct 2026 07:32:50 +0800
+Subject: [PATCH 5/5] llama-context: set threadpool on every CPU backend (fixes
+ disposable pools with GGML_BACKEND_DL)
+
+---
+ src/llama-context.cpp | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/src/llama-context.cpp b/src/llama-context.cpp
+index 9dcaf05..53dce23 100644
+--- a/src/llama-context.cpp
++++ b/src/llama-context.cpp
+@@ -2627,11 +2627,18 @@ ggml_status llama_context::graph_compute(
+     int n_threads        = batched ? cparams.n_threads_batch : cparams.n_threads;
+     ggml_threadpool_t tp = batched ? threadpool_batch        : threadpool;
+ 
+-    if (backend_cpu != nullptr) {
+-        auto * reg = ggml_backend_dev_backend_reg(ggml_backend_get_device(backend_cpu));
++    // Set the threadpool on every CPU-type backend, not only backend_cpu: with dynamically loaded CPU
++    // variants (GGML_BACKEND_DL) the scheduler may compute on another CPU backend instance, which
++    // would otherwise fall back to a disposable threadpool (thread creation on every graph).
++    for (auto & backend : backends) {
++        auto * dev = ggml_backend_get_device(backend.get());
++        auto * reg = dev ? ggml_backend_dev_backend_reg(dev) : nullptr;
++        if (!reg) {
++            continue;
++        }
+         auto * set_threadpool_fn = (decltype(ggml_backend_cpu_set_threadpool) *) ggml_backend_reg_get_proc_address(reg, "ggml_backend_cpu_set_threadpool");
+         if (set_threadpool_fn) {
+-            set_threadpool_fn(backend_cpu, tp);
++            set_threadpool_fn(backend.get(), tp);
+         }
+     }
+ 
+-- 
+2.47.1
+

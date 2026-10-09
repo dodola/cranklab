@@ -5,6 +5,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <mutex>
@@ -51,12 +52,45 @@ static int prefill_threads() {
         // Count the faster clusters, retaining a conservative fallback if sysfs
         // is unavailable. Never force affinity or change the supported CPU ISA.
         const int fast=static_cast<int>(std::count_if(frequencies.begin(),frequencies.end(),[peak](uint64_t f){return f*4>=peak*3;}));
-        return std::min(available,std::max(2,fast));
+        // One or two prime cores sharing the pool with others stall ggml's spinning barrier
+        // (SM8750: 6 threads incl. cpu6 -> pp 15 t/s vs 80). Leave them out.
+        const int prime=static_cast<int>(std::count(frequencies.begin(),frequencies.end(),peak));
+        const int usable=(prime<=2 && cores>=6)?fast-prime:fast;
+        return std::min(available,std::max(2,usable));
     }();
     return count;
 #else
     return 4;
 #endif
+}
+
+// Hexagon/Adreno selection. The host passes the writable directory that holds
+// libggml-htp-v*.so (the DSP cannot read them from the app's native-library
+// directory) and a preference: auto, htp, opencl or cpu.
+static std::mutex configMutex;
+static std::string htpDirectory,devicePreference="auto";
+EXPORT void crank_translation_configure(const char* htp_directory,const char* preference) {
+    std::lock_guard<std::mutex> guard(configMutex);
+    htpDirectory=htp_directory?htp_directory:"";
+    const std::string wanted=preference?preference:"auto";
+    devicePreference=(wanted=="htp"||wanted=="opencl"||wanted=="cpu")?wanted:"auto";
+}
+static ggml_backend_dev_t find_device(bool cpu,const std::string& prefix) {
+    for(size_t i=0;i<ggml_backend_dev_count();++i) {
+        auto* dev=ggml_backend_dev_get(i);const std::string name=ggml_backend_dev_name(dev);
+        const auto type=ggml_backend_dev_type(dev);
+        if(cpu ? type==GGML_BACKEND_DEVICE_TYPE_CPU
+               : (prefix=="HTP" ? name.rfind("HTP",0)==0 : (type==GGML_BACKEND_DEVICE_TYPE_GPU && name.rfind("HTP",0)!=0)))return dev;
+    }
+    return nullptr;
+}
+// STQ1_0 has no HTP/OpenCL kernel, so the 1.25-bit file always stays on the CPU.
+static ggml_backend_dev_t pick_accelerator(const std::string& preference,uintmax_t model_size,std::string& label) {
+    label="cpu";if(preference=="cpu" || model_size==461860800)return nullptr;
+    ggml_backend_dev_t dev=nullptr;
+    if(preference!="opencl" && (dev=find_device(false,"HTP"))){label="htp";return dev;}
+    if(preference!="htp" && (dev=find_device(false,"GPU"))){label="opencl";return dev;}
+    return nullptr;
 }
 
 struct Stamp {
@@ -85,7 +119,7 @@ static bool stamp(const char* path,Stamp& out) {
 static std::mutex verifyMutex,engineMutex;
 static Stamp verifiedFile;static bool hasVerifiedFile=false;
 struct Engine {
-    Stamp file;std::string backend;Control control{};
+    Stamp file;std::string backend,device="cpu";Control control{};
     std::unique_ptr<llama_model,decltype(&llama_model_free)> model{nullptr,llama_model_free};
     std::unique_ptr<llama_context,decltype(&llama_free)> context{nullptr,llama_free};
     std::vector<llama_token> prefix;bool prefixReady=false;
@@ -98,12 +132,12 @@ EXPORT void crank_translation_release() {
 }
 struct Stats {
     double verify=0,load=0,prefill=0,decode=0,firstOutput=-1,total=0;
-    int input=0,output=0,prefixReused=0,batchThreads=4;bool reused=false;
+    int input=0,output=0,prefixReused=0,batchThreads=4;bool reused=false;char device[8]="cpu";
 };
 static thread_local Stats lastStats;
 EXPORT int crank_translation_stats(char* output,int capacity) {
     if(!output || capacity<2)return 1;const auto& s=lastStats;
-    int n=std::snprintf(output,capacity,"{\"verifyMs\":%.2f,\"loadMs\":%.2f,\"prefillMs\":%.2f,\"decodeMs\":%.2f,\"firstOutputMs\":%.2f,\"totalMs\":%.2f,\"inputTokens\":%d,\"outputTokens\":%d,\"prefixTokensReused\":%d,\"threads\":4,\"batchThreads\":%d,\"modelReused\":%s}",s.verify,s.load,s.prefill,s.decode,s.firstOutput,s.total,s.input,s.output,s.prefixReused,s.batchThreads,s.reused?"true":"false");return n>=0 && n<capacity?0:1;
+    int n=std::snprintf(output,capacity,"{\"verifyMs\":%.2f,\"loadMs\":%.2f,\"prefillMs\":%.2f,\"decodeMs\":%.2f,\"firstOutputMs\":%.2f,\"totalMs\":%.2f,\"inputTokens\":%d,\"outputTokens\":%d,\"prefixTokensReused\":%d,\"threads\":4,\"batchThreads\":%d,\"modelReused\":%s,\"device\":\"%s\"}",s.verify,s.load,s.prefill,s.decode,s.firstOutput,s.total,s.input,s.output,s.prefixReused,s.batchThreads,s.reused?"true":"false",s.device);return n>=0 && n<capacity?0:1;
 }
 static size_t complete_utf8_size(const std::string& text) {
     if(text.empty())return 0;
@@ -135,7 +169,7 @@ static int fail(char* error,int capacity,const char* message,int code=1) {
 EXPORT int crank_translate_version() {return 2;}
 EXPORT int crank_translation_verify_model(const char* path,Cancel cancel,void* data) {
     if(cancel && cancel(data))return 2;
-    Stamp before;if(!stamp(path,before) || (before.size!=1133080448 && before.size!=461860800))return 1;
+    Stamp before;if(!stamp(path,before) || (before.size!=1133080448 && before.size!=461860800 && before.size!=1079997408))return 1;
     std::lock_guard<std::mutex> guard(verifyMutex);
     if(cancel && cancel(data))return 2;
     if(hasVerifiedFile && verifiedFile==before)return 0;
@@ -153,6 +187,8 @@ EXPORT int crank_translation_verify_model(const char* path,Cancel cancel,void* d
     for(int i=0;i<32;++i){hex[i*2]=digits[digest[i]>>4];hex[i*2+1]=digits[digest[i]&15];}hex[64]=0;
     const char* expected=total==461860800
         ? "cc497fe8f033b52b3b8b00a7669e9661435432f9d4cd43f7ed24400c01507a93"
+        : total==1079997408
+        ? "5458acf22435287fb9aa7a5bf6cc041806df15d54cea020cbad25ac95e2d8a21"
         : "dc5f44fcf1fa496ee7ad725982c0c8c553a4de00259b53af84c4b89fb0c06699";
     if(std::strcmp(hex,expected)!=0)return 1;verifiedFile=after;hasVerifiedFile=true;return 0;
 }
@@ -173,30 +209,48 @@ static int run(const char* model_path,const char* backend_path,const char* text,
         Control control{cancel,data};
         if(abort_decode(&control)) return fail(error,error_capacity,"cancelled",2);
         static std::once_flag init;
-        std::call_once(init,[&]{llama_log_set(quiet_log,nullptr);ggml_backend_load_all_from_path(backend_path);llama_backend_init();});
-        auto mp=llama_model_default_params();mp.load_mode=LLAMA_LOAD_MODE_MMAP;mp.n_gpu_layers=0;
+        std::string htp_dir,preference;
+        {std::lock_guard<std::mutex> config(configMutex);htp_dir=htpDirectory;preference=devicePreference;}
+        std::call_once(init,[&]{
+            llama_log_set(quiet_log,nullptr);
+#ifndef _WIN32
+            // The DSP finds libggml-htp-v*.so through ADSP_LIBRARY_PATH; keep the vendor dirs.
+            if(!htp_dir.empty()) {
+                const std::string adsp=htp_dir+";/vendor/lib/rfsa/adsp;/vendor/dsp/cdsp;/system/lib/rfsa/adsp";
+                setenv("ADSP_LIBRARY_PATH",adsp.c_str(),1);
+            }
+#endif
+            ggml_backend_load_all_from_path(backend_path);
+            // load_all is silent when an optional plugin fails to dlopen; retry so the device list is honest.
+            for(const char* name:{"opencl","hexagon"}) {
+                if(ggml_backend_reg_by_name(name))continue;
+                const std::string path=std::string(backend_path)+"/libggml-"+name+".so";
+                if(std::filesystem::exists(std::filesystem::u8path(path)))ggml_backend_load(path.c_str());
+            }
+            llama_backend_init();
+        });
+        auto mp=llama_model_default_params();mp.load_mode=LLAMA_LOAD_MODE_MMAP;
         mp.progress_callback=load_progress;mp.progress_callback_user_data=&control;
         if(progress) progress(data,0,0);
-        // The official lightweight file uses the old STQ enum 42, now Q2_0 in
-        // upstream. Scope the read-only compatibility shim to a verified file.
         std::error_code ec;
-        const bool legacy=std::filesystem::file_size(std::filesystem::u8path(model_path),ec)==461860800;
+        const auto model_size=std::filesystem::file_size(std::filesystem::u8path(model_path),ec);
         {
             auto begin=Clock::now();int code=crank_translation_verify_model(model_path,cancel,data);lastStats.verify=ms(begin);
             if(code!=0)return fail(error,error_capacity,code==2?"cancelled":"model_invalid",code==2?2:1);
         }
+        // The official 1.25-bit file stores STQ1_0 as type 42 (Q2_0 upstream). This llama.cpp pin
+        // has no read-time shim, so it needs the 42->43 header remap before it can be loaded.
+        if(model_size==461860800)return fail(error,error_capacity,"stq1_requires_type_remap");
         Stamp current;if(!stamp(model_path,current))return fail(error,error_capacity,"model_load_failed");
-        if(engine && (!(engine->file==current) || engine->backend!=backend_path))engine.reset();
-        lastStats.reused=bool(engine);auto loading=Clock::now();
-        if(!engine){engine=std::make_unique<Engine>();engine->file=current;engine->backend=backend_path;engine->control=control;}
+        std::string device_label;ggml_backend_dev_t accelerator=pick_accelerator(preference,model_size,device_label);
+        if(engine && (!(engine->file==current) || engine->backend!=backend_path || engine->device!=device_label))engine.reset();
+        lastStats.reused=bool(engine);std::snprintf(lastStats.device,sizeof(lastStats.device),"%s",device_label.c_str());auto loading=Clock::now();
+        if(!engine){engine=std::make_unique<Engine>();engine->file=current;engine->backend=backend_path;engine->device=device_label;engine->control=control;}
         engine->control=control;mp.progress_callback_user_data=&engine->control;
-        auto load_model=[&]() {
-            struct ScopedSTQ {
-                ScopedSTQ(bool enabled){gguf_crank_legacy_stq1(enabled);}
-                ~ScopedSTQ(){gguf_crank_legacy_stq1(false);}
-            } scope(legacy);
-            return llama_model_load_from_file(model_path,mp);
-        };
+        // One accelerator only: splitting layers across HTP and OpenCL is slower than HTP alone.
+        ggml_backend_dev_t devices[2]={accelerator?accelerator:find_device(true,""),nullptr};
+        mp.devices=devices;mp.n_gpu_layers=accelerator?99:0;
+        auto load_model=[&]() {return llama_model_load_from_file(model_path,mp);};
         auto& model=engine->model;if(!model)model.reset(load_model());
         lastStats.load=ms(loading);
         if(!model) return fail(error,error_capacity,abort_decode(&control) ? "cancelled" : "model_load_failed",abort_decode(&control)?2:1);
@@ -219,7 +273,7 @@ static int run(const char* model_path,const char* backend_path,const char* text,
             auto body=tokenize(parts[index],false);tokens.insert(tokens.end(),body.begin(),body.end());
             auto suffix=tokenize(u8"<｜hy_Assistant｜>",true);tokens.insert(tokens.end(),suffix.begin(),suffix.end());
             if(tokens.empty() || tokens.size()>900) return fail(error,error_capacity,"input_chunk_too_long");
-            auto cp=llama_context_default_params();cp.n_ctx=2048;cp.n_batch=256;cp.n_ubatch=128;
+            auto cp=llama_context_default_params();cp.n_ctx=2048;cp.n_batch=accelerator?512:256;cp.n_ubatch=accelerator?512:128;
             cp.n_threads=4;cp.n_threads_batch=prefill_threads();
             cp.abort_callback=abort_decode;cp.abort_callback_data=&engine->control;
             auto& ctx=engine->context;if(!ctx)ctx.reset(llama_init_from_model(model.get(),cp));lastStats.batchThreads=cp.n_threads_batch;
@@ -229,8 +283,9 @@ static int run(const char* model_path,const char* backend_path,const char* text,
             else {llama_memory_clear(memory,false);engine->prefix=prefix;engine->prefixReady=false;}
             auto prefill=Clock::now();lastStats.input+=static_cast<int>(tokens.size()-start);
             // n_batch is a hard limit, so prefill in bounded batches.
-            for(size_t offset=start;offset<tokens.size();offset+=256) {
-                auto batch=llama_batch_get_one(tokens.data()+offset,static_cast<int>(std::min(size_t(256),tokens.size()-offset)));
+            const size_t step_size=cp.n_batch;
+            for(size_t offset=start;offset<tokens.size();offset+=step_size) {
+                auto batch=llama_batch_get_one(tokens.data()+offset,static_cast<int>(std::min(step_size,tokens.size()-offset)));
                 if(llama_decode(ctx.get(),batch)!=0) return fail(error,error_capacity,abort_decode(&control)?"cancelled":"prefill_failed",abort_decode(&control)?2:1);
             }
             lastStats.prefill+=ms(prefill);engine->prefixReady=true;
