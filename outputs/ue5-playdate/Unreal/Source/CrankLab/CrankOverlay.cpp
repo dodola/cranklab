@@ -32,16 +32,29 @@ TSharedRef<SWidget> SCrankOverlay::BuildTranslationSettings() {
             [Service,Provider]{auto S=Service();return S && S->GetProvider()==Provider;},false);
     };
     TranslationSettingsFocus=Choice(TEXT("自动选择"),TEXT("auto"));
+    const bool Local=FCrankTranslation::LocalSupported();
     return SNew(SVerticalBox)
      +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,8)[TranslationSettingsFocus.ToSharedRef()]
      +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,10)
      [SNew(SHorizontalBox)
       +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,6,0)[Choice(TEXT("微软翻译"),TEXT("microsoft"))]
       +SHorizontalBox::Slot().FillWidth(1)[Choice(TEXT("腾讯翻译"),TEXT("tencent"))]]
+     +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,10)
+     [SNew(SBox).Visibility(Local?EVisibility::Visible:EVisibility::Collapsed)[Choice(TEXT("本地翻译"),TEXT("local"))]]
      +SVerticalBox::Slot().AutoHeight()
      [SNew(SBox).MinDesiredHeight(32)
       [SNew(STextBlock).Text_Lambda([Service]{auto S=Service();return FText::FromString(S?S->ProviderMessage():FString());})
-       .Font(CrankTheme::Utility()).ColorAndOpacity(CrankTheme::HudMuted()).AutoWrapText(true)]];
+       .Font(CrankTheme::Utility()).ColorAndOpacity(CrankTheme::HudMuted()).AutoWrapText(true)]]
+     +SVerticalBox::Slot().AutoHeight().Padding(0,10,0,0)
+     [SNew(SBox).Visibility(Local?EVisibility::Visible:EVisibility::Collapsed)
+      [SNew(STextBlock).Text_Lambda([Service]{auto S=Service();return FText::FromString(S?S->ModelMessage():FString());})
+       .Font(CrankTheme::Utility()).ColorAndOpacity_Lambda([Service]{auto S=Service();return S && S->HasModelError()?CrankTheme::HudError():CrankTheme::HudMuted();}).AutoWrapText(true)]]
+     +SVerticalBox::Slot().AutoHeight().Padding(0,8,0,0)
+     [SNew(SBox).HeightOverride(6).Visibility_Lambda([Service]{auto S=Service();return S && S->IsModelBusy()?EVisibility::Visible:EVisibility::Collapsed;})
+      [SNew(SProgressBar).Style(&CrankTheme::Progress()).Percent_Lambda([Service]{auto S=Service();return S?S->ModelProgress():TOptional<float>();}).FillColorAndOpacity(CrankTheme::Accent())]]
+     +SVerticalBox::Slot().AutoHeight().Padding(0,12,0,0)
+     [SNew(SBox).Visibility_Lambda([Service]{auto S=Service();return FCrankTranslation::LocalSupported() && S && !S->HasModel()?EVisibility::Visible:EVisibility::Collapsed;})
+      [Action(TEXT("下载本地翻译模型"),[Service]{if(auto S=Service()){if(S->IsModelBusy())S->CancelModelDownload();else S->DownloadModel();}return FReply::Handled();},true,ECrankGlyph::Settings,nullptr,false)]];
 }
 TSharedRef<SWidget> SCrankOverlay::BuildSettings() {
     auto Content=SNew(SVerticalBox);

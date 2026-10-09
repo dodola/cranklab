@@ -40,3 +40,10 @@ docker run --rm --platform linux/amd64 -u "$(id -u):$(id -g)" \
     -DPREBUILT_LIB_DIR=android_aarch64 -DCRANK_SNAPDRAGON=ON -DLLAMA_OPENSSL=OFF &&
   cmake --build /out/build -j${JOBS:-$(nproc)}"
 echo "built -> $OUT/build/bin"
+
+# Stage for the Unreal plugin: CrankRuntime_APL.xml copies this folder into the APK's lib/arm64-v8a.
+STAGE="${STAGE:-$(cd "$HERE/.." && pwd)/Unreal/Plugins/CrankRuntime/Binaries/ThirdParty/Translation/Android/arm64-v8a}"
+mkdir -p "$STAGE"; rm -f "$STAGE"/*.so
+cp "$OUT"/build/bin/*.so "$STAGE"/
+find "$OUT/build/deps/llama.cpp/ggml/src/ggml-hexagon" -maxdepth 1 -name 'libggml-htp-v*.so' -exec cp {} "$STAGE"/ \;
+echo "staged -> $STAGE ($(ls "$STAGE" | wc -l) libraries)"

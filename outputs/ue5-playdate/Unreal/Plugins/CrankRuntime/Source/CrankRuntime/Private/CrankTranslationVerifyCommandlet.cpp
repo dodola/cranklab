@@ -43,6 +43,20 @@ int32 UCrankTranslationVerifyCommandlet::Main(const FString& Params) {
         const bool Persisted=Service->GetProvider()==TEXT("tencent");Passed&=Selected && Persisted && !Service->SelectProvider(TEXT("invalid")) && Service->SelectProvider(TEXT("auto"));
         Result->SetBoolField(TEXT("providerSelectionPersists"),Persisted);
     }
+    if(FParse::Param(*Params,TEXT("TestLocalPolicy"))) {
+        // Routing and cache identity of the local provider (pure logic, no model or network needed).
+        const bool Routing=FCrankTranslation::FirstProvider(TEXT("auto"),true)==TEXT("local") && FCrankTranslation::FirstProvider(TEXT("auto"),false)==TEXT("microsoft")
+            && FCrankTranslation::FirstProvider(TEXT("local"),false)==TEXT("local") && FCrankTranslation::FirstProvider(TEXT("tencent"),true)==TEXT("tencent");
+        const bool Fallback=FCrankTranslation::FallsBackToOnline(TEXT("auto")) && !FCrankTranslation::FallsBackToOnline(TEXT("local")) && !FCrankTranslation::FallsBackToOnline(TEXT("microsoft"));
+        const FString Text=TEXT("Use the crank.");
+        const FString Local=FCrankTranslation::CacheKey(Id,Text,TEXT("local"));
+        const bool Keys=Local!=FCrankTranslation::CacheKey(Id,Text,TEXT("microsoft")) && Local!=FCrankTranslation::CacheKey(Id,Text,TEXT("tencent"))
+            && Local==FCrankTranslation::CacheKey(Id,TEXT("  Use the crank.\r\n"),TEXT("local")) && Local!=FCrankTranslation::CacheKey(Id+1,Text,TEXT("local"));
+        const bool Selectable=Service->SelectProvider(TEXT("local"))==FCrankTranslation::LocalSupported();
+        Service->SelectProvider(TEXT("auto"));
+        Passed&=Routing && Fallback && Keys && Selectable;
+        Result->SetBoolField(TEXT("localRouting"),Routing);Result->SetBoolField(TEXT("localFallbackPolicy"),Fallback);Result->SetBoolField(TEXT("localCacheKeys"),Keys);Result->SetBoolField(TEXT("localSelectionMatchesPlatform"),Selectable);
+    }
     Service->Shutdown();Launcher->Shutdown();Result->SetBoolField(TEXT("passed"),Passed);
     FString Output,Text;FParse::Value(*Params,TEXT("Output="),Output);FJsonSerializer::Serialize(Result,TJsonWriterFactory<>::Create(&Text));
     if(!Output.IsEmpty())FFileHelper::SaveStringToFile(Text,*Output,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);

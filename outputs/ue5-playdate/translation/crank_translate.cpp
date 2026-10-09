@@ -192,6 +192,12 @@ EXPORT int crank_translation_verify_model(const char* path,Cancel cancel,void* d
         : "dc5f44fcf1fa496ee7ad725982c0c8c553a4de00259b53af84c4b89fb0c06699";
     if(std::strcmp(hex,expected)!=0)return 1;verifiedFile=after;hasVerifiedFile=true;return 0;
 }
+// The host records a successful verification next to the model and skips the
+// 9 s SHA-256 pass on later launches while size and modification time match.
+EXPORT int crank_translation_trust_model(const char* path) {
+    Stamp current;if(!stamp(path,current))return 1;
+    std::lock_guard<std::mutex> guard(verifyMutex);verifiedFile=current;hasVerifiedFile=true;return 0;
+}
 // The host retains one warm context while browsing and releases it on game
 // launch, backgrounding, model switching, shutdown or 60 seconds of idle time.
 static int run(const char* model_path,const char* backend_path,const char* text,

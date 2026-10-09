@@ -8,7 +8,7 @@ Android 应用名称为 **Playdate**，使用黄色掌机图标和配套启动�
 
 目前支持 Lua 与未加密 `pdex.bin` ARM 游戏代码、掌机 3D 视角、沉浸式游戏屏幕、触控按键和摇柄、屏幕滑动模拟摇柄、运动跟随与震动设置。PDGames 是默认启动器，游戏详情内提供下载／运行和中文／原文切换。
 
-游戏介绍改为在线翻译，参考 kiss-translator 的接口适配：默认优先微软、失败时尝试腾讯，设置里也可固定选择。中文仍直接显示在 PDGames 详情中；翻译结果保存在本机，可离线阅读。首次翻译需要网络，不需要密钥或下载模型。应用不再加载或打包本地推理库，升级时清理旧的应用私有 HY-MT2 模型，保留游戏存档和译文缓存。
+游戏介绍改为在线翻译，参考 kiss-translator 的接口适配：默认优先微软、失败时尝试腾讯，设置里也可固定选择。中文仍直接显示在 PDGames 详情中；翻译结果保存在本机，可离线阅读。首次翻译需要网络，不需要密钥或下载模型。Android 上另可在设置中下载约 1 GiB 的 Hy-MT2 Q4_0 模型，在本机翻译（骁龙设备走 Hexagon NPU，其他设备走 Adreno／CPU）；“自动选择”在模型就绪时优先本地，失败或 30 秒无输出时改用在线。升级时保留游戏存档和译文缓存。详见 [本地翻译](outputs/ue5-playdate/translation/LOCAL-TRANSLATION.md)。
 
 系统界面由兼容层实现，没有捆绑原厂固件；完整游戏兼容性仍需逐项验证。
 
@@ -16,7 +16,7 @@ Android 应用名称为 **Playdate**，使用黄色掌机图标和配套启动�
 
 - `outputs/ue5-playdate/Unreal/`：UE5 C++ 项目、CrankRuntime 插件、内容资产、设计与交互约定。
 - `outputs/ue5-playdate/runtime/`：Lua、C API 兼容层和基于 Unicorn 的 ARM 执行后端。
-- `outputs/ue5-playdate/translation/`：中文字体及历史本地翻译实验资料（不参与应用构建）。
+- `outputs/ue5-playdate/translation/`：本地 Hy-MT2 推理库（`crank_translate.cpp`、`build-snapdragon.sh`）、中文字体，以及历史 LiteRT／STQ 实验资料。
 - `outputs/ue5-playdate/tools/`：构建、资产转换与验证脚本。
 - `outputs/playdate-local/`：原始模型、材质与交互的网页版参考实现。
 
