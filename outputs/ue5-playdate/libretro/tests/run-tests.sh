@@ -11,7 +11,21 @@ games="$project/native-test-games"
 failures=0
 trap 'rm -rf "$work"' EXIT
 
-gcc -O1 -Wall -I"$here/../include" "$here/harness.c" -o "$harness" -ldl -lm || exit 2
+if [ -n "${CRANKLAB_TEST_HARNESS:-}" ]; then
+    harness="$(readlink -f "$CRANKLAB_TEST_HARNESS")"
+    [ -x "$harness" ] || exit 2
+else
+    gcc -O1 -Wall -I"$here/../include" "$here/harness.c" -o "$harness" -ldl -lm || exit 2
+fi
+lua_only=$(python3 -I - "$core" <<'PY'
+import ctypes, sys
+class Info(ctypes.Structure):
+    _fields_ = [('name', ctypes.c_char_p), ('version', ctypes.c_char_p), ('extensions', ctypes.c_char_p), ('fullpath', ctypes.c_bool), ('block_extract', ctypes.c_bool)]
+lib = ctypes.CDLL(sys.argv[1]); info = Info()
+lib.retro_get_system_info(ctypes.byref(info))
+print(1 if info.version.endswith(b'-lua') else 0)
+PY
+) || exit 2
 
 field() { sed -n "s/.*$1=\([^ ]*\).*/\1/p" <<<"$2" | head -1; }
 run() { # stdout and stderr both land in $work/<name>.log
@@ -56,6 +70,24 @@ r=$(run palette "$work/basic.pdx/main.lua" --frames 20 --opt cranklab_palette=bl
 check "palette option accepted" "$(eq "$(field load "$r")" ok)"
 
 echo "== Archives and device (ARM) code"
+if [ "$lua_only" = 1 ]; then
+    for g in Life Mixed-ABI; do
+        r=$(run "reject-$g" "$games/$g.zip" --frames 5)
+        check "$g.zip is rejected in Lua-only mode" "$(eq "$(field load "$r")" failed)"
+        check "$g rejection explains C/Lua+C limitation" "$(grep -q 'Lua-only core' "$work/reject-$g.log" && echo 1 || echo 0)"
+    done
+    # A bundle containing Lua and C must not silently skip its native extension.
+    mkdir -p "$work/mixed.pdx" "$work/empty-native.pdx"
+    printf 'native' > "$work/mixed.pdx/pdex.bin"
+    printf 'error("Lua entry must not run")\n' > "$work/mixed.pdx/main.lua"
+    r=$(run reject-mixed "$work/mixed.pdx/main.lua" --frames 5)
+    check "Lua entry alongside a C extension is rejected before execution" "$(eq "$(field load "$r")" failed)"
+    check "mixed-game rejection names the limitation" "$(grep -q 'Lua-only core' "$work/reject-mixed.log" && echo 1 || echo 0)"
+    cp "$work/life.pdx/main.lua" "$work/empty-native.pdx/main.lua"
+    : > "$work/empty-native.pdx/pdex.bin"
+    r=$(run empty-native "$work/empty-native.pdx/main.lua" --frames 10)
+    check "empty pdex.bin placeholder does not block Lua" "$(eq "$(field load "$r")" ok)"
+else
 for g in Life Sprite-Game Particles Mixed-ABI Audio-C Hello-World Core-ABI; do
     r=$(run "zip-$g" "$games/$g.zip" --frames 40 --realtime)
     check "$g.zip runs" "$(eq "$(field load "$r")" ok)"
@@ -67,6 +99,7 @@ check "runaway C loop fails cleanly" "$(eq "$(field load "$r")" failed)"
 r=$(run unsupported "$games/Unsupported-C.zip" --frames 10 --realtime)
 check "unimplemented C API fails cleanly" "$(eq "$(field load "$r")" failed)"
 check "failure names the API" "$(grep -q 'graphics.copyBitmap' "$work/unsupported.log" && echo 1 || echo 0)"
+fi
 
 echo "== Lifecycle and saves"
 r=$(run life "$work/life.pdx/pdxinfo" --frames 60 --realtime --stall 30:800)

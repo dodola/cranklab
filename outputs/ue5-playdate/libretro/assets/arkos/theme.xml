@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<theme>
+  <formatVersion>7</formatVersion>
+  <!-- Install as es-theme-nes-box/playdate/. Customize the home carousel only. -->
+  <include>./../theme.xml</include>
+  <view name="system">
+    <image name="logo">
+      <path>./playdate-menu-icon.png</path>
+    </image>
+    <image name="background_icon" extra="true">
+      <path>./playdate-menu-icon.png</path>
+      <origin>0.5 0.5</origin>
+      <pos>0.74 0.52</pos>
+      <size>0.46 0</size>
+      <zIndex>3</zIndex>
+    </image>
+    <text name="playdate_title" extra="true">
+      <text>PLAYDATE</text>
+      <fontPath>./../_inc/fonts/sans-black-cond-italic.ttf</fontPath>
+      <fontSize>0.055</fontSize>
+      <color>ffffff</color>
+      <alignment>center</alignment>
+      <origin>0.5 0.5</origin>
+      <pos>0.74 0.13</pos>
+      <size>0.44 0.09</size>
+      <zIndex>5</zIndex>
+    </text>
+  </view>
+</theme>

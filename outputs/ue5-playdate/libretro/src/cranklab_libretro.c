@@ -18,6 +18,9 @@
 
 #include "cranklab_content.h"
 #include "cranklab_menu.h"
+#ifdef CRANKLAB_LUA_ONLY
+#include "cranklab_native_disabled.h"
+#endif
 
 #define SCREEN_W 400
 #define SCREEN_H 240
@@ -292,7 +295,11 @@ void retro_deinit(void) {}
 void retro_get_system_info(struct retro_system_info *info) {
     memset(info, 0, sizeof(*info));
     info->library_name = "CrankLab";
+#ifdef CRANKLAB_LUA_ONLY
+    info->library_version = "0.1.1-lua";
+#else
     info->library_version = "0.1.0";
+#endif
     info->valid_extensions = "pdx|pdz|pdxl|zip";
     info->need_fullpath = true;
     info->block_extract = true;
@@ -336,16 +343,23 @@ bool retro_load_game(const struct retro_game_info *game) {
     if (!environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_dir)) system_dir = NULL;
     if (!environ_cb(RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY, &save_dir) || !save_dir) save_dir = system_dir;
     read_options();
-    if (system_dir) {
-        char font[CRANKLAB_PATH_MAX];
-        snprintf(font, sizeof(font), "%s/cranklab/fonts/cranklab-zh.pft", system_dir);
-        cranklab_menu_load_font(font);
-    }
-
     if (!cranklab_resolve_content(game->path, system_dir ? system_dir : (save_dir ? save_dir : "/tmp"),
                                   pdx_dir, sizeof(pdx_dir), error, sizeof(error))) {
         say(RETRO_LOG_ERROR, "%s", error);
         return false;
+    }
+#ifdef CRANKLAB_LUA_ONLY
+    if (!cranklab_lua_content_supported(pdx_dir, error, sizeof(error))) {
+        struct retro_message message = { error, 300 };
+        say(RETRO_LOG_ERROR, "%s", error);
+        environ_cb(RETRO_ENVIRONMENT_SET_MESSAGE, &message);
+        return false;
+    }
+#endif
+    if (system_dir) {
+        char font[CRANKLAB_PATH_MAX];
+        snprintf(font, sizeof(font), "%s/cranklab/fonts/cranklab-zh.pft", system_dir);
+        cranklab_menu_load_font(font);
     }
     say(RETRO_LOG_INFO, "Loading %s", pdx_dir);
     if (!start_session()) return false;

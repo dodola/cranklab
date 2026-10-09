@@ -26,11 +26,13 @@
 
 CrankLab 是一个 Playdate 兼容运行时：用自己实现的 Lua 虚拟机和 SDK API 运行 Lua 游戏，用 Unicorn 模拟 Cortex-M7 运行 `pdex.bin` 里的 ARM 设备代码。它原本被嵌进 Unreal Engine 5 的 Android 应用里，对外只有一组 C 接口（`runtime/include/crank_host.h`）。
 
+**第一版 Linux/libretro 核心默认只支持 Lua（`0.1.1-lua`）。** `CRANKLAB_LUA_ONLY=ON` 在构建时移除 Unicorn 和 `pd_native.cpp`，以本目录内的空后端替代。含非空 `pdex.bin` 的 C / Lua+C 游戏在启动线程前被拒绝。Android 的源码和构建不使用此选项，保留原有 ARM 后端。以下关于 ARM 执行的说明仅适用于 `LUA_ONLY=OFF` 的实验性构建。
+
 这个核心做的事很简单：**写一个 libretro 前端，调用同一组 C 接口**。运行时的 Lua、图形、音频、ARM 执行代码都没有重写，核心只负责把 RetroArch 的输入、视频、音频、时间和文件系统接上去。
 
 | 项目 | 值 |
 |---|---|
-| 核心名 / 版本 | `CrankLab` / `0.1.0` |
+| 核心名 / 版本 | `CrankLab` / `0.1.1-lua`（默认 Lua 构建） |
 | 支持的内容扩展名 | `pdx`、`pdz`、`pdxl`、`zip` |
 | 是否需要完整路径 | 是（`need_fullpath`），且禁止 RetroArch 自己解压（`block_extract`） |
 | 无内容启动 | 不支持 |
@@ -134,7 +136,7 @@ nm -D --defined-only dist/x86_64/cranklab_libretro.so | grep -v ' retro_'   # �
 | 本机构建（`native`） | gcc / g++ 或 clang |
 | 交叉构建 | `pip install ziglang`（zig 作为 C/C++ 编译器），不需要各架构的 binutils |
 
-首次构建前要拉取 Unicorn 子模块：`git submodule update --init`。SDL2 2.30.12、SDL_mixer 2.8.1、zlib、Lua 的源码已经在仓库里（`runtime/deps/`、`runtime/vendor/`），不依赖系统里安装的 SDL。
+默认 Lua 构建不需要拉取 Unicorn。实验性 ARM 构建才需要 `git submodule update --init`。SDL2 2.30.12、SDL_mixer 2.8.1、zlib、Lua 的源码已经在仓库里（`runtime/deps/`、`runtime/vendor/`），不依赖系统里安装的 SDL。
 
 Windows / WSL 构建需要注意换行：主仓库已通过 `.gitattributes` 为 shell 脚本和无扩展名的 `cmake/zig-*` 包装器指定 LF；Unicorn 子模块不会继承主仓库的属性。建议在 WSL 中克隆。若从 Windows 导出子模块源码，使用 `git -c core.autocrlf=false -c core.eol=lf archive ...` 保留 LF。遇到 `/bin/sh^M`、`configure: not found` 或配置文件缺失时，先检查依赖脚本的换行。CMake 会在 Unicorn 没有生成有效的 ARM 配置时立即停止。
 
@@ -178,7 +180,7 @@ objdump -T dist/aarch64/cranklab_libretro.so | grep -o 'GLIBC_[0-9.]*' | sort -u
 
 ### 构建的关键点
 
-- Unicorn 只编 ARM 客户端（`UNICORN_ARCH=arm`）。它的 CRC 函数通过 `runtime/compat/unicorn_crc.h` 改名，避免和 zlib 的 `crc32` 冲突。
+- 默认 Lua 构建排除 Unicorn 和 `pd_native.cpp`，链接本目录的 `cranklab_native_disabled.c`。实验性 ARM 构建只编 ARM 客户端（`UNICORN_ARCH=arm`），CRC 函数通过 `runtime/compat/unicorn_crc.h` 改名。
 - SDL 关掉了所有真实的视频、音频后端（X11、Wayland、KMS/DRM、ALSA、PulseAudio 等），只保留 dummy 驱动，所以不会因缺少这些开发库而失败。
 - `CRANK_LOCKSTEP_AUDIO` 同时定义给 SDL 和核心，打开 SDL 里的额度控制代码。
 - 链接选项：`-Wl,--version-script=link.T`、`-Wl,-Bsymbolic`、`-Wl,--gc-sections`、Release 下 `-Wl,--strip-all`。
@@ -199,7 +201,7 @@ cp dist/native/system/cranklab/fonts/cranklab-zh.pft ~/.config/retroarch/system/
 
 ### 部署到 EmuELEC / ArkOS 一类掌机系统
 
-> 这一节**没有在真机上验证过**。目录和启动方式随系统与版本而异，下面凡是拿不准的位置，都给了在设备上查证的命令，请以设备上查到的为准。
+> 2026-10-10 已在一台 r36max2 / RK3326 / AArch64 / RetroArch 1.22.2 的 ArkOS 设备上验证安装和 EmulationStation 条目，游戏目录为 `/roms2/playdate`，核心目录为 `/home/ark/.config/retroarch/cores`。EmuELEC 和其他型号仍需验证；请以设备配置为准。
 
 #### 一条命令：`deploy.sh`
 
@@ -254,14 +256,14 @@ grep -E '^(libretro_directory|libretro_info_path|system_directory|savefile_direc
 
 如果 `libretro_directory` 在只读的系统分区上，就不要往里放，改用完整路径指定核心。
 
-**4. 拷贝**：核心和 info 放到 `/storage/cranklab/` 之类的可写目录；`cranklab-zh.pft` 放进 `<system_directory>/cranklab/fonts/`；再放一个测试游戏（比如 `native-test-games/Life.zip`）。
+**4. 拷贝**：核心和 info 放到 `/storage/cranklab/` 之类的可写目录；`cranklab-zh.pft` 放进 `<system_directory>/cranklab/fonts/`；再放一个 Lua 游戏。`native-test-games/Life.zip` 是 C 示例，默认 Lua 核心应拒绝加载。
 
 **5. 先绕过 EmulationStation 手动启动**，确认核心本身能跑：
 
 ```sh
 systemctl list-units | grep -i emu          # 找到 EmulationStation 的服务名
 systemctl stop <服务名>                      # 释放屏幕
-/usr/bin/retroarch -L /storage/cranklab/cranklab_libretro.so /storage/roms/playdate/Life.zip --verbose 2>&1 | tee /tmp/cranklab.log
+/usr/bin/retroarch -L /storage/cranklab/cranklab_libretro.so /storage/roms/playdate/LuaGame.zip --verbose 2>&1 | tee /tmp/cranklab.log
 grep CrankLab /tmp/cranklab.log
 systemctl start <服务名>                     # 验完恢复
 ```
@@ -425,7 +427,7 @@ Playdate 的系统菜单由游戏自己添加菜单项（`playdate.getSystemMenu
 ## 10. 兼容性与限制
 
 - **Lua 游戏**：由运行时的 Lua 5.4（打了 Playdate 字节码补丁）和自己实现的 SDK 运行。完整的游戏兼容性需要逐个验证，项目本身也这样声明。
-- **ARM 设备代码（`pdex.bin`）**：用 Unicorn 模拟 Cortex-M7。SDK 的 C API 表有 590 个槽位，只实现了其中一部分；调用没实现的 API 时，游戏会以带完整 API 名的错误终止，核心让加载失败并写日志。失控的 C 循环有看门狗，会被终止而不会卡住前端。
+- **C / Lua+C 游戏**：默认 Lua 核心拒绝非空 `pdex.bin`，不尝试跳过扩展运行 Lua 部分。仅实验性 ARM 构建使用 Unicorn 模拟 Cortex-M7，并保留未实现 API 的错误和看门狗。
 - **没有联网**：`playdate.network` 在这个核心里总是返回连接失败。PDGames 启动器没有接入，选游戏用 RetroArch 的播放列表或 EmulationStation 就行。
 - **加速度计**没有映射。
 - **`system.delay`**（设备代码里的阻塞延时）仍按真实时间等待，不随快进变快。
@@ -448,12 +450,12 @@ tests/run-tests.sh dist/native/cranklab_libretro.so
 2. 生成测试夹具：Lua 小游戏、生命周期游戏、系统菜单游戏、摇柄游戏、时钟游戏，以及几个恶意或损坏的压缩包。
 3. 逐项运行并打印 `PASS` / `FAIL`，最后输出 `ALL PASSED` 或失败数量；退出码等于失败数量。
 
-目前共 57 项，覆盖：
+脚本根据核心版本自动选择 Lua 专用或实验性 ARM 的测试。原实验性 ARM 核心有 57 项；Lua 核心保留输入、音频、菜单、存档、生命周期和 ZIP 测试，并测试 C / Lua+C 游戏的拒绝与空 `pdex.bin` 占位文件。覆盖：
 
 | 分组 | 检查的内容 |
 |---|---|
 | Lua 游戏 | 能加载；每次 `retro_run` 一帧画面和 1470 个音频采样帧；音频有真实声音；A 键和摇柄让画面变化；调色板选项被接受 |
-| 压缩包与 ARM 代码 | 7 个测试游戏能运行；C 代码的音频到达前端；失控的 C 循环、未实现的 C API 干净地失败，且日志里有 API 名 |
+| 压缩包与 ARM 代码 | 默认 Lua 构建拒绝 C / Lua+C 游戏、接受空 pdex.bin 占位；实验性 ARM 构建验证 7 个 C 示例、C 音频和错误处理 |
 | 生命周期与存档 | 前端卡顿触发暂停与恢复回调；退出时 `gameWillTerminate` 写出了存档；同一进程里 5 次加载卸载加 reset |
 | 系统菜单 | 勾选与多选的改动按顺序、在暂停与恢复之间生效；按钮项执行回调后恢复；菜单打开时卡顿不重复暂停；Start 关闭菜单；叠加层确实画出来；没有菜单项的游戏也能开关菜单；菜单打开时 reset；关闭后输入恢复；Select 可作菜单键 |
 | 摇柄 | 初始收起；L/R 方向与速度；速度选项；L3 的各种切换；右摇杆顺时针、逆时针、越过 ±180°、死区、关闭选项、松开再抓不跳变、与按键叠加；菜单期间无效 |
@@ -503,12 +505,13 @@ gcc -O1 -Iinclude tests/harness.c -o harness -ldl -lm
 
 | 已验证 | 未验证 |
 |---|---|
-| x86_64 Linux 上用测试前端的全部项目 | 真正的 RetroArch |
-| zig 交叉工具链编出的 x86_64 产物同样通过 | aarch64、armhf 产物的运行（只确认了能编、glibc 2.17、无多余导出） |
+| x86_64 Linux 上用测试前端的全部项目；2026-10-10 在 ArkOS RetroArch 1.22.2 上运行 Music Box 和 Pooh Mini Mahjong，确认截图和正常退出 | 更广泛的实际游戏兼容性 |
+| 原实验性 ARM 核心的 zig x86_64 产物同样通过 | 实验性 ARM 核心尚未通过当前 ArkOS 设备的 C 游戏启动测试，armhf 运行未验证 |
+| 2026-10-10：Lua 专用核心在 x86_64 和 ArkOS RK3326/AArch64 上各通过 53 项自动回归；核心不链接 Unicorn | 新 Lua 构建的 armhf、其他 ArkOS 型号和 EmuELEC 未验证 |
 | 摇柄逻辑与方向 | 摇杆死区、转速的实际手感 |
 | 2026-10-09：Windows 运行时重新编译，输入/音频、生命周期、SDK 菜单回归通过 | 本次构建没有新增 Android 真机操作回归 |
 | 2026-10-09：Android ARM64 运行时与 UE 应用重新构建，APK 签名、在线翻译打包、原生库 16 KiB 对齐检查通过 | |
-| | ArkOS、EmuELEC 上的目录、EmulationStation 配置 |
+| 当前 ArkOS 设备的 SD2 游戏目录及 EmulationStation 活动配置、dual/sd2 模板 | 其他型号、EmuELEC 的目录与 EmulationStation 配置 |
 | | 菜单在小屏幕上的可读性 |
 
 ## 12. 排错
@@ -552,7 +555,7 @@ gcc -O1 -Iinclude tests/harness.c -o harness -ldl -lm
 
 | 组件 | 许可 / 说明 |
 |---|---|
-| Unicorn 2.1.4 | GPLv2。核心静态链接了它，所以分发核心的二进制时需要按 GPLv2 兼容的方式发布。`cranklab_libretro.info` 里的 `license` 也据此写了 GPLv2 |
+| Unicorn 2.1.4 | GPLv2，仅实验性 ARM 构建链接；默认 Lua 构建不包含它。核心 info 暂保留 GPLv2 标记 |
 | SDL 2.30.12、SDL_mixer 2.8.1、zlib | zlib 许可 |
 | Lua | MIT |
 | `libretro.h` | MIT |

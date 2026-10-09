@@ -1,14 +1,16 @@
 # CrankLab libretro 核心
 
-在 RetroArch 里运行 Playdate 游戏的 libretro 核心。它复用 CrankLab 的兼容运行时（Lua 游戏和未加密的 `pdex.bin` ARM 设备代码），不含任何官方固件或 SDK CoreLibs。
+在 RetroArch 里运行 Playdate Lua 游戏的 libretro 核心。第一版默认构建 `0.1.1-lua`，不链接 Unicorn，不支持 C 或 Lua+C 游戏，不含任何官方固件或 SDK CoreLibs。本目录的构建选择不会改变 Android UE 应用的 C 游戏支持。
 
 目前只做了 **Linux**：桌面（x86_64）和掌机系统（ArkOS、EmuELEC、ROCKNIX 一类的 aarch64 / armhf）。Windows、macOS、Android 的 RetroArch 核心还没做。
 
-> 状态：x86_64 上有 57 项自动化测试全部通过。aarch64 和 armhf 能编出来，但**没有在真机或真正的 RetroArch 上运行过**。详见[详细文档](docs/GUIDE.md)的"验证范围"一节。
+> 兼容性按游戏验证。Lua 游戏仍可能使用尚未实现的 SDK API。测试范围见[详细文档](docs/GUIDE.md)的"验证范围"一节。
+>
+> 2026-10-10：默认 Lua 核心在 x86_64 和 RK3326/AArch64 的 ArkOS 设备上各通过 53 项回归测试。Music Box 与 Pooh Mini Mahjong 已在设备 RetroArch 1.22.2 上验证画面和正常退出。ARM64 核心约 2 MB，未链接 Unicorn。
 
 ## 能做什么
 
-- 运行 Lua 游戏，以及带 ARM 设备代码的 `pdex.bin` 游戏（含 C 与 Lua 混合）。
+- 运行 Lua 游戏；包含非空 `pdex.bin` 的 C / Lua+C 游戏在启动前明确拒绝，空文件占位不会阻止 Lua 游戏。
 - 画面 400×240，三种调色板（Playdate 液晶灰绿、纯黑白、反色）。
 - 44.1 kHz 立体声，音画随 RetroArch 的快进、慢放、暂停同步。
 - 十字键、A/B、**摇柄**（L/R 键、右摇杆画圈、L3 收起/拉出）。
@@ -22,7 +24,6 @@
 构建并跑一遍测试（需要 cmake 3.20+、ninja、gcc、python3）：
 
 ```sh
-git submodule update --init          # 拉取 Unicorn，只需第一次
 ./build.sh native                    # 产物：dist/native/cranklab_libretro.so
 tests/run-tests.sh dist/native/cranklab_libretro.so
 ```
@@ -32,7 +33,7 @@ tests/run-tests.sh dist/native/cranklab_libretro.so
 ```sh
 mkdir -p ~/.config/retroarch/system/cranklab/fonts
 cp dist/native/system/cranklab/fonts/cranklab-zh.pft ~/.config/retroarch/system/cranklab/fonts/
-retroarch -L dist/native/cranklab_libretro.so ../native-test-games/Life.zip
+retroarch -L dist/native/cranklab_libretro.so /path/to/lua-game.pdx.zip
 ```
 
 掌机用的交叉构建：
@@ -42,7 +43,9 @@ pip install ziglang
 ZIG="python3 -m ziglang" ./build.sh aarch64     # 也可以是 x86_64、armhf
 ```
 
-从 Windows / WSL 构建时，主仓库和 Unicorn 子模块的 shell 脚本都必须使用 LF 换行。建议在 WSL 中克隆源码；Windows 导出子模块时请关闭 `core.autocrlf`，详见[构建说明](docs/GUIDE.md#4-构建)。
+从 Windows / WSL 构建时，shell 脚本必须使用 LF 换行，建议在 WSL 中克隆源码。实验性 ARM 构建还需检查 Unicorn 子模块的换行，详见[构建说明](docs/GUIDE.md#4-构建)。
+
+默认构建不需要 Unicorn 子模块。实验性 ARM 后端仍可用 `LUA_ONLY=OFF ./build.sh native` 构建，但不属于第一版掌机支持范围；开启它才需要拉取 Unicorn。
 
 部署到 EmuELEC、ArkOS 一类掌机系统（自动检测架构、读取设备上的目录、拷贝并校验）：
 
@@ -96,7 +99,7 @@ libretro/
 ├── docs/GUIDE.md          详细文档：架构、同步模型、构建、安装、排错
 ├── build.sh               构建脚本（native / x86_64 / aarch64 / armhf）
 ├── deploy.sh              通过 SSH 部署到掌机系统
-├── CMakeLists.txt         独立的 Linux 构建，静态链接 SDL、mixer、zlib、Lua、Unicorn
+├── CMakeLists.txt         独立的 Linux 构建，静态链接 SDL、mixer、zlib、Lua
 ├── link.T                 版本脚本：只导出 retro_* 符号
 ├── cmake/                 zig 交叉工具链包装
 ├── cranklab_libretro.info 核心信息文件
@@ -107,4 +110,4 @@ libretro/
 
 ## 许可
 
-核心静态链接了 Unicorn，Unicorn 采用 GPLv2，所以分发核心的二进制时需要按 GPLv2 兼容的方式发布。菜单使用的中文字体的许可没有核实，见[详细文档](docs/GUIDE.md)的"许可与第三方"一节。
+默认 Lua 构建不包含 Unicorn。实验性 ARM 构建静态链接 GPLv2 的 Unicorn。其他组件和中文字体的来源见[详细文档](docs/GUIDE.md)的"许可与第三方"一节。

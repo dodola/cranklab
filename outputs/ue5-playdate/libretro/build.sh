@@ -9,7 +9,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 target="${1:-native}"
 build="${BUILD_ROOT:-/tmp/cranklab-libretro}/$target"
 dist="$here/dist/$target"
-args=(-S "$here" -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Release)
+args=(-S "$here" -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Release "-DCRANKLAB_LUA_ONLY=${LUA_ONLY:-ON}")
 case "$target" in
     native) ;;
     x86_64) arch=x86_64;  triple=x86_64-linux-gnu.2.17;      ;;
@@ -25,7 +25,7 @@ cmake "${args[@]}"
 cmake --build "$build" --parallel "${JOBS:-$(nproc)}"
 mkdir -p "$dist"
 cp "$build/cranklab_libretro.so" "$dist/"
-cp "$here/cranklab_libretro.info" "$dist/"
+cp "$build/cranklab_libretro.info" "$dist/"
 # Optional CJK face for menu titles; copy the folder to <system dir>/cranklab/fonts/.
 mkdir -p "$dist/system/cranklab/fonts"
 cp "$here/../Unreal/Content/Games/launcher.pdx/fonts/cranklab-zh.pft" "$dist/system/cranklab/fonts/"
