@@ -1,0 +1,8 @@
+#!/bin/sh
+# Wrapper so CMake sees zig as a single-file compiler. ZIG_CMD and ZIG_TARGET come from the environment.
+# Preprocess-only probes (-E) reject the glibc version suffix and do not depend on it.
+target="${ZIG_TARGET:?set ZIG_TARGET, e.g. aarch64-linux-gnu.2.17}"
+for arg in "$@"; do
+    case "$arg" in -E|-print-search-dirs) target="${target%%.[0-9]*}" ;; esac
+done
+exec ${ZIG_CMD:-zig} cc -target "$target" "$@"

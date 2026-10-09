@@ -670,6 +670,34 @@ extern void Android_JNI_AudioSetThreadPriority(int, int);
 #endif
 
 /* The general mixing thread function */
+#ifdef CRANK_LOCKSTEP_AUDIO
+/* CrankLab: libretro hosts drive audio by credit, one emulated frame at a time, so the
+   dummy device produces samples only as the host steps the game. */
+static SDL_atomic_t crank_audio_gated;
+static SDL_atomic_t crank_audio_credit;
+void SDL_CrankAudioSetGate(int on, int credit)
+{
+    SDL_AtomicSet(&crank_audio_credit, credit);
+    SDL_AtomicSet(&crank_audio_gated, on);
+}
+void SDL_CrankAudioAddCredit(int frames)
+{
+    SDL_AtomicAdd(&crank_audio_credit, frames);
+}
+/* Returns 1 when a buffer of `samples` may be produced. */
+static int crank_audio_wait(SDL_AudioDevice *device, int samples)
+{
+    while (!SDL_AtomicGet(&device->shutdown) && SDL_AtomicGet(&crank_audio_gated)) {
+        if (SDL_AtomicGet(&crank_audio_credit) >= samples) {
+            SDL_AtomicAdd(&crank_audio_credit, -samples);
+            return 1;
+        }
+        SDL_Delay(1);
+    }
+    return 0;
+}
+#endif
+
 static int SDLCALL SDL_RunAudio(void *userdata)
 {
     const AudioThreadStartupData *startup_data = (const AudioThreadStartupData *) userdata;
@@ -783,6 +811,12 @@ static int SDLCALL SDL_RunAudio(void *userdata)
         } else if (data == device->work_buffer) {
             /* nothing to do; pause like we queued a buffer to play. */
             const Uint32 delay = ((device->spec.samples * 1000) / device->spec.freq);
+#ifdef CRANK_LOCKSTEP_AUDIO
+            if (SDL_AtomicGet(&crank_audio_gated)) {
+                crank_audio_wait(device, device->spec.samples);
+                continue;
+            }
+#endif
             SDL_Delay(delay);
         } else { /* writing directly to the device. */
             /* queue this buffer and wait for it to finish playing. */

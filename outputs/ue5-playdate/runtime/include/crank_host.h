@@ -21,6 +21,14 @@ CRANK_EXPORT int crank_launcher_activate(void);
 CRANK_EXPORT int crank_launcher_detail_action(uint32_t action);
 CRANK_EXPORT void crank_stop(void);
 CRANK_EXPORT int crank_status(void);
+/* Frame-locked mode for hosts that own the clock (libretro). Call before crank_start.
+   The game thread then runs exactly one frame per crank_step, game time follows the
+   frames stepped rather than the wall clock, and audio is produced only for stepped frames. */
+CRANK_EXPORT void crank_set_lockstep(int enabled);
+/* Runs one frame and returns 1 when it finished, 0 if paused, stopped or timed out. */
+CRANK_EXPORT int crank_step(void);
+/* The game's current refresh rate in frames per second; 0 means manual updates. */
+CRANK_EXPORT float crank_refresh_rate(void);
 /* Asynchronous request: bit 0 = paused/menu, bit 1 = app background/locked.
    Lua lifecycle callbacks run on the game thread, once per transition.
    Suspension freezes game-relative time and PCM; stop also works suspended. */

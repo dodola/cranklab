@@ -14,7 +14,7 @@
     "repository": "https://github.com/libsdl-org/SDL",
     "commit": "8236e01a9f758d15927624925c6043f84d8a261f",
     "license": "zlib",
-    "changes": "CRANK_EMBEDDED_SDL guards in pthread, audio and RWops sources bypass SDLActivity JNI for the UE host; notices retained"
+    "changes": "CRANK_EMBEDDED_SDL guards in pthread, audio and RWops sources bypass SDLActivity JNI for the UE host; CRANK_LOCKSTEP_AUDIO (libretro build only) lets the dummy audio device produce samples by host-granted credit in SDL_audio.c; notices retained"
   },
   "SDL2_mixer": {
     "version": "2.8.1",

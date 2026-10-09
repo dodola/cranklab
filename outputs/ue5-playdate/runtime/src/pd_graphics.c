@@ -2554,6 +2554,35 @@ static uint8_t font_glyph(LCDFont *font, uint32_t cp, LCDBitmap **bmp_out) {
     return 0;
 }
 
+/* For hosts that draw their own UI (the libretro menu) with a PFT they loaded. The
+   bitmap is 1 bit per pixel, 1 = white; a pixel is drawn only where the mask is set. */
+int pd_font_glyph_bitmap(LCDFont *font, uint32_t cp, const uint8_t **data, const uint8_t **mask,
+                         int *width, int *height, int *rowbytes) {
+    LCDBitmap *bitmap = NULL;
+    uint8_t advance = font_glyph(font, cp, &bitmap);
+    if (bitmap) {
+        *data = bitmap->data; *mask = bitmap->mask;
+        *width = bitmap->width; *height = bitmap->height; *rowbytes = bitmap->rowbytes;
+    } else {
+        *data = *mask = NULL; *width = *height = *rowbytes = 0;
+    }
+    return advance;
+}
+void pd_font_release(LCDFont *font) { free_font(font); }
+/* Loads a PFT the caller owns: it is not freed by pd_graphics_shutdown. */
+LCDFont *pd_load_pft_detached(const char *path) {
+    LCDFont *font = pd_load_pft(path);
+    if (!font) return NULL;
+    for (PDLoadedFont **link = &g_loaded_fonts; *link; link = &(*link)->next) {
+        if ((*link)->font != font) continue;
+        PDLoadedFont *owned = *link;
+        *link = owned->next;
+        free(owned);
+        break;
+    }
+    return font;
+}
+
 /* The SDK system font supplies circled button symbols. Keep a small authored
    fallback when a game's chosen font omits them; do not replace real glyphs. */
 static int button_glyph_width(uint32_t cp) {

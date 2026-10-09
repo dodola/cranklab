@@ -1,0 +1,2 @@
+#!/bin/sh
+exec ${ZIG_CMD:-zig} ranlib "$@"

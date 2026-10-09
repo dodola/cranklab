@@ -13,6 +13,15 @@ static SDL_atomic_t state, stop_requested, suspend_requested;
 static uint32_t applied_suspend = 0;
 static uint64_t suspended_since = 0, suspended_duration = 0;
 static int active = 0;
+/* Lockstep: the host paces the game thread, and game time is counted in stepped frames. */
+static int lockstep_requested = 0, lockstep = 0;
+static SDL_sem *step_request = NULL, *step_done = NULL;
+static SDL_atomic_t virtual_ms;
+static uint64_t virtual_us = 0, audio_remainder = 0; /* owned by the stepping thread */
+#ifdef CRANK_LOCKSTEP_AUDIO
+extern void SDL_CrankAudioSetGate(int on, int credit);
+extern void SDL_CrankAudioAddCredit(int frames);
+#endif
 static uint8_t pixels[400*240*4];
 static uint32_t serial = 0, buttons = 0;
 static float crank_delta = 0;
@@ -123,9 +132,41 @@ int pd_host_finish_menu(lua_State *L) {
     return process_menu(L);
 }
 
+
+int pd_host_lockstep(void) { return active && lockstep; }
+/* Called by the game loop after publishing a frame: hands the frame to the host and waits
+   for the next step. Suspension callbacks still run while waiting. Returns 0 on stop. */
+int pd_host_step_wait(lua_State *L) {
+    SDL_SemPost(step_done);
+    for (;;) {
+        if (SDL_SemWaitTimeout(step_request, 10) == 0) return 1;
+        if (pd_host_should_stop()) return 0;
+        if (!pd_host_lifecycle(L)) return 0;
+    }
+}
+void crank_set_lockstep(int enabled) { lockstep_requested = enabled != 0; }
+int crank_step(void) {
+    if (!bridge_mutex || !lockstep || !step_request || !active) return 0;
+    if (SDL_AtomicGet(&suspend_requested) || SDL_AtomicGet(&state) == 3) return 0;
+    while (SDL_SemTryWait(step_done) == 0) {}
+    float rate = g_pd.refresh_rate;
+    uint64_t frame_us = rate >= 1.0f ? (uint64_t)(1000000.0f / rate) : 33333u;
+    virtual_us += frame_us;
+    SDL_AtomicSet(&virtual_ms, (int)(uint32_t)(virtual_us / 1000));
+#ifdef CRANK_LOCKSTEP_AUDIO
+    audio_remainder += frame_us * 44100u;
+    SDL_CrankAudioAddCredit((int)(audio_remainder / 1000000u));
+    audio_remainder %= 1000000u;
+#endif
+    SDL_SemPost(step_request);
+    return SDL_SemWaitTimeout(step_done, 2000) == 0;
+}
+float crank_refresh_rate(void) { return g_pd.refresh_rate; }
+
 int pd_host_active(void) { return active; }
 int pd_host_should_stop(void) { return active && SDL_AtomicGet(&stop_requested); }
 uint64_t pd_time_milliseconds(void) {
+    if (lockstep) return (uint32_t)SDL_AtomicGet(&virtual_ms);
     const uint64_t now = suspended_since ? suspended_since : SDL_GetTicks64();
     return now - suspended_duration;
 }
@@ -242,6 +283,19 @@ static int start_session(const char *pdx, const char *save,int launcher) {
     applied_suspend=0; suspended_since=suspended_duration=0;
     snprintf(game_path,sizeof(game_path),"%s",pdx);
     snprintf(save_path,sizeof(save_path),"%s",save);
+    lockstep=lockstep_requested;
+    if(lockstep) {
+        if(!step_request) step_request=SDL_CreateSemaphore(0);
+        if(!step_done) step_done=SDL_CreateSemaphore(0);
+        if(!step_request || !step_done) {lockstep=0;return 0;}
+        while(SDL_SemTryWait(step_request)==0) {}
+        while(SDL_SemTryWait(step_done)==0) {}
+        virtual_us=audio_remainder=0; SDL_AtomicSet(&virtual_ms,0);
+    }
+#ifdef CRANK_LOCKSTEP_AUDIO
+    /* Two buffers of lead keep the frontend from underrunning between steps. */
+    SDL_CrankAudioSetGate(lockstep,lockstep ? 2048 : 0);
+#endif
     active=1; SDL_AtomicSet(&state,1);
     game_thread=SDL_CreateThread(run,"crank-game",NULL);
     if(!game_thread) { pd_host_fail(SDL_GetError()); active=0; return 0; }
@@ -259,7 +313,10 @@ void crank_stop(void) {
     SDL_CondBroadcast(suspend_condition);
     SDL_UnlockMutex(bridge_mutex);
     SDL_WaitThread(game_thread,NULL); game_thread=NULL;
-    active=0; SDL_AtomicSet(&state,0);
+    active=0; SDL_AtomicSet(&state,0); lockstep=0;
+#ifdef CRANK_LOCKSTEP_AUDIO
+    SDL_CrankAudioSetGate(0,0);
+#endif
     SDL_LockMutex(bridge_mutex);launcher_enabled=launcher_activate=launcher_command_count=0;SDL_UnlockMutex(bridge_mutex);
 }
 int crank_status(void) { return SDL_AtomicGet(&state); }
