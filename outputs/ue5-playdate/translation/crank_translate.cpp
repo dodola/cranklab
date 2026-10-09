@@ -67,6 +67,8 @@ static int prefill_threads() {
 // Hexagon/Adreno selection. The host passes the writable directory that holds
 // libggml-htp-v*.so (the DSP cannot read them from the app's native-library
 // directory) and a preference: auto, htp, opencl or cpu.
+// Set when an automatic accelerator choice failed to open; later calls go straight to the CPU.
+static std::atomic<bool> acceleratorFailed{false};
 static std::mutex configMutex;
 static std::string htpDirectory,devicePreference="auto";
 EXPORT void crank_translation_configure(const char* htp_directory,const char* preference) {
@@ -74,6 +76,7 @@ EXPORT void crank_translation_configure(const char* htp_directory,const char* pr
     htpDirectory=htp_directory?htp_directory:"";
     const std::string wanted=preference?preference:"auto";
     devicePreference=(wanted=="htp"||wanted=="opencl"||wanted=="cpu")?wanted:"auto";
+    acceleratorFailed=false;
 }
 static ggml_backend_dev_t find_device(bool cpu,const std::string& prefix) {
     for(size_t i=0;i<ggml_backend_dev_count();++i) {
@@ -86,7 +89,7 @@ static ggml_backend_dev_t find_device(bool cpu,const std::string& prefix) {
 }
 // STQ1_0 has no HTP/OpenCL kernel, so the 1.25-bit file always stays on the CPU.
 static ggml_backend_dev_t pick_accelerator(const std::string& preference,uintmax_t model_size,std::string& label) {
-    label="cpu";if(preference=="cpu" || model_size==461860800)return nullptr;
+    label="cpu";if(preference=="cpu" || model_size==461860800 || (preference=="auto" && acceleratorFailed))return nullptr;
     ggml_backend_dev_t dev=nullptr;
     if(preference!="opencl" && (dev=find_device(false,"HTP"))){label="htp";return dev;}
     if(preference!="htp" && (dev=find_device(false,"GPU"))){label="opencl";return dev;}
@@ -258,6 +261,13 @@ static int run(const char* model_path,const char* backend_path,const char* text,
         mp.devices=devices;mp.n_gpu_layers=accelerator?99:0;
         auto load_model=[&]() {return llama_model_load_from_file(model_path,mp);};
         auto& model=engine->model;if(!model)model.reset(load_model());
+        if(!model && accelerator && preference=="auto" && !abort_decode(&control)) {
+            // The accelerator registered but could not open (no DSP session, missing skeleton,
+            // unsupported SoC). An automatic choice must not strand the user; retry on the CPU.
+            acceleratorFailed=true;devices[0]=find_device(true,"");mp.n_gpu_layers=0;accelerator=nullptr;device_label="cpu";engine->device=device_label;
+            std::snprintf(lastStats.device,sizeof(lastStats.device),"cpu*");
+            model.reset(load_model());
+        }
         lastStats.load=ms(loading);
         if(!model) return fail(error,error_capacity,abort_decode(&control) ? "cancelled" : "model_load_failed",abort_decode(&control)?2:1);
         const auto* vocab=llama_model_get_vocab(model.get());
