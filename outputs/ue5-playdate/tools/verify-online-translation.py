@@ -6,7 +6,7 @@ root=Path(__file__).resolve().parents[1];out=Path(a.output)/uuid.uuid4().hex[:8]
 engine=Path('C:/Program Files/Epic Games/UE_5.8/Engine/Binaries/Win64/UnrealEditor-Cmd.exe');project=root/'Unreal/CrankLab.uproject'
 results=[]
 for name,mode,case,flags,live in [
- ('real-controls','normal','controls',['-TestProviderSelection'],True),
+ ('real-controls','normal','controls',['-TestProviderSelection','-TestLocalPolicy'],True),
  ('real-long','normal','long',[],True),
  ('real-tencent','normal','controls',['-CrankTranslationProvider=tencent'],True),
  ('multi-chunk','normal','dense',[],False),
@@ -14,6 +14,7 @@ for name,mode,case,flags,live in [
  ('marker-spacing','marker-spacing','controls',[],False),
  ('failure','error','controls',['-ExpectError'],False),
  ('cancel','cancel','controls',['-CancelRequest'],False),
+ ('cancel-loading','normal','controls',['-CancelWhileLoading'],False),
  ('malformed','malformed','long',['-ExpectError'],False),
  ('extra-item','extra-item','long',['-ExpectError'],False),
  ('missing-marker','missing-marker','long',['-ExpectError'],False),
@@ -29,8 +30,9 @@ for name,mode,case,flags,live in [
         result=json.loads((storage/'result.json').read_text('utf-8-sig'));result.update(name=name,exitCode=done.returncode)
         assert done.returncode==0 and result['passed'],(name,result)
         if not live:
-            sent=json.loads((storage/'requests.json').read_text());result['requests']=sent
-            assert sent==(['microsoft','tencent'] if mode not in ('normal','cancel') else ['microsoft']),sent
+            requests=storage/'requests.json'
+            sent=json.loads(requests.read_text()) if requests.exists() else [];result['requests']=sent
+            assert sent==([] if name=='cancel-loading' else ['microsoft','tencent'] if mode not in ('normal','cancel') else ['microsoft']),sent
         if case=='dense':
             assert result['translation'].count('Ⓐ')==450 and result['translation'].count('Ⓑ')==450
             assert result['translation'].count('🚀')==450 and result['translation'].count('Playdate')==450

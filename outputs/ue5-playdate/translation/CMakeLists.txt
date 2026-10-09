@@ -12,10 +12,16 @@ set(LLAMA_CURL OFF CACHE BOOL "" FORCE)
 set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
 set(GGML_OPENMP OFF CACHE BOOL "" FORCE)
 set(GGML_LLAMAFILE OFF CACHE BOOL "" FORCE)
+option(CRANK_SNAPDRAGON "Build Hexagon HTP + Adreno OpenCL plugins (use build-snapdragon.sh)" OFF)
 if(ANDROID)
-  # Runtime CPU scoring selects DotProd/FP16 only on devices that support it.
   set(GGML_BACKEND_DL ON CACHE BOOL "" FORCE)
+  # Keep the host libraries at the Android ARM64 baseline. CPU backend scoring
+  # loads DotProd/FP16/i8mm variants only when the device supports their ISA.
   set(GGML_CPU_ALL_VARIANTS ON CACHE BOOL "" FORCE)
+  if(CRANK_SNAPDRAGON)
+    set(GGML_OPENCL ON CACHE BOOL "" FORCE)
+    set(GGML_HEXAGON ON CACHE BOOL "" FORCE)
+  endif()
   string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,-z,max-page-size=16384")
   # ggml dynamically loads CPU variants as MODULE libraries.
   string(APPEND CMAKE_MODULE_LINKER_FLAGS " -Wl,-z,max-page-size=16384")

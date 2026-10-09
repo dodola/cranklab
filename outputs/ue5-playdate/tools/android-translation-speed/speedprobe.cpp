@@ -45,7 +45,7 @@ struct Control {Clock::time_point begin;double first=-1;int updates=0;bool valid
 static int cancel(void* pointer){return seconds(static_cast<Control*>(pointer)->begin)>300?1:0;}
 static void progress(void*,int part,int total){__android_log_print(ANDROID_LOG_INFO,"PlaydatePerf","Part %d/%d",part,total);}
 static void stream(void* pointer,const char* value){auto& c=*static_cast<Control*>(pointer);if(c.first<0)c.first=seconds(c.begin);++c.updates;c.partial=value;c.valid&=utf8(c.partial);}
-extern "C" JNIEXPORT jbyteArray JNICALL Java_com_cranklab_SpeedProbe_runNative(JNIEnv* env,jclass,jstring modelValue,jstring backendValue,jstring bridgeValue,jbyteArray input,jint repeats) {
+extern "C" JNIEXPORT jbyteArray JNICALL Java_com_cranklab_SpeedProbe_runNative(JNIEnv* env,jclass,jstring modelValue,jstring backendValue,jstring bridgeValue,jstring htpValue,jstring deviceValue,jbyteArray input,jint repeats) {
     auto model=text(env,modelValue),backend=text(env,backendValue),bridge=text(env,bridgeValue);
     std::string source(env->GetArrayLength(input),'\0');env->GetByteArrayRegion(input,0,static_cast<jsize>(source.size()),reinterpret_cast<jbyte*>(source.data()));
     void* library=dlopen(bridge.c_str(),RTLD_NOW|RTLD_LOCAL);
@@ -54,6 +54,8 @@ extern "C" JNIEXPORT jbyteArray JNICALL Java_com_cranklab_SpeedProbe_runNative(J
     auto live=reinterpret_cast<Live>(dlsym(library,"crank_translate_stream"));
     auto stats=reinterpret_cast<int(*)(char*,int)>(dlsym(library,"crank_translation_stats"));
     auto release=reinterpret_cast<void(*)()>(dlsym(library,"crank_translation_release"));
+    auto configure=reinterpret_cast<void(*)(const char*,const char*)>(dlsym(library,"crank_translation_configure"));
+    if(configure)configure(text(env,htpValue).c_str(),text(env,deviceValue).c_str());
     std::string report="[";
     if(run)for(int i=0;i<repeats;++i) {
         Control c{Clock::now()};std::vector<char> output(262144);char error[256]{},metrics[2048]{};

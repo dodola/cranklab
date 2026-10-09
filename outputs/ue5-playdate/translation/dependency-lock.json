@@ -1,6 +1,6 @@
 {
   "llamaCppRepository": "https://github.com/ggml-org/llama.cpp.git",
-  "llamaCppRevision": "b86d2f07542b29ab099aed34fd6b6d1b2fd4b81c",
+  "llamaCppRevision": "de7fa0a3c6a2e1b4cd9f22eb8d6bf5b12dbdb63b",
   "modelRepository": "tencent/Hy-MT2-1.8B-GGUF",
   "modelRevision": "a0c709d9fac510f2c807aa3af52872340dc37a4a",
   "modelFile": "Hy-MT2-1.8B-Q4_K_M.gguf",
@@ -23,5 +23,17 @@
   "lightModelSha256": "cc497fe8f033b52b3b8b00a7669e9661435432f9d4cd43f7ed24400c01507a93",
   "lightModelDownloadRepository": "Tencent-Hunyuan/Hy-MT2-1.8B-1.25Bit-GGUF",
   "lightModelDownloadRevision": "a1ba5a8101d7b257d42c0980e0d6415d0bd9e1cf",
-  "lightModelDownloadUrl": "https://modelscope.cn/models/Tencent-Hunyuan/Hy-MT2-1.8B-1.25Bit-GGUF/resolve/a1ba5a8101d7b257d42c0980e0d6415d0bd9e1cf/Hy-MT2-1.8B-1.25Bit.gguf"
+  "lightModelDownloadUrl": "https://modelscope.cn/models/Tencent-Hunyuan/Hy-MT2-1.8B-1.25Bit-GGUF/resolve/a1ba5a8101d7b257d42c0980e0d6415d0bd9e1cf/Hy-MT2-1.8B-1.25Bit.gguf",
+  "hymt2PatchDirectory": "patches/hymt2",
+  "hymt2PatchSha256": {
+    "0001-Add-support-for-STQ_0-ternary-quantization.patch": "6295150669f8b5ccb9e70479e63d2dc3274e7afbe749909ee4c19313d4d4a789",
+    "0002-rename-STQ_0-to-STQ1_0-according-to-reviewer-suggest.patch": "529ef2cba899c4cbe2fe76d1d26a70e102f9063272c448bd5697f513033b7384",
+    "0003-ggml-cpu-fix-STQ1_0-CI-failures.patch": "db0356dff615100836a1732228a61d10bbe3d645fe0186203f59ea7341fe7c8c",
+    "0004-ggml-cpu-STQ1_0-2x2-dotprod-tile-kernel-for-faster-p.patch": "cab91744c97e33566327dbfaf1db6368a2bf39e29c71a3bfe72849305a441348",
+    "0005-llama-context-set-threadpool-on-every-CPU-backend-fi.patch": "938b88bafd9d2aca072182e8ca39720c4a8b0f8b8bd7fcbe9fc3b6c7dc09ec69"
+  },
+  "q4_0ModelFile": "Hy-MT2-1.8B-Q4_0.gguf",
+  "q4_0ModelBytes": 1079997408,
+  "q4_0ModelSha256": "5458acf22435287fb9aa7a5bf6cc041806df15d54cea020cbad25ac95e2d8a21",
+  "q4_0ModelSourceRepository": "unsloth/Hy-MT2-1.8B-GGUF"
 }

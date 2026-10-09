@@ -204,12 +204,13 @@ inside the original cached content bitmap. There is no introduction dialog or
 extra HUD row, and translation does not suspend the game. Screenshots, original
 headers, metadata, scrolling, B navigation and downloading/running are retained.
 The language action shows loading, translating, cancel, empty and retry states.
-Original stays readable until a complete translation is available. Original
+Original stays readable until translation is available; local inference may
+stream partial text in the same description area. Original
 restores the original cached text and height. Closed details, switched games and
 backgrounding cancel outstanding HTTP requests and ignore late completions.
 Replies are scoped to launcher session, catalog ID and request revision; ordinary
-games have no launcher/translation bridge. Partial or malformed responses never
-replace the original or enter the cache.
+games have no launcher/translation bridge. Partial local output is never cached;
+malformed online responses never replace the original or enter the cache.
 
 Chinese uses pocket-reader's Source Han Sans 20px monochrome glyph atlas,
 compiled into a host-owned PFT. UTF-8 glyph widths wrap within 384 pixels; Latin
@@ -217,11 +218,21 @@ words remain together and closing Chinese punctuation avoids leading a line.
 Unsupported glyphs use a visible replacement. Font lookup uses a sorted codepoint
 index, and parsed fonts are released on game exit. Long descriptions scroll
 through PDGames' original content bitmap; translation settings use the canonical HUD.
-Translation is online; no local inference backend or model download is packaged.
-Settings provides automatic, Microsoft and Tencent choices through SCrankAction.
+Android packages local HY-MT2 Q4_0 inference with CPU, OpenCL and HTP backends;
+the approximately 1-GiB model is downloaded separately over validated Wi-Fi only.
+Settings provides automatic, Microsoft, Tencent and Android-only local choices
+through SCrankAction, including highlighted selection and dynamic download/cancel/retry.
+Measured download bytes determine percentage; model verification is indeterminate.
+Cancellation and Wi-Fi loss discard the staging file; retry starts from zero.
+SHA-256 verification precedes atomic model publication. A size/timestamp marker
+avoids rehashing unchanged app-private models; DSP skeletons refresh on each process
+load, including equal-sized updates. The host ARM64 ISA remains compatible with old
+devices; CPU backend variants are selected by runtime scoring.
 Selection persists, cancels outstanding work and scopes cache identities by the
-actual provider. Automatic tries Microsoft first and Tencent at most once after
-failure. Each request has an 8-second timeout and a 1-MiB response bound. Source
+actual provider and local model identity. Automatic uses a ready local model,
+then Microsoft and Tencent after a local failure or 30 seconds without output.
+Local-only reports failure without sending text to an online service. Non-Android
+platforms keep online choices. Each online request has an 8-second timeout and a 1-MiB response bound. Source
 text is capped at 24,000 characters and batched without splitting UTF-16 pairs.
 All batch items and protected tokens must return before a result can be cached.
 URLs, PDX filenames, Playdate, direction-key terms, docking phrases and button
@@ -235,5 +246,6 @@ Source changes invalidate the old cache and cancel its request. Fresh-cache read
 never depend on the old HY-MT2 profile. Upgrade cleanup deletes only the two known
 app-private HY-MT2 files, their partials and the obsolete model preference file.
 Other user-selected files, public description caches and game saves are retained.
-The UPL receipt stages only the game runtime. Packaging removes obsolete
-inference-library and downloader-class copies from generated Android staging.
+The UPL receipt stages the game runtime, local inference libraries, DSP skeletons
+and Wi-Fi downloader. Packaging checks native identity and 16-KiB alignment while
+excluding GGUF weights and the independent GPU/LiteRT test applications.

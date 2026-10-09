@@ -6,22 +6,31 @@
         <addPermission android:name="android.permission.ACCESS_NETWORK_STATE"/>
         <!-- Playdate games can request HTTP, including PDGames' thumbnail CDN. -->
         <addAttribute tag="application" name="android:usesCleartextTraffic" value="true"/>
+        <!-- ggml opens its backend plugins and the DSP skeletons from nativeLibraryDir. -->
         <addAttribute tag="application" name="android:extractNativeLibs" value="true"/>
         <addAttribute tag="application" name="android:roundIcon" value="@drawable/icon"/>
+        <!-- Android 12+ requires explicit access to optional vendor acceleration drivers. -->
+        <addElements tag="application">
+            <uses-native-library android:name="libOpenCL.so" android:required="false"/>
+            <uses-native-library android:name="libcdsprpc.so" android:required="false"/>
+        </addElements>
     </androidManifestUpdates>
     <proguardAdditions>
         <insert>-keep class com.cranklab.CrankHttp { *; }</insert>
         <insert>-keep class com.cranklab.CrankPdxImport { *; }</insert>
         <insert>-keep class com.cranklab.CrankHaptics { *; }</insert>
+        <insert>-keep class com.cranklab.CrankModelDownload { *; }</insert>
     </proguardAdditions>
     <prebuildCopies>
         <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankHttp.java" dst="$S(BuildDir)/src/com/cranklab/CrankHttp.java"/>
         <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankPdxImport.java" dst="$S(BuildDir)/src/com/cranklab/CrankPdxImport.java"/>
         <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankHaptics.java" dst="$S(BuildDir)/src/com/cranklab/CrankHaptics.java"/>
+        <copyFile src="$S(PluginDir)/Java/com/cranklab/CrankModelDownload.java" dst="$S(BuildDir)/src/com/cranklab/CrankModelDownload.java"/>
     </prebuildCopies>
     <resourceCopies>
         <isArch arch="arm64-v8a">
             <copyFile src="$S(PluginDir)/../../../Binaries/ThirdParty/Android/arm64-v8a/libcrank-core.so" dst="$S(BuildDir)/libs/arm64-v8a/libcrank-core.so"/>
+            <copyDir src="$S(PluginDir)/../../../Binaries/ThirdParty/Translation/Android/arm64-v8a" dst="$S(BuildDir)/libs/arm64-v8a"/>
         </isArch>
         <isArch arch="x86_64">
             <copyFile src="$S(PluginDir)/../../../Binaries/ThirdParty/Android/x86_64/libcrank-core.so" dst="$S(BuildDir)/libs/x86_64/libcrank-core.so"/>

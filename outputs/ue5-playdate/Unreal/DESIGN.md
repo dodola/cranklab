@@ -241,11 +241,16 @@ The original stays visible while a request runs. The action shows loading,
 translating, cancel, empty and retry states; only completed responses are cached.
 Returning to original, leaving the detail or backgrounding cancels the request.
 Settings reuses canonical graphite actions for automatic, Microsoft and Tencent
-selection, with the active choice highlighted. Automatic prefers Microsoft and
-tries Tencent once after a failed or malformed response. Public descriptions are
-sent to the selected service; no account data or game save is sent. Completed
-translations remain readable offline. No model download or inference progress is
-shown; response time is not represented as a percentage.
+selection, plus local translation on Android, with the active choice highlighted.
+Automatic uses a downloaded local model first, falling back to Microsoft and
+Tencent after failure or no first output within 30 seconds. Local-only never sends
+the description to a translation service. Downloads show measured bytes and a
+percentage, verification is indeterminate, and the shared action changes between
+download, cancel and retry. Inference reports segment status without a percentage.
+Local output streams inside the existing PDGames description; only completed
+translations enter the cache. Public descriptions are sent to the selected online
+service when applicable; no account data or game save is sent. Completed
+translations remain readable offline. No new dialog, palette or token is added.
 Model button depression approaches its target immediately, then returns when
 released. Crank motion uses elapsed time, acceleration and interpolation;
 continuous rotation represents user input. There is no decorative idle motion.

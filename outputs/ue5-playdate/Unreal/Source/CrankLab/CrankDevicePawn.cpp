@@ -166,7 +166,7 @@ void ACrankDevicePawn::BeginPlay() {
         PC->SetInputMode(Mode);
     }
     FPlatformApplicationMisc::EnableMotionData(bMotionFollow);
-    DeactivateHandle = FCoreDelegates::ApplicationWillDeactivateDelegate.AddLambda([this]{ReleaseInputs();if(Translation){Translation->Cancel();}});
+    DeactivateHandle = FCoreDelegates::ApplicationWillDeactivateDelegate.AddLambda([this]{ReleaseInputs();if(Translation){Translation->Cancel();Translation->ReleaseModel();}});
     ReactivateHandle = FCoreDelegates::ApplicationHasReactivatedDelegate.AddUObject(this,&ACrankDevicePawn::ReleaseInputs);
     if (GEngine && GEngine->GameViewport) {
         ImmersiveWidget=SNew(SCrankImmersive).Device(this)
