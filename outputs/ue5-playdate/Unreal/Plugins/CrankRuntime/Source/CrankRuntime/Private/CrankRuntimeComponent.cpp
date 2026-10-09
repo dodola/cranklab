@@ -4,7 +4,7 @@
 #include "HAL/FileManager.h"
 #include "Misc/Paths.h"
 #include "Misc/CoreDelegates.h"
-#include "Sound/SoundWaveProcedural.h"
+#include "CrankAudioWave.h"
 #include "Components/AudioComponent.h"
 #include "Async/Async.h"
 #include "Serialization/JsonReader.h"
@@ -30,7 +30,7 @@ void UCrankRuntimeComponent::ApplySuspension() {
     if (bStarted) FCrankNative::Get().Suspend(Reasons);
     if (Changed) {
         if (AudioComponent) AudioComponent->SetPaused(Reasons!=0);
-        if (AudioWave) AudioWave->ResetAudio();
+        if (AudioWave) AudioWave->FlushPCM();
         UE_LOG(LogTemp,Display,TEXT("Crank suspension requested: %u"),Reasons);
     }
 }
@@ -54,7 +54,7 @@ void UCrankRuntimeComponent::PrepareScreenAndAudio() {
     AudioSamplesReceived = 0;
     ExecutionMode.Empty();NativeArmCalls=NativeApiCalls=0;NativeInfoUpdatedAt=0;
     if (bEnableAudio && GetWorld() && !IsRunningCommandlet()) {
-        AudioWave = NewObject<USoundWaveProcedural>(this);
+        AudioWave = NewObject<UCrankAudioWave>(this);
         AudioWave->SetSampleRate(44100); AudioWave->NumChannels = 2;
         AudioWave->Duration = INDEFINITELY_LOOPING_DURATION;
         AudioWave->bLooping = false; AudioWave->VirtualizationMode = EVirtualizationMode::PlayWhenSilent;
@@ -186,8 +186,7 @@ void UCrankRuntimeComponent::UpdateScreen() {
     uint32 Count = Native.Audio(Samples,UE_ARRAY_COUNT(Samples));
     AudioSamplesReceived += Count;
     if (Count && bEnableAudio && AudioWave) {
-        if(AudioWave->GetAvailableAudioByteCount()>44100) AudioWave->ResetAudio();
-        AudioWave->QueueAudio(reinterpret_cast<const uint8*>(Samples),Count*sizeof(int16));
+        AudioWave->PushPCM(reinterpret_cast<const uint8*>(Samples),Count*sizeof(int16));
     }
     uint32 Serial = Native.Frame(Pixels.GetData(),Pixels.Num());
     if (!Serial || Serial==FrameNumber) return;

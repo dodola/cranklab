@@ -4,7 +4,7 @@
 #include "Async/Future.h"
 #include "CrankRuntimeComponent.generated.h"
 class UTexture2D;
-class USoundWaveProcedural;
+class UCrankAudioWave;
 class UAudioComponent;
 struct CRANKRUNTIME_API FCrankMenuItem {
     uint32 Id=0;
@@ -71,6 +71,6 @@ private:
     void OnForeground();
     uint32 FrameNumber = 0;
     TArray<uint8> Pixels;
-    UPROPERTY(Transient) TObjectPtr<USoundWaveProcedural> AudioWave;
+    UPROPERTY(Transient) TObjectPtr<UCrankAudioWave> AudioWave;
     UPROPERTY(Transient) TObjectPtr<UAudioComponent> AudioComponent;
 };

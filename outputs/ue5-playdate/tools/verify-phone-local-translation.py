@@ -8,6 +8,7 @@ from pathlib import Path
 p=argparse.ArgumentParser()
 p.add_argument('--adb',required=True);p.add_argument('--serial',required=True)
 p.add_argument('--library',required=True);p.add_argument('--output',required=True)
+p.add_argument('--model',help='Already verified app-private model to reuse from another test library')
 a=p.parse_args();root=Path(__file__).resolve().parents[1]
 out=Path(a.output);out.mkdir(parents=True,exist_ok=True)
 pkg='com.cranklab.emulator';base=[a.adb,'-s',a.serial]
@@ -31,6 +32,7 @@ try:
               '--arg=-CrankTranslationDevice=cpu','--arg=-CrankTranslationDetailBase=http://127.0.0.1:18791',
               '--arg=-CrankTranslationApiBase=http://127.0.0.1:18791']
         args+=['--arg='+flag for flag in flags]
+        if a.model:args+=['--arg=-CrankTranslationModel='+a.model]
         with (out/(name+'.log')).open('wb') as log:
             done=subprocess.run(args,stdout=log,stderr=subprocess.STDOUT,timeout=220)
         assert done.returncode==0,name

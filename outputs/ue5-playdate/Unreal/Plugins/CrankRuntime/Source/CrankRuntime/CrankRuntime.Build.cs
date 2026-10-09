@@ -4,7 +4,7 @@ public class CrankRuntime : ModuleRules {
     public CrankRuntime(ReadOnlyTargetRules Target) : base(Target) {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PublicDependencyModuleNames.AddRange(new [] {"Core", "CoreUObject", "Engine"});
-        PrivateDependencyModuleNames.AddRange(new [] {"Projects", "RHI", "RenderCore", "Json", "HTTP"});
+        PrivateDependencyModuleNames.AddRange(new [] {"Projects", "RHI", "RenderCore", "Json", "HTTP", "AudioExtensions"});
         AddEngineThirdPartyPrivateStaticDependencies(Target,"zlib");
         if (Target.Platform == UnrealTargetPlatform.Win64) {
             PublicSystemLibraries.Add("winhttp.lib");

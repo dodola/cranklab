@@ -90,3 +90,11 @@ translation/build-snapdragon.sh --docker
 Pixel 4 只证明旧设备兼容与 CPU 回退，不能证明较新骁龙设备的 HTP 性能。证据保存在本机 `D:/PlaydateAI/htp-merge-20261009/`，APK、模型和原始设备日志不提交 Git。
 
 复现入口：`tools/verify-online-translation.py`、`tools/verify-translation-package.py`、`tools/verify-phone-local-translation.py`、`tools/Build-TranslationSpeedProbe.ps1`。下载器可用 `tools/Build-ModelDownloadProbe.ps1` 编译；手机保持已验证的 Wi-Fi，通过 `adb reverse tcp:18783 tcp:18783` 连接 `tools/model-download-fixture-server.py`，以 `am instrument -w -r -e safePhone true com.cranklab.modelprobe/com.cranklab.ModelProbe` 验证；只有默认的隔离模拟器模式才会切换网络设置。
+
+### 正常启动补测（2026-10-10）
+
+短场景探针完成后，常规启动持续运行触发了音频队列竞争：游戏线程调用 `USoundWaveProcedural::ResetAudio()`，与音频线程同时消费队列，导致 GameThread 访问已释放的队列节点。该问题不在 HTP 推理库内。
+
+音频输出改用 `UCrankAudioWave`，对 PCM 写入、读取和清空使用同一把锁，并将缓存限制为 250 ms；不再跨线程清空引擎的单消费者队列。Win64／Android 编译和打包通过，命令let `CrankVerify -AudioBufferOnly` 验证 PCM 完整性、静音及 20000 次写入／清空与 40000 次并发读取。Pixel 4 常规启动运行 90.7 s、2517 帧、接收 7395328 个 PCM 样本，并经过两次 Home／恢复，进程未重启或崩溃。复现脚本为 `tools/verify-phone-audio-stability.py`；实际扬声器音质仍需人工验收。
+
+音频修复后的 APK 使用新的隔离缓存目录再次完成本地推理、详情内中文显示、离线缓存和原文切换测试，均通过；没有发出在线翻译请求。

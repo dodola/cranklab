@@ -1,11 +1,35 @@
 #include "CrankVerifyCommandlet.h"
 #include "CrankRuntimeComponent.h"
+#include "CrankAudioWave.h"
+#include "Async/Async.h"
 #include "Engine/Texture2D.h"
 #include "HAL/PlatformProcess.h"
 #include "Misc/Parse.h"
 #include "Misc/Paths.h"
 UCrankVerifyCommandlet::UCrankVerifyCommandlet() { IsClient = true; IsEditor = true; IsServer = false; LogToConsole = true; }
 int32 UCrankVerifyCommandlet::Main(const FString& Params) {
+    if(FParse::Param(*Params,TEXT("AudioBufferOnly"))) {
+        auto* Wave=NewObject<UCrankAudioWave>();Wave->AddToRoot();
+        TArray<int16> Source;Source.Init(0x1234,8192);
+        TArray<int16> Output;Output.Init(-1,8192);
+        Wave->PushPCM(reinterpret_cast<const uint8*>(Source.GetData()),Source.Num()*sizeof(int16));
+        bool Passed=Wave->GeneratePCMData(reinterpret_cast<uint8*>(Output.GetData()),Output.Num())==Output.Num()*sizeof(int16) && Output==Source;
+        Wave->FlushPCM();Wave->GeneratePCMData(reinterpret_cast<uint8*>(Output.GetData()),Output.Num());
+        for(int16 Value:Output)Passed&=Value==0;
+        auto Producer=Async(EAsyncExecution::Thread,[Wave,Source] {
+            for(int32 I=0;I<20000;++I) {
+                Wave->PushPCM(reinterpret_cast<const uint8*>(Source.GetData()),Source.Num()*sizeof(int16));
+                if(I%7==0)Wave->FlushPCM();
+            }
+        });
+        for(int32 I=0;I<40000;++I) {
+            Passed&=Wave->GeneratePCMData(reinterpret_cast<uint8*>(Output.GetData()),Output.Num())==Output.Num()*sizeof(int16);
+            for(int16 Value:Output)Passed&=Value==0 || Value==0x1234;
+        }
+        Producer.Wait();Wave->RemoveFromRoot();
+        UE_LOG(LogTemp,Display,TEXT("CRANK AUDIO VERIFY: exact PCM, silence, concurrent push/flush/render passed=%d"),Passed);
+        return Passed?0:4;
+    }
     FString Game,Save;
     if (!FParse::Value(*Params,TEXT("Game="),Game)) return 1;
     if (!FParse::Value(*Params,TEXT("Save="),Save)) Save=FPaths::Combine(FPaths::ProjectSavedDir(),TEXT("CrankSaves"));
