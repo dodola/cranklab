@@ -1,77 +1,73 @@
-# Playdate（CrankLab）
+<p align="center">
+  <img src="docs/assets/playdate-cover.svg" alt="Playdate — Android、Switch 与 Linux 上的黄色小掌机" width="100%">
+</p>
 
-基于 Unreal Engine 5 的 Android Playdate 兼容模拟器原型，以及最初的网页版 3D 掌机参考项目。
+<h1 align="center">Playdate</h1>
 
-Android 应用名称为 **Playdate**，使用黄色掌机图标和配套启动画面。
-图标／启动页原始素材及生成提示位于 `outputs/ue5-playdate/Unreal/Build/Branding/`。
-内部 UE 项目仍为 CrankLab，包名保留 `com.cranklab.emulator`，便于覆盖安装与保留数据。
+<p align="center">
+  <strong>转动摇柄，发现下一款好玩的小游戏。</strong><br>
+  把黄色小掌机的乐趣，带到你的手机和掌机上。
+</p>
 
-目前支持 Lua 与未加密 `pdex.bin` ARM 游戏代码、掌机 3D 视角、沉浸式游戏屏幕、触控按键和摇柄、屏幕滑动模拟摇柄、运动跟随与震动设置。PDGames 是默认启动器，游戏详情内提供下载／运行和中文／原文切换。
+<p align="center">
+  <a href="https://github.com/dodola/cranklab/releases/tag/v0.3.0-beta.1"><strong>下载 Beta</strong></a>
+  &nbsp; · &nbsp;
+  <a href="#在-android-上这样玩">体验亮点</a>
+  &nbsp; · &nbsp;
+  <a href="#选择你的设备">选择设备</a>
+</p>
 
-游戏介绍可在本机或通过微软／腾讯翻译，中文直接显示在 PDGames 详情中，完整译文缓存后可离线阅读。Android 设置中可通过 Wi-Fi 下载约 1 GiB 的 Hy-MT2 Q4_0 模型；支持的设备使用 Hexagon HTP 或 Adreno OpenCL，旧设备保留 CPU 回退。“自动选择”在模型就绪时优先本地，本地失败或 30 秒无输出时尝试微软、腾讯；“本地翻译”始终只在本机推理。在线服务无需密钥或下载模型，设置可固定服务。升级保留游戏存档和译文缓存。详见 [本地翻译](outputs/ue5-playdate/translation/LOCAL-TRANSLATION.md)。
+Playdate（CrankLab）是一个社区开发的 Playdate 兼容项目。喜欢摆弄掌机，就打开 3D 视图；想专心玩游戏，就切换到沉浸式模式。也可以在 Switch 或 Linux 掌机上，用熟悉的实体按键继续游玩。
 
-系统界面由兼容层实现，没有捆绑原厂固件；完整游戏兼容性仍需逐项验证。
+## 在 Android 上这样玩
 
-## 项目结构
+- **一台看得见、摸得着的 3D 掌机。** 拖动背景调整视角，双击显示屏放大；开启视角跟随后，掌机会随手机倾斜轻轻转动。
+- **让游戏占据更多屏幕。** 沉浸式模式放大游戏画面、方向键和 A/B 按钮，横屏、竖屏都能玩。
+- **摇柄就在指尖。** 拖动摇柄转盘，或在沉浸式画面上上下滑动，体验 Playdate 独特的操作方式。
+- **从发现到开玩。** 默认打开 PDGames，在游戏详情里浏览介绍、下载发布者提供的游戏包，安装后直接运行；也支持导入本地游戏。
+- **游戏介绍，直接读中文。** 在详情页切换中文与原文，译文自动缓存。可以使用在线翻译，也可以选择本地翻译。
+- **按你的习惯调整。** 视角跟随、操作震动、画面品质与帧率，都可以在设置中调整。
 
-- `outputs/ue5-playdate/Unreal/`：UE5 C++ 项目、CrankRuntime 插件、内容资产、设计与交互约定。
-- `outputs/ue5-playdate/runtime/`：Lua、C API 兼容层和基于 Unicorn 的 ARM 执行后端。
-- `outputs/ue5-playdate/translation/`：本地 Hy-MT2 推理库（`crank_translate.cpp`、`build-snapdragon.sh`）、中文字体，以及历史 LiteRT／STQ 实验资料。
-- `outputs/ue5-playdate/tools/`：构建、资产转换与验证脚本。
-- `outputs/playdate-local/`：原始模型、材质与交互的网页版参考实现。
+## 界面预览
 
-Unicorn 使用锁定提交的 Git 子模块。SDL、SDL_mixer、zlib 和兼容 Lua 源码保留在项目中。来源记录见 `outputs/ue5-playdate/third-party.json` 和各依赖内的说明文件。
+<p align="center">
+  <img src="docs/assets/android-3d.png" alt="Android 横屏 3D 掌机界面，显示 PDGames 游戏列表与可操作的摇柄" width="100%">
+  <br><sub>3D 掌机 · PDGames · 可操作的摇柄</sub>
+</p>
 
-## 获取与构建
+<p align="center">
+  <img src="docs/assets/android-immersive.png" alt="Android 竖屏沉浸式界面中的 PDGames 游戏列表、大号方向键、A/B 按钮和摇柄转盘" width="240">
+  &nbsp; &nbsp;
+  <img src="docs/assets/android-chinese.png" alt="PDGames 详情页直接显示中文游戏介绍，并保留原文切换入口" width="240">
+  <br><sub>沉浸式游玩 · 直接阅读中文介绍</sub>
+</p>
 
-```powershell
-git clone --recurse-submodules https://github.com/dodola/cranklab.git
-cd cranklab/outputs/ue5-playdate
-```
+以上为 **v0.3.0-beta.1 在 Pixel 4 上的实际截图**。也可以查看 [横屏沉浸式界面](docs/assets/android-immersive-landscape.png)。
 
-已验证的环境为 Windows、UE 5.8.3、Visual Studio 2022 C++ 工具、Android NDK 27.2.12479018、CMake 3.22.1 和 JDK 21。脚本中的默认安装路径来自开发机，需要按实际环境传入 `EngineDirectory`、`SdkDirectory`、`NdkDirectory`、`JdkDirectory` 等参数。部分 SDK API 生成和原生测试游戏编译需要本机 Playdate SDK。
+## 选择你的设备
 
-构建 Windows 原生组件和 UE 编辑器：
+当前版本：**[v0.3.0-beta.1](https://github.com/dodola/cranklab/releases/tag/v0.3.0-beta.1)**
 
-```powershell
-./tools/Build-Runtime.ps1
-./tools/Build-Unreal.ps1
-```
+| 设备 | 适合怎样玩 | 下载 |
+|---|---|---|
+| **Android 手机** | 3D 掌机、沉浸式触控、PDGames 与中文介绍；Android 8.0 及以上 ARM64 设备 | [Android APK](https://github.com/dodola/cranklab/releases/download/v0.3.0-beta.1/Playdate-v0.3.0-beta.1-arm64.apk) |
+| **Switch / Lite / OLED** | 实体按键与摇杆摇柄、PDGames、本地游戏库；需要可运行自制程序的设备 | [Switch NRO](https://github.com/dodola/cranklab/releases/download/v0.3.0-beta.1/Playdate.nro) |
+| **Linux 桌面与掌机** | 在 RetroArch 中游玩，使用实体按键与右摇杆 | [桌面 x86_64](https://github.com/dodola/cranklab/releases/download/v0.3.0-beta.1/CrankLab-libretro-linux-x86_64-v0.3.0-beta.1.zip) · [掌机 ARM64](https://github.com/dodola/cranklab/releases/download/v0.3.0-beta.1/CrankLab-libretro-linux-aarch64-v0.3.0-beta.1.zip) |
 
-构建 Android ARM64 APK：
+Android 版提供上面的完整界面体验；Switch 和 Linux 首版专注于 **Lua 游戏**，不包含 3D 掌机或翻译功能。Android 保留 C 游戏运行后端，但各平台的游戏兼容性都仍在持续完善。Switch 版目前尚未完成真机验证。
 
-```powershell
-./tools/Build-AndroidRuntime.ps1 -Abi arm64-v8a
-./tools/Build-Unreal.ps1 -Platform Android -Architecture arm64
-./tools/Cook-Unreal.ps1 -Architecture arm64 -SkipBuild
-```
+## 开始你的第一局
 
-Unreal 项目入口是 `outputs/ue5-playdate/Unreal/CrankLab.uproject`。仓库保留内容资产，因此普通源码构建无需重新执行资产转换。
+**Android：** 下载并安装 APK，打开应用后进入 PDGames。在游戏详情中选择下载／运行，也可以导入自己的游戏包。现有同签名版本可直接覆盖安装。
 
-## RetroArch（libretro）核心
+**Switch：** 将 `Playdate.nro` 放到 SD 卡的 `/switch/playdate/`，从 Homebrew Menu 启动。方向键与 A/B 操作游戏，右摇杆画圈或按住 ZR/ZL 转动摇柄。
 
-`outputs/ue5-playdate/libretro/` 把同一个运行时做成 libretro 核心，可以在 RetroArch 里运行，目前只支持 Linux（x86_64，以及 ArkOS、EmuELEC 一类掌机系统的 aarch64 / armhf）。支持 Lua 与 ARM `pdex.bin` 游戏、摇柄（L/R 键、右摇杆、L3）、画在画面上的 Playdate 系统菜单，并随 RetroArch 的快进、暂停同步。不支持即时存档和联网。
+**Linux：** 下载对应架构的压缩包，按包内说明将核心加入 RetroArch，再打开自己的游戏包。L/R 或右摇杆操作摇柄，Start 打开游戏菜单。
 
-```sh
-cd outputs/ue5-playdate/libretro
-git submodule update --init
-./build.sh native
-tests/run-tests.sh dist/native/cranklab_libretro.so
-```
+安装说明：[Android](https://github.com/dodola/cranklab/releases/download/v0.3.0-beta.1/README-Android.zh-CN.md) · [Switch](outputs/ue5-playdate/switch/README.md) · [RetroArch / Linux](outputs/ue5-playdate/libretro/README.md)
 
-x86_64 上 57 项自动化测试通过；aarch64 / armhf 产物只确认能编译，尚未在真机运行。详见 [libretro/README.md](outputs/ue5-playdate/libretro/README.md) 和 [详细文档](outputs/ue5-playdate/libretro/docs/GUIDE.md)。
+---
 
-网页版参考：
+这是一个仍在成长中的 **Beta 社区项目**，并非官方模拟器。不同游戏的支持情况会有所差异，欢迎分享你正在玩的游戏、设备和使用体验。
 
-```powershell
-cd outputs/playdate-local
-npm start
-```
-
-## 当前验证与限制
-
-已完成 Pixel 4 在线接口实测：微软六次请求为 0.21–0.87 秒，腾讯最新三次为 0.57–3.92 秒。这些数据是请求耗时，不包含打开详情的网络加载。具体译法仍可能有误，保留原文供对照。
-
-无密钥接口来自服务的网页／浏览器入口，可能变化或限流；应用提供备用服务、明确重试和本地译文缓存。源码与复现脚本见 `outputs/ue5-playdate/tools/probe-online-translation.py`，项目集成报告见 [在线翻译](outputs/ue5-playdate/translation/ONLINE-TRANSLATION.md)。历史本地 CPU／LiteRT 实验保留供参考，正式应用无需运行其构建脚本。后续手机触控验收由用户进行。
-
-构建产物、模型文件、私人游戏存档、编译缓存和测试工作目录不纳入 Git。开发交付与历史验证说明保留在源码目录中。
+想参与开发？[开发与构建](docs/DEVELOPMENT.md) · [翻译功能说明](outputs/ue5-playdate/translation/LOCAL-TRANSLATION.md) · [项目与素材来源](outputs/ue5-playdate/third-party.json)
