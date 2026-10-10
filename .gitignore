@@ -43,3 +43,9 @@ local.properties
 
 # libretro build outputs
 /outputs/ue5-playdate/libretro/dist/
+
+# WebAssembly builds and locally staged game packages
+/outputs/ue5-playdate/web/public/core/
+/outputs/ue5-playdate/web/public/games/
+/outputs/ue5-playdate/web/dist/
+/outputs/ue5-playdate/web/premium-audit.json

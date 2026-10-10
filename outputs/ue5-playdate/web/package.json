@@ -1,0 +1,13 @@
+{
+  "name": "playdate-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playdate Lua games in WebAssembly with the original 3D handheld",
+  "scripts": {
+    "start": "node server.cjs",
+    "check": "node tools/check.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "package": "node tools/package.cjs"
+  },
+  "engines": { "node": ">=18" }
+}

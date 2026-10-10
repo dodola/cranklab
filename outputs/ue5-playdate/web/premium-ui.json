@@ -1,0 +1,10 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["public"],
+  "locale": "zh-CN",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": ["Form", "Scrollbar", "Toast"],
+  "requiredCommands": ["unit", "syntax", "browser"],
+  "commands": { "unit": "npm test", "syntax": "npm run check", "browser": "node tests/browser.cjs" },
+  "evidence": { "failurePaths": "tests/browser.cjs", "interaction": "tests/input.test.cjs" }
+}

@@ -9,6 +9,18 @@ static SDL_mutex *bridge_mutex = NULL;
 static SDL_cond *suspend_condition = NULL;
 static SDL_Thread *game_thread = NULL;
 static SDL_atomic_t state, stop_requested, suspend_requested;
+#ifdef __EMSCRIPTEN__
+/* Web hosts must service filesystem proxy calls while termination saves run.
+   Request stop, poll completion, and only then join the finished game thread. */
+static SDL_atomic_t web_game_done;
+void crank_web_request_stop(void) {
+    if(bridge_mutex) SDL_LockMutex(bridge_mutex);
+    SDL_AtomicSet(&stop_requested,1);
+    if(suspend_condition) SDL_CondBroadcast(suspend_condition);
+    if(bridge_mutex) SDL_UnlockMutex(bridge_mutex);
+}
+int crank_web_can_join(void) { return SDL_AtomicGet(&web_game_done); }
+#endif
 /* Owned by the game thread, including the clock used by Lua and players. */
 static uint32_t applied_suspend = 0;
 static uint64_t suspended_since = 0, suspended_duration = 0;
@@ -262,6 +274,9 @@ static int run(void *unused) {
     int result=crank_game_entry(2,argv);
     if(result && SDL_AtomicGet(&state)!=3) pd_host_fail("Game initialization or execution failed; see runtime log");
     else if(SDL_AtomicGet(&state)!=3) SDL_AtomicSet(&state,0);
+#ifdef __EMSCRIPTEN__
+    SDL_AtomicSet(&web_game_done,1);
+#endif
     return result;
 }
 #endif
@@ -300,6 +315,9 @@ static int start_session(const char *pdx, const char *save,int launcher) {
     SDL_CrankAudioSetGate(lockstep,lockstep ? 2048 : 0);
 #endif
     active=1; SDL_AtomicSet(&state,1);
+#ifdef __EMSCRIPTEN__
+    SDL_AtomicSet(&web_game_done,0);
+#endif
 #ifdef __SWITCH__
     /* PDGames snapshots alone use 256 KiB of stack; libnx's SDL default is
        smaller. Keep Lua/SDK callbacks on an explicitly sized game stack. */

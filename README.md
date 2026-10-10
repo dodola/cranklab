@@ -70,4 +70,6 @@ Android 版提供上面的完整界面体验；Switch 和 Linux 首版专注于 
 
 这是一个仍在成长中的 **Beta 社区项目**，并非官方模拟器。不同游戏的支持情况会有所差异，欢迎分享你正在玩的游戏、设备和使用体验。
 
+浏览器预览也已加入源码：**[Playdate Web](outputs/ue5-playdate/web/README.md)**。可以在浏览器里运行 Pooh Mini Mahjong 和 Music Box，使用原有 3D 掌机或沉浸式触控界面。该预览需要本地构建与启动，尚未发布在线体验地址。
+
 想参与开发？[开发与构建](docs/DEVELOPMENT.md) · [翻译功能说明](outputs/ue5-playdate/translation/LOCAL-TRANSLATION.md) · [项目与素材来源](outputs/ue5-playdate/third-party.json)

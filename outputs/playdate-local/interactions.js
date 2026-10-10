@@ -159,32 +159,48 @@ class DeviceInteractions {
     return nearest;
   }
 
-  press(mesh, direction) {
-    this.stopIdle();
+  setButtonVisual(mesh, down, direction) {
+    const x = typeof direction === 'object' ? direction?.x || 0 : direction === 'up' ? -.065 : direction === 'down' ? .065 : 0;
+    const z = typeof direction === 'object' ? direction?.z || 0 : direction === 'left' ? -.065 : direction === 'right' ? .065 : 0;
+    const state = `${down}:${x}:${z}`;
+    if (mesh.userData.visualState === state) return;
+    mesh.userData.visualState = state;
     mesh.userData.releaseTween?.stop();
     mesh.userData.releaseRotationTween?.stop();
+    const rest = mesh.userData.rest;
+    if (down) {
+      mesh.position.copy(rest);
+      if (mesh.userData.input === 'sleep') mesh.position.z -= .004;
+      else mesh.position.y -= .009;
+      if (mesh.userData.input === 'dpad') mesh.rotation.set(x, 0, z);
+    } else {
+      const duration = this.reducedMotion.matches ? 0 : 140;
+      mesh.userData.releaseTween = new TWEEN.Tween(mesh.position).to({x:rest.x,y:rest.y,z:rest.z}, duration).easing(TWEEN.Easing.Quadratic.Out).start();
+      mesh.userData.releaseRotationTween = new TWEEN.Tween(mesh.rotation).to({x:0,y:0,z:0}, duration).start();
+    }
+  }
+  // Visual-only state: the emulator merges keyboard and pointer ownership.
+  // Updating the model must not emit another input event back into that merge.
+  setButtonVisuals(buttons) {
+    for (const name of ['A', 'B']) this.setButtonVisual(this.parts[name], buttons.has(name));
+    const down = ['up', 'down', 'left', 'right'].some(name => buttons.has(name));
+    this.setButtonVisual(this.parts.dpad, down, {
+      x: (Number(buttons.has('down')) - Number(buttons.has('up'))) * .065,
+      z: (Number(buttons.has('right')) - Number(buttons.has('left'))) * .065
+    });
+  }
+  press(mesh, direction) {
+    this.stopIdle();
     this.pressed.add(mesh);
     mesh.userData.pressedInput = direction || mesh.userData.input;
-    mesh.position.copy(mesh.userData.rest);
-    if (mesh.userData.input === 'sleep') mesh.position.z -= .004;
-    else mesh.position.y -= .009;
-    if (mesh.userData.input === 'dpad') {
-      mesh.rotation.set(0, 0, 0);
-      if (direction === 'up') mesh.rotation.x = -.065;
-      if (direction === 'down') mesh.rotation.x = .065;
-      if (direction === 'left') mesh.rotation.z = -.065;
-      if (direction === 'right') mesh.rotation.z = .065;
-    }
+    this.setButtonVisual(mesh, true, direction);
     this.announce(`${{A:'A 键',B:'B 键',menu:'菜单键',sleep:'顶部按键',dpad:'方向键'}[mesh.userData.input]}${direction ? ' ' + {up:'上',down:'下',left:'左',right:'右'}[direction] : ''}已按下`);
     this.canvas.dispatchEvent(new CustomEvent('playdate-input', { detail: { type: 'button', button: direction || mesh.userData.input, pressed: true } }));
   }
   release(mesh) {
     if (!mesh || !this.pressed.has(mesh)) return;
     this.pressed.delete(mesh);
-    const duration = this.reducedMotion.matches ? 0 : 140;
-    const rest = mesh.userData.rest;
-    mesh.userData.releaseTween = new TWEEN.Tween(mesh.position).to({x:rest.x,y:rest.y,z:rest.z}, duration).easing(TWEEN.Easing.Quadratic.Out).start();
-    mesh.userData.releaseRotationTween = new TWEEN.Tween(mesh.rotation).to({x:0,y:0,z:0}, duration).start();
+    this.setButtonVisual(mesh, false);
     this.canvas.dispatchEvent(new CustomEvent('playdate-input', { detail: { type: 'button', button: mesh.userData.pressedInput, pressed: false } }));
   }
   direction(hit) {

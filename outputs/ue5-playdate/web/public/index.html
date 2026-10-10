@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e8e8e8">
+  <title>Playdate · 网页模拟器</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ffc600'/%3E%3Cpath d='M7 6h18v13H7z' fill='%23292929'/%3E%3Cpath d='M10 22v7m-3-3h6' stroke='%23292929' stroke-width='2'/%3E%3Ccircle cx='23' cy='25' r='3' fill='%23292929'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="/model/vendor/model-viewer.min.js"></script>
+  <script defer src="/model/interactions.js"></script>
+  <script type="module" src="app.mjs"></script>
+</head>
+<body data-mode="immersive">
+  <header class="toolbar">
+    <a class="brand" href="/" aria-label="Playdate 网页模拟器首页"><span class="brand-device" aria-hidden="true"></span>Playdate<span class="edition">WEB</span></a>
+    <nav class="actions" aria-label="模拟器工具栏">
+      <button id="library-toggle" type="button" onclick="playdateUI.activate('library')" aria-expanded="true" aria-controls="library">游戏库</button>
+      <button id="mode-toggle" type="button" onclick="playdateUI.activate('mode')" aria-pressed="true">3D 掌机</button>
+      <button id="menu-toggle" type="button" onclick="playdateUI.activate('menu')" disabled aria-expanded="false" aria-controls="system-menu">菜单</button>
+      <button id="audio-toggle" type="button" onclick="playdateUI.activate('audio')" aria-pressed="false">静音</button>
+      <button id="fullscreen-toggle" type="button" onclick="playdateUI.activate('fullscreen')" aria-pressed="false">全屏</button>
+    </nav>
+  </header>
+  <main class="stage" aria-label="Playdate 游戏模拟器">
+    <section id="model-host" aria-label="3D 掌机" hidden>
+      <canvas id="intro-canvas" tabindex="0" aria-label="可操作的 Playdate 3D 掌机，拖动机身旋转，点击按键，拖动摇柄，双击显示屏切换沉浸模式"></canvas>
+      <div id="model-loading" class="model-message" role="status">正在准备掌机…</div>
+    </section>
+    <section id="play-surface" class="play-surface" aria-label="沉浸式游戏区域">
+      <div class="display-shell">
+        <canvas id="game-screen" width="400" height="240" tabindex="0" aria-label="游戏屏幕，上下滑动控制摇柄，双击返回 3D 掌机"></canvas>
+      </div>
+      <div class="game-controls" aria-label="游戏控制器">
+        <div class="dpad" aria-label="方向键">
+          <svg class="dpad-body" viewBox="0 0 240 248" aria-hidden="true">
+            <defs><path id="dpad-shape" d="M96 4H144Q164 4 164 24V68Q164 76 172 76H216Q236 76 236 96V144Q236 164 216 164H172Q164 164 164 172V216Q164 236 144 236H96Q76 236 76 216V172Q76 164 68 164H24Q4 164 4 144V96Q4 76 24 76H68Q76 76 76 68V24Q76 4 96 4Z"/></defs>
+            <use href="#dpad-shape" class="dpad-shadow" transform="translate(0 7)"/>
+            <use href="#dpad-shape" class="dpad-face"/>
+          </svg>
+          <button type="button" class="up" data-button="up" onclick="playdateUI.press('up', event)" aria-label="上"><span aria-hidden="true">▲</span></button>
+          <button type="button" class="left" data-button="left" onclick="playdateUI.press('left', event)" aria-label="左"><span aria-hidden="true">◀</span></button>
+          <button type="button" class="right" data-button="right" onclick="playdateUI.press('right', event)" aria-label="右"><span aria-hidden="true">▶</span></button>
+          <button type="button" class="down" data-button="down" onclick="playdateUI.press('down', event)" aria-label="下"><span aria-hidden="true">▼</span></button>
+        </div>
+        <div class="ab-buttons">
+          <button type="button" class="game-button" data-button="B" onclick="playdateUI.press('B', event)" aria-label="B 键"><span>B</span></button>
+          <button type="button" class="game-button" data-button="A" onclick="playdateUI.press('A', event)" aria-label="A 键"><span>A</span></button>
+        </div>
+        <div class="dial-wrap">
+          <div id="crank-dial" class="crank-dial" tabindex="0" role="slider" aria-label="摇柄角度，拖动转盘、滚轮或方向键转动" aria-valuemin="0" aria-valuemax="359" aria-valuenow="0">
+            <div class="dial-marks" aria-hidden="true"></div><div id="dial-hand" class="dial-hand" aria-hidden="true"></div><span class="dial-center" aria-hidden="true"></span>
+          </div>
+          <button id="dock-toggle" type="button" onclick="playdateUI.activate('dock')" aria-pressed="true">展开摇柄</button>
+        </div>
+      </div>
+    </section>
+    <aside id="library" class="panel library" aria-label="游戏库">
+      <div class="panel-heading"><div><span class="eyebrow">挑一款，开始玩</span><h1>游戏库</h1></div><button id="library-close" type="button" onclick="playdateUI.activate('library-close')" aria-label="收起游戏库">×</button></div>
+      <div class="game-list">
+        <button type="button" class="game-card" data-game="mahjong" onclick="playdateUI.activate('mahjong')">
+          <span class="game-art mahjong-art" aria-hidden="true"><span>發</span><span>中</span><span>白</span></span>
+          <span class="game-copy"><strong>Pooh Mini Mahjong</strong><span>一局迷你麻将，随时开桌。</span><small>启动游戏 →</small></span>
+        </button>
+        <button type="button" class="game-card" data-game="music" onclick="playdateUI.activate('music')">
+          <span class="game-art music-art" aria-hidden="true"><span>♫</span><i></i></span>
+          <span class="game-copy"><strong>Music Box</strong><span>转动摇柄，让旋律慢慢流出来。</span><small>启动游戏 →</small></span>
+        </button>
+      </div>
+      <p class="library-note">游戏在你的浏览器中运行，存档保存在这里。</p>
+      <div id="load-state" class="load-state" hidden><span id="load-label">正在准备游戏…</span><progress id="load-progress" aria-label="游戏加载进度"></progress></div>
+    </aside>
+    <aside id="system-menu" class="panel system-menu" aria-label="游戏菜单" hidden>
+      <div class="panel-heading"><h2>游戏菜单</h2><button id="menu-close" type="button" onclick="playdateUI.activate('menu')" aria-label="关闭游戏菜单">×</button></div>
+      <div id="custom-menu"></div>
+      <button id="resume-game" type="button" onclick="playdateUI.activate('menu')">继续游戏</button>
+      <button id="restart-game" type="button" onclick="playdateUI.activate('restart')">重新启动</button>
+      <button id="choose-game" type="button" onclick="playdateUI.activate('choose')">返回游戏库</button>
+    </aside>
+  </main>
+  <footer class="session-bar">
+    <span class="session-title"><span id="status-dot" class="status-dot"></span><strong id="game-title">选择一款游戏</strong></span>
+    <span id="session-status" role="status" aria-live="polite">正在准备模拟器…</span>
+    <span class="keyboard-hint">方向键 / WASD · Z A · X B · 长按 Q / E 摇柄</span>
+  </footer>
+  <div id="error-banner" class="error-banner" role="alert" hidden><p id="error-text"></p><button id="retry" type="button" onclick="playdateUI.activate('retry')">重试</button></div>
+  <span id="input-status" class="sr-only" role="status" aria-live="polite"></span>
+</body>
+</html>
