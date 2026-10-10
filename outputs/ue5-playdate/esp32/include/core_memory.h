@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 void *micro_core_malloc(size_t size);
 void *micro_core_calloc(size_t count, size_t size);
 void *micro_core_realloc(void *ptr, size_t size);
+char *micro_core_strdup(const char *value);
 int micro_core_access(const char *path, int mode);
 void micro_core_free(void *ptr);
 void *micro_core_persistent_calloc(size_t count,size_t size);
@@ -15,6 +17,7 @@ int micro_core_fclose(FILE *file);
 #define malloc micro_core_malloc
 #define calloc micro_core_calloc
 #define realloc micro_core_realloc
+#define strdup micro_core_strdup
 #define free micro_core_free
 #define fopen micro_core_fopen
 #define fclose micro_core_fclose

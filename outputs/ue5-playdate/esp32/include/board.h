@@ -14,6 +14,7 @@ struct BoardInput {
 };
 const BoardConfig &board_config();
 void board_begin();
+void board_diagnostics();
 BoardInput board_poll();
 void board_present(const uint8_t *bits, bool inverted, int scale);
 void board_message(const char *title, const char *text);

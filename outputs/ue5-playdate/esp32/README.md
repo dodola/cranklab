@@ -11,7 +11,9 @@ ESP32 原生 Playdate Lua 运行时，首块开发板支持 **M5Stack M5Dial / S
 - 游戏库：转动外圈选择游戏，短按屏幕实体按钮启动。
 - 游戏中：外圈旋钮对应摇柄，每圈 360°；屏幕下方触控区域提供方向键和 A/B。
 - 实体按钮也映射为 A；长按超过 600 ms 后松开，返回游戏库。
-- 存档放在 `/saves/<bundleID>`，不同游戏独立保存。
+- 按住触控按键时反色显示；绘制与触控命中使用相同的圆屏布局配置。
+- 存档放在 `/saves/<identity>`。普通 bundleID 保持不变；缺少 ID 时使用游戏目录名，
+  过长或含路径字符的 ID 会生成带哈希的目录名，避免不同游戏共用存档。
 
 ## 当前边界
 
@@ -73,20 +75,47 @@ SDK 资源、工具链、固件和存档不会提交到仓库。
 ## 验证与调试
 
 串口使用 115200 baud。命令：`list`、`load <id>`、`menu`、`status`、
-`buttons <mask>`、`crank <degrees>`、`frame`、`reboot`。
+`hardware`、`buttons <mask>`、`crank <degrees>`、`frame`、`reboot`。
 按钮位与 Playdate 一致：左 1、右 2、上 4、下 8、B 16、A 32。
-`frame` 回传原始 400×240 1 位帧；`status` 返回实际 Lua / heap 用量、绘制耗时和帧 CRC。
+`frame` 回传原始 400×240 1 位帧；`status` 返回实际 Lua / heap 用量、绘制耗时、帧 CRC、
+精灵分配数量，以及独立于串口注入的实体输入计数。`hardware` 返回板卡和触控驱动状态。
 
 ```powershell
-D:/PlaydateAI/toolchains/esp32-pio/Scripts/python.exe tools/verify_board.py --port COM9 --music --asteroids
+D:/PlaydateAI/toolchains/esp32-pio/Scripts/python.exe tools/verify_board.py --port COM9 --music --asteroids --asteroids-seconds 120 --runtime-check
 ```
 
 验证脚本需要预先烧录 `sdk-crank`、`crank-paddle`，以及可选的 `music-box` / `sdk-asheteroids`。
 前两项分别使用官方 SDK 的 `Examples/Single File Examples/crank.lua` 和附带的普通 PDX 源码。
 测试将运行真实游戏、核对输入导致的画面变化，并检查十次退出 / 重启后的 heap 回收。
 `--asteroids` 还会默认执行 30 秒的持续移动 / 射击检查，可通过 `--asteroids-seconds` 调整时长。
+`--runtime-check` 检查文件读写、游戏重载与 MCU 重启后的存档、无 bundleID 游戏隔离，
+以及输入回调抛错后的恢复。先将 `examples/runtime-check` 用 pdc 编译并导入为 `runtime-check`；
+另外复制为 `runtime-check-nobundle-a` 和 `runtime-check-nobundle-b`，删去这两份 `pdxinfo`
+中的 `bundleID` 行，再一同烧录文件系统。
 它会使用这些测试游戏的独立存档，不替代实体旋钮、触控和扬声器的人工验收。
 
 当前 COM9 设备已通过 SDK 摇柄示例、Crank Paddle 按键 / 摇柄响应、Asheteroids
-30 秒持续移动 / 射击测试，以及十次游戏切换后的内存回收检查。
+120 秒持续移动 / 射击测试、文件与存档测试，以及十次游戏切换后的内存回收检查。
 Music Box 已尝试加载，但当前无 PSRAM 的 M5Dial 在加载 CoreLibs UI 时 RAM 不足，尚不能运行。
+详细范围见 [VERIFICATION.md](VERIFICATION.md)；串口注入不能证明实体触控和扬声器已验收。
+
+主机端的圆屏几何和存档标识测试：
+
+```powershell
+cmake -S tests -B D:/PlaydateAI/build/esp32-host
+cmake --build D:/PlaydateAI/build/esp32-host --config Release
+ctest --test-dir D:/PlaydateAI/build/esp32-host -C Release --output-on-failure
+```
+
+## 固件打包
+
+构建完成后可生成本地 ZIP，包含应用、首次安装镜像、文件 SHA-256 和本项目的 Crank Paddle
+示例文件系统。不会收录已下载的游戏或 SDK CoreLibs。输出目录必须是新目录。
+
+```powershell
+D:/PlaydateAI/toolchains/esp32-pio/Scripts/python.exe -m pip install esptool==5.5.0
+D:/PlaydateAI/toolchains/esp32-pio/Scripts/python.exe tools/package.py --output D:/PlaydateAI/esp32-builds/m5dial-alpha --verification D:/PlaydateAI/esp32-verification
+```
+
+`--verification` 可选，但提供时必须是通过的 `verify_board.py` 记录。
+包内 README 区分首次安装和保留存档的应用更新命令；文件系统镜像会替换原有游戏和存档。

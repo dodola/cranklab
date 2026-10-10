@@ -169,6 +169,9 @@ void pd_sound_native_volume(lua_State *L,int index,float left,float right);
 void pd_sound_native_pause(lua_State *L,int index,int paused);
 void pd_sprite_native_release(lua_State *L,int index);
 void pd_sprite_native_collect(lua_State *L);
+#ifdef CRANK_ESP32
+void pd_sprite_memory_stats(int *live,int *allocated);
+#endif
 void pd_host_input(void);
 void pd_host_publish(void);
 void pd_host_audio(const int16_t *samples, int count);

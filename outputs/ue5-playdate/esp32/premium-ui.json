@@ -1,0 +1,15 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src", "include"],
+  "locale": "en",
+  "canonicalMap": "DESIGN.md",
+  "requiredCapabilities": ["Select/Listbox"],
+  "ownership": {"Select/Listbox": "authored"},
+  "requiredCommands": ["layout", "hardware"],
+  "commands": {
+    "layout": "ctest --test-dir D:/PlaydateAI/build/esp32-host -C Release --output-on-failure",
+    "hardware": "D:/PlaydateAI/toolchains/esp32-pio/Scripts/python.exe tools/verify_board.py --music --asteroids --runtime-check"
+  },
+  "evidence": {"failurePaths": "tools/verify_board.py"},
+  "platformNote": "C++/M5GFX frontend: the web source scanner does not cover rendering or GPIO. Host geometry checks, MCU integration tests and manual hardware review cover those separately."
+}

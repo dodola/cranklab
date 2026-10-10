@@ -37,6 +37,11 @@ static int g_sprite_table_ref = LUA_NOREF;
    allocations only after the complete Lua state has closed. */
 static LCDSprite **g_allocated = NULL;
 static int g_allocated_count = 0, g_allocated_capacity = 0;
+#ifdef CRANK_ESP32
+void pd_sprite_memory_stats(int *live,int *allocated) {
+    *live=g_sprite_count;*allocated=g_allocated_count;
+}
+#endif
 
 static void ensure_sprite_capacity(int needed) {
     if (g_sprite_capacity < needed) {
@@ -1745,6 +1750,11 @@ void pd_sprite_register(lua_State *L) {
     lua_pushcfunction(L, lua_sprite_table_index);
     lua_setfield(L, -2, "__index");
     luaL_setfuncs(L, sprite_methods, 0);
+#ifdef CRANK_ESP32
+    /* The MCU collector reclaims finalized userdata at frame boundaries.
+       Without __gc, removed bullets keep their C allocation until game exit. */
+    lua_pushcfunction(L,lua_sprite_free);lua_setfield(L,-2,"__gc");
+#endif
     int meta_abs = lua_gettop(L);
 
     lua_getglobal(L, "playdate");

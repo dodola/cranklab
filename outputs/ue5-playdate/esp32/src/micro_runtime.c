@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include "save_identity.h"
+#include <esp_heap_caps.h>
 int micro_core_access(const char *path,int mode) {
     struct stat st;
     if(mode!=F_OK) {errno=ENOTSUP;return -1;}
@@ -25,11 +27,12 @@ static int update_ref = LUA_NOREF;
 static void *core_allocations[1536];
 static FILE *core_files[16];
 
-static void track_core(void *ptr) {
-    if(!ptr)return;
-    for(unsigned i=0;i<1536;i++) if(!core_allocations[i]) {core_allocations[i]=ptr;return;}
+static void *track_core(void *ptr) {
+    if(!ptr)return NULL;
+    for(unsigned i=0;i<1536;i++) if(!core_allocations[i]) {core_allocations[i]=ptr;return ptr;}
     free(ptr);
     if(active_lua)luaL_error(active_lua,"Too many game asset allocations");
+    pd_host_fail("Too many game asset allocations");return NULL;
 }
 void micro_core_free(void *ptr) {
     for(unsigned i=0;i<1536;i++)if(core_allocations[i]==ptr){core_allocations[i]=NULL;break;}
@@ -54,21 +57,25 @@ void pd_host_fail(const char *error) {
 }
 const char *micro_error(void) { return last_error; }
 unsigned micro_lua_bytes(void) { return lua_bytes; }
+void micro_asset_stats(unsigned *count,unsigned *bytes) {
+    *count=0;*bytes=0;
+    for(unsigned i=0;i<1536;i++)if(core_allocations[i]) {
+        (*count)++;*bytes+=heap_caps_get_allocated_size(core_allocations[i]);
+    }
+}
 const uint8_t *micro_frame(void) { return pd_screen_bitmap ? pd_screen_bitmap->data : NULL; }
 float micro_refresh_rate(void) { return g_pd.refresh_rate; }
 void *micro_core_malloc(size_t size) {
     void *p=malloc(size);
     if(!p && size && active_lua){lua_gc(active_lua,LUA_GCCOLLECT,0);p=malloc(size);}
     if(!p && size && active_lua) luaL_error(active_lua,"Not enough RAM for game assets (%d bytes)",(int)size);
-    track_core(p);
-    return p;
+    return track_core(p);
 }
 void *micro_core_calloc(size_t count,size_t size) {
     void *p=calloc(count,size);
     if(!p && count && size && active_lua){lua_gc(active_lua,LUA_GCCOLLECT,0);p=calloc(count,size);}
     if(!p && count && size && active_lua) luaL_error(active_lua,"Not enough RAM for game assets");
-    track_core(p);
-    return p;
+    return track_core(p);
 }
 void *micro_core_realloc(void *ptr,size_t size) {
     void *p=realloc(ptr,size);
@@ -77,7 +84,7 @@ void *micro_core_realloc(void *ptr,size_t size) {
     if(p || !size) {
         int found=0;
         if(ptr)for(unsigned i=0;i<1536;i++)if(core_allocations[i]==ptr){core_allocations[i]=p;found=1;break;}
-        if(!found)track_core(p);
+        if(!found)p=track_core(p);
     }
     return p;
 }
@@ -85,6 +92,12 @@ void *micro_core_persistent_calloc(size_t count,size_t size) {
     void *p=calloc(count,size);
     if(!p && count && size && active_lua)luaL_error(active_lua,"Not enough RAM for system font");
     return p;
+}
+char *micro_core_strdup(const char *value) {
+    size_t size=strlen(value)+1;
+    char *copy=micro_core_malloc(size);
+    if(copy)memcpy(copy,value,size);
+    return copy;
 }
 int pd_host_active(void) { return 0; } /* Avoid desktop menu image expansion to RGBA. */
 void pd_host_menu(const char *json, const uint8_t *image) {}
@@ -220,9 +233,13 @@ int micro_start(const char *directory) {
         snprintf(g_pd.game_version,sizeof(g_pd.game_version),"%s",info->version);
     }
     free(info);
-    char save[512]; snprintf(save,sizeof(save),"/littlefs/saves/%s",g_pd.game_bundle_id[0] ? g_pd.game_bundle_id : "game");
-    for(char *p=save+16;*p;p++) if(*p=='/') *p='_';
-    mkdir("/littlefs/saves",0755); mkdir(save,0755); g_pd.save_dir=strdup(save);
+    char component[32];micro_save_identity(g_pd.game_bundle_id,directory,component);
+    char save[512];snprintf(save,sizeof(save),"/littlefs/saves/%s",component);
+    mkdir("/littlefs/saves",0755);
+    if(mkdir(save,0755)!=0 && (stat(save,&st)!=0 || !S_ISDIR(st.st_mode))) {
+        pd_host_fail("Cannot create game save directory");return 0;
+    }
+    g_pd.save_dir=strdup(save);
     pd_screen_bitmap=calloc(1,sizeof(LCDBitmap));
     if (!pd_screen_bitmap) { pd_host_fail("Not enough memory for screen"); return 0; }
     g_pd.display_bitmap=pd_screen_bitmap;
@@ -242,6 +259,12 @@ int micro_start(const char *directory) {
 }
 
 static int frame_update(lua_State *L) {
+    for(int bit=0;bit<6;bit++) {
+        if(g_pd.buttons_pushed&(1<<bit))pd_call_input_handlers(1<<bit,1);
+        if(g_pd.buttons_released&(1<<bit))pd_call_input_handlers(1<<bit,0);
+    }
+    if(g_pd.crank_change)call_crank(L,g_pd.crank_change);
+    if(!g_pd.running)return 0;
     if (!update_co) {
         lua_getglobal(L,"playdate"); lua_getfield(L,-1,"update");
         if (lua_isfunction(L,-1)) {
@@ -275,11 +298,6 @@ int micro_step(uint32_t buttons,float delta,int docked) {
     g_pd.buttons_current=buttons;
     g_pd.crank_change=delta; g_pd.crank_angle=fmodf(g_pd.crank_angle+delta+360,360);
     g_pd.crank_docked=docked;
-    for (int bit=0;bit<6;bit++) {
-        if (g_pd.buttons_pushed&(1<<bit)) pd_call_input_handlers(1<<bit,1);
-        if (g_pd.buttons_released&(1<<bit)) pd_call_input_handlers(1<<bit,0);
-    }
-    if (delta) call_crank(g_pd.L,delta);
     pd_frame_serial++; pd_frame_draw_ops=0;g_sprites_drawn_this_frame=0;pd_damage_reset();
     lua_pushcfunction(g_pd.L,frame_update);
     if(lua_pcall(g_pd.L,0,0,0)!=LUA_OK) {

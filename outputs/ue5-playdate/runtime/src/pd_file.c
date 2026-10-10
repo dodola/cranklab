@@ -43,46 +43,52 @@ static int lua_file_close(lua_State *L) {
     return 0;
 }
 
+static FILE *file_handle(lua_State *L) {
+    FILE **ud=luaL_checkudata(L,1,"pd.file");
+    if(!*ud)luaL_error(L,"File is closed");
+    return *ud;
+}
+
 static int lua_file_read(lua_State *L) {
-    FILE **ud = luaL_checkudata(L, 1, "pd.file");
-    int len = (int)luaL_checkinteger(L, 2);
+    FILE *file=file_handle(L);
+    lua_Integer len=luaL_checkinteger(L,2);
+    luaL_argcheck(L,len>=0 && (uint64_t)len<=SIZE_MAX,2,"Invalid read length");
     char *buf = malloc(len);
-    int n = fread(buf, 1, len, *ud);
+    if(!buf && len)return luaL_error(L,"Not enough memory to read file");
+    size_t n = fread(buf, 1, len, file);
     lua_pushlstring(L, buf, n);
     free(buf);
     return 1;
 }
 
 static int lua_file_write(lua_State *L) {
-    FILE **ud = luaL_checkudata(L, 1, "pd.file");
+    FILE *file=file_handle(L);
     size_t len;
     lua_getglobal(L, "tostring");
     lua_pushvalue(L, 2);
     lua_call(L, 1, 1);
     const char *data = lua_isstring(L, -1) ? lua_tolstring(L, -1, &len) : NULL;
-    int n = data ? (int)fwrite(data, 1, len, *ud) : 0;
+    int n = data ? (int)fwrite(data, 1, len, file) : 0;
     lua_pop(L, 1);
     lua_pushinteger(L, n);
     return 1;
 }
 
 static int lua_file_flush(lua_State *L) {
-    FILE **ud = luaL_checkudata(L, 1, "pd.file");
-    fflush(*ud);
+    fflush(file_handle(L));
     return 0;
 }
 
 static int lua_file_tell(lua_State *L) {
-    FILE **ud = luaL_checkudata(L, 1, "pd.file");
-    lua_pushinteger(L, (int)ftell(*ud));
+    lua_pushinteger(L, (int)ftell(file_handle(L)));
     return 1;
 }
 
 static int lua_file_seek(lua_State *L) {
-    FILE **ud = luaL_checkudata(L, 1, "pd.file");
+    FILE *file=file_handle(L);
     int pos = (int)luaL_checkinteger(L, 2);
     int whence = (int)luaL_optinteger(L, 3, 0);
-    fseek(*ud, pos, whence);
+    fseek(file, pos, whence);
     return 0;
 }
 

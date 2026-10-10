@@ -23,6 +23,8 @@ static uint32_t last_buttons;
 static uint32_t last_step_us,last_present_us;
 static uint32_t pending_buttons;
 static bool release_gate;
+static uint32_t physical_events;
+static float physical_crank_degrees;
 
 static void scan_games() {
     game_count=0;DIR *d=opendir("/littlefs/games");
@@ -40,9 +42,9 @@ static void scan_games() {
 }
 static void show_library() {
     playing=false;button_override=0;crank_override=0;pending_buttons=0;micro_stop();
-    char text[512];snprintf(text,sizeof(text),"Turn dial to select\nPress to launch\n\n");
+    char text[512];snprintf(text,sizeof(text),"Dial: select / A: play\n\n");
     if(!game_count) strlcat(text,"No games. Upload filesystem.",sizeof(text));
-    for(int i=max(0,selected-1);i<min(game_count,selected+3);i++) {
+    for(int i=max(0,selected-1);i<min(game_count,selected+2);i++) {
         strlcat(text,i==selected ? "> " : "  ",sizeof(text));strlcat(text,games[i],sizeof(text));strlcat(text,"\n",sizeof(text));
     }
     board_message("GAME LIBRARY",text);
@@ -57,6 +59,7 @@ static void start_game(const char *name) {
     char path[160];snprintf(path,sizeof(path),"/littlefs/games/%s",name);
     playing=false;frame_count=0;button_override=0;crank_override=0;
     if(!micro_start(path)) {
+        micro_stop();
         Serial.printf("ERROR %s\n",micro_error());board_message("CANNOT RUN",micro_error());return;
     }
     board_begin();playing=true;next_frame=millis();release_gate=true;pending_buttons=0;
@@ -64,14 +67,18 @@ static void start_game(const char *name) {
 }
 static void status() {
     const uint8_t *bits=micro_frame();
-    Serial.printf("STATE {\"board\":\"%s\",\"playing\":%s,\"frames\":%u,\"luaBytes\":%u,\"heapFree\":%u,\"largestBlock\":%u,\"psram\":%u,\"buttons\":%u,\"crank\":%.2f,\"frameCRC\":%u,\"stepUs\":%u,\"presentUs\":%u}\n",
+    unsigned asset_count,asset_bytes;int live_sprites,sprite_objects;
+    micro_asset_stats(&asset_count,&asset_bytes);pd_sprite_memory_stats(&live_sprites,&sprite_objects);
+    Serial.printf("STATE {\"board\":\"%s\",\"playing\":%s,\"frames\":%u,\"luaBytes\":%u,\"heapFree\":%u,\"largestBlock\":%u,\"psram\":%u,\"buttons\":%u,\"crank\":%.2f,\"frameCRC\":%u,\"stepUs\":%u,\"presentUs\":%u,\"physicalButtons\":%u,\"physicalEvents\":%u,\"physicalCrankDegrees\":%.2f,\"assetAllocs\":%u,\"assetBytes\":%u,\"liveSprites\":%d,\"spriteObjects\":%d}\n",
         board_config().id,playing ? "true" : "false",frame_count,micro_lua_bytes(),ESP.getFreeHeap(),
         (unsigned)heap_caps_get_largest_free_block(MALLOC_CAP_8BIT),ESP.getPsramSize(),g_pd.buttons_current,
-        g_pd.crank_angle,bits ? (unsigned)crc32(0,bits,12000) : 0,last_step_us,last_present_us);
+        g_pd.crank_angle,bits ? (unsigned)crc32(0,bits,12000) : 0,last_step_us,last_present_us,
+        last_buttons,physical_events,physical_crank_degrees,asset_count,asset_bytes,live_sprites,sprite_objects);
 }
 static void process_command() {
     command[command_length]=0;
     if(!strcmp(command,"status"))status();
+    else if(!strcmp(command,"hardware"))board_diagnostics();
     else if(!strcmp(command,"list"))for(int i=0;i<game_count;i++) Serial.printf("GAME %s\n",games[i]);
     else if(!strncmp(command,"load ",5))start_game(command+5);
     else if(!strncmp(command,"buttons ",8))button_override=strtoul(command+8,NULL,0)&63;
@@ -87,6 +94,9 @@ static void process_command() {
 }
 void setup() {
     setenv("TZ","UTC0",1);tzset();
+    /* A complete telemetry record must fit even while USB reconnects.
+       Arduino's 256-byte default truncates our JSON in its disconnected FIFO. */
+    Serial.setTxBufferSize(1024);
     Serial.begin(115200);delay(350);board_begin();
     Serial.printf("BOOT Playdate ESP32 board=%s flash=%u psram=%u free=%u\n",board_config().id,ESP.getFlashChipSize(),ESP.getPsramSize(),ESP.getFreeHeap());
     if(!LittleFS.begin(false,"/littlefs",10,"spiffs")) {
@@ -103,6 +113,8 @@ void loop() {
         else if(c!='\r' && command_length<sizeof(command)-1)command[command_length++]=c;
     }
     BoardInput input=board_poll();
+    if(input.buttons!=last_buttons || input.crank_delta || input.menu_pressed)physical_events++;
+    physical_crank_degrees+=input.crank_delta;
     if(input.menu_pressed){show_library();last_buttons=input.buttons;}
     if(!playing && game_count) {
         menu_rotation+=input.crank_delta;

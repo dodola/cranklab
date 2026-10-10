@@ -1,0 +1,4 @@
+name=Runtime Check
+author=CrankLab
+version=0.1
+bundleID=dev.cranklab.esp32.runtimecheck
