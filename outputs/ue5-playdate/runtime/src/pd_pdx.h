@@ -38,5 +38,13 @@ int pd_fix_path_case(char *path);
 PDZFile *pdz_load(const char *path);
 void pdz_free(PDZFile *pdz);
 PDZEntry *pdz_find(PDZFile *pdz, const char *name);
+#ifdef CRANK_ESP32
+/* The MCU loader holds one decoded entry at a time. Lua bytecode no longer
+   needs the source buffer after luaL_loadbuffer has produced the prototype. */
+void micro_pdz_release(PDZFile *pdz);
+PDZFile *micro_corelibs(void);
+void micro_corelibs_close(void);
+PDZEntry *micro_pdz_import_entry(PDZFile *pdz,const char *name);
+#endif
 
 #endif

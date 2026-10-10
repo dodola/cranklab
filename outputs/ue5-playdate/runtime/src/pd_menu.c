@@ -108,6 +108,7 @@ void pd_builtin_text(LCDBitmap *bm, int x, int y, int scale, int black, const ch
     }
 }
 
+#ifndef CRANK_ESP32
 static void menu_fill_rect(LCDBitmap *bm, int x, int y, int w, int h, int black) {
     for (int py = y; py < y + h; py++)
         for (int px = x; px < x + w; px++)
@@ -316,3 +317,4 @@ int pd_rom_menu(const char *base_dir, char *out_dir, size_t out_sz) {
     free(roms);
     return done ? 0 : 1;
 }
+#endif /* !CRANK_ESP32: the embedded host owns its game library */

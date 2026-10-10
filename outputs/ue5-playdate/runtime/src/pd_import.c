@@ -10,6 +10,11 @@
 extern PDRuntime g_pd;
 
 #define IMPORT_CACHE_KEY "pd.import.cache"
+#ifdef CRANK_ESP32
+#define import_entry micro_pdz_import_entry
+#else
+#define import_entry pdz_find
+#endif
 
 /* Returns 1 if already imported (nothing pushed), else marks it and returns 0. */
 static int import_seen(lua_State *L, const char *modname) {
@@ -42,12 +47,21 @@ int pd_import(lua_State *L) {
 
     if (g_pd.pdz) {
         PDZFile *pdz = (PDZFile *)g_pd.pdz;
-        PDZEntry *entry = pdz_find(pdz, modname);
+        PDZEntry *entry = import_entry(pdz, modname);
         if (!entry) {
             char namebuf[512];
             snprintf(namebuf, sizeof(namebuf), "%s.luac", modname);
-            entry = pdz_find(pdz, namebuf);
+            entry = import_entry(pdz, namebuf);
         }
+#ifdef CRANK_ESP32
+        if (!entry && strncmp(modname, "CoreLibs/", 9) == 0) {
+            PDZFile *shared = micro_corelibs();
+            if (shared) {
+                entry = import_entry(shared, modname);
+                if (entry) pdz = shared;
+            }
+        }
+#endif
         if (entry) {
             if (entry->entry_type != 1) {
                 lua_newtable(L);
@@ -56,6 +70,9 @@ int pd_import(lua_State *L) {
             char chunkname[600];
             snprintf(chunkname, sizeof(chunkname), "@%s", entry->filename);
             int status = luaL_loadbuffer(L, (const char *)entry->data, entry->size, chunkname);
+#ifdef CRANK_ESP32
+            micro_pdz_release(pdz);
+#endif
             if (status == LUA_OK) {
                 status = lua_pcall(L, 0, 1, 0);
                 if (status == LUA_OK && lua_gettop(L) > 0) return 1;

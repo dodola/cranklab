@@ -112,13 +112,20 @@ static int lua_file_load(lua_State *L) {
             }
         }
         if (!entry) {
+            pdz_free(pdz);
             lua_pushnil(L);
             lua_pushstring(L, "pdz has no lua entry");
             return 2;
         }
         char chunkname[600];
         snprintf(chunkname, sizeof(chunkname), "@%s", entry->filename);
-        if (luaL_loadbuffer(L, (const char *)entry->data, entry->size, chunkname) != LUA_OK) {
+        entry = pdz_find(pdz, entry->filename);
+        if (!entry || !entry->data) {
+            pdz_free(pdz); lua_pushnil(L); lua_pushliteral(L, "could not decode pdz entry"); return 2;
+        }
+        int load_status = luaL_loadbuffer(L, (const char *)entry->data, entry->size, chunkname);
+        pdz_free(pdz);
+        if (load_status != LUA_OK) {
             lua_pushnil(L);
             lua_insert(L, -2);
             return 2;

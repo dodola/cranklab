@@ -198,6 +198,14 @@ static int lua_sprite_free(lua_State *L) {
         s->in_list = 0;
     }
     sprite_live_release(L, s);
+#ifdef CRANK_ESP32
+    if(lua_isuserdata(L,1)) {
+        /* The userdata finalizer owns this unreachable sprite. Delay C
+           reclamation until callback/list snapshots have left the frame. */
+        s->free_flag=1;
+        LCDSprite **ud=luaL_testudata(L,1,META_SPRITE);if(ud)*ud=NULL;
+    }
+#endif
     return 0;
 }
 
@@ -1339,6 +1347,9 @@ static int lua_sprite_updateAndDraw(lua_State *L) {
                 lua_pushvalue(L, -2);
                 if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
                     fprintf(stderr, "[sprite update] %s\n", lua_tostring(L, -1));
+#ifdef CRANK_ESP32
+                    pd_host_fail(lua_tostring(L,-1));
+#endif
                     lua_pop(L, 1);
                 }
             } else {
@@ -1472,6 +1483,9 @@ static int lua_sprite_updateAndDraw(lua_State *L) {
                 lua_pushinteger(L, (lua_Integer)s->height);
                 if (lua_pcall(L, 5, 0, 0) != LUA_OK) {
                     fprintf(stderr, "[sprite draw] %s\n", lua_tostring(L, -1));
+#ifdef CRANK_ESP32
+                    pd_host_fail(lua_tostring(L,-1));
+#endif
                     lua_pop(L, 1);
                 }
             } else {

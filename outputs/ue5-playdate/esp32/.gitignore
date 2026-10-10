@@ -1,0 +1,6 @@
+.pio/
+data/
+dist/
+sdkconfig*
+__pycache__/
+*.py[cod]

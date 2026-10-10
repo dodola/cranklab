@@ -218,6 +218,20 @@ static void draw_line_bresenham(int x1, int y1, int x2, int y2, int width, LCDSo
 }
 
 static void fill_rect(int x, int y, int w, int h, LCDSolidColor color) {
+#ifdef CRANK_ESP32
+    /* A full-screen solid rectangle is common in SDK games. Write bytes
+       while preserving opacity and damage tracking, rather than dispatching
+       96,000 individual pixel operations on the microcontroller. */
+    LCDBitmap *bm=g_pd.display_bitmap;
+    if(bm && !g_has_pattern && !g_stencil && !g_pd.clip_enabled && !pd_damage_protect &&
+       (color==kColorBlack || color==kColorWhite) && bm->width%8==0 &&
+       x+g_pd.draw_offset_x==0 && y+g_pd.draw_offset_y==0 && w==bm->width && h==bm->height) {
+        memset(bm->data,color==kColorBlack ? 255 : 0,(size_t)bm->rowbytes*bm->height);
+        if(bm->mask)memset(bm->mask,255,(size_t)bm->rowbytes*bm->height);
+        if(bm==pd_screen_bitmap)memset(pd_damage_mask,255,sizeof(pd_damage_mask));
+        pd_frame_draw_ops+=w*h;return;
+    }
+#endif
     for (int py = y; py < y + h; py++) {
         for (int px = x; px < x + w; px++) {
             draw_pixel_clip(px, py, color);
@@ -1437,7 +1451,9 @@ static int pdt_body_into_table(lua_State *L, const uint8_t *body, long body_len)
 
 /* Look up an asset entry in the loaded PDZ by path (extension stripped). */
 static PDZEntry *find_pdz_asset(const char *path, int type) {
+#ifndef CRANK_ESP32
     if (!g_pd.pdz) return NULL;
+#endif
     char name[512];
     snprintf(name, sizeof(name), "%s", path);
     char *dot = strrchr(name, '.');
@@ -1450,7 +1466,10 @@ static PDZEntry *find_pdz_asset(const char *path, int type) {
         char *tbl = strstr(name, "-table-");
         if (tbl) *tbl = 0;
     }
-    PDZEntry *e = pdz_find((PDZFile *)g_pd.pdz, name);
+    PDZEntry *e = g_pd.pdz ? pdz_find((PDZFile *)g_pd.pdz, name) : NULL;
+#ifdef CRANK_ESP32
+    if (!e && strncmp(name, "CoreLibs/", 9) == 0) e = pdz_find(micro_corelibs(), name);
+#endif
     return (e && e->entry_type == type && e->data) ? e : NULL;
 }
 
@@ -2431,7 +2450,11 @@ static int lua_gfx_getFont(lua_State *L) {
     static LCDFont *fallback_font = NULL;
     if (!g_pd.current_font) {
         if (!fallback_font) {
+#ifdef CRANK_ESP32
+            fallback_font = micro_core_persistent_calloc(1, sizeof(LCDFont));
+#else
             fallback_font = calloc(1, sizeof(LCDFont));
+#endif
             fallback_font->glyph_width = 8;
             fallback_font->glyph_height = 12;
         }
@@ -2451,7 +2474,11 @@ static int lua_gfx_getFont(lua_State *L) {
 static int lua_gfx_getSystemFont(lua_State *L) {
     static LCDFont *sysfont = NULL;
     if (!sysfont) {
+#ifdef CRANK_ESP32
+        sysfont = micro_core_persistent_calloc(1, sizeof(LCDFont));
+#else
         sysfont = calloc(1, sizeof(LCDFont));
+#endif
         sysfont->glyph_width = 8;
         sysfont->glyph_height = 12;
     }

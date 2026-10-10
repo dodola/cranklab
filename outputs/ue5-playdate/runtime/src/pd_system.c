@@ -80,6 +80,9 @@ static int epoch_from_table(lua_State *L,int gmt) {
     value.tm_hour=time_field(L,"hour",0);value.tm_min=time_field(L,"minute",0);value.tm_sec=time_field(L,"second",0);value.tm_isdst=-1;
 #ifdef _WIN32
     time_t seconds=gmt ? _mkgmtime(&value) : mktime(&value);
+#elif defined(CRANK_ESP32)
+    /* The embedded host fixes TZ to UTC; newlib has no timegm entry point. */
+    time_t seconds=mktime(&value);
 #else
     time_t seconds=gmt ? timegm(&value) : mktime(&value);
 #endif

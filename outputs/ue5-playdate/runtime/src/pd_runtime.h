@@ -15,6 +15,9 @@
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
+#if defined(CRANK_ESP32) && !defined(MICRO_ALLOW_SYSTEM_ALLOC)
+#include "core_memory.h"
+#endif
 
 struct PDZFile;
 struct PDZEntry;
