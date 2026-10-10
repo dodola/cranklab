@@ -83,14 +83,22 @@ BoardInput board_poll() {
 void board_present(const uint8_t *bits,bool inverted,int scale) {
     if(!bits) return;
     const int logical_scale=(scale==2 || scale==4 || scale==8) ? scale : 1;
-    uint16_t rows[200*8];
+    /* Palette values are native RGB565. Convert the two colors once into
+       M5GFX's explicit wire format: an untyped uint16_t buffer silently
+       treats native values as byte-swapped data and turns paper purple.
+       A typed wire buffer also avoids allocating a frame-conversion buffer
+       on this board without PSRAM, regardless of the swapBytes setting. */
+    lgfx::swap565_t ink,paper;
+    ink=lgfx::rgb565_t(M5DialBoard::lcd_ink);
+    paper=lgfx::rgb565_t(M5DialBoard::lcd_paper);
+    lgfx::swap565_t rows[200*8];
     M5Dial.Display.startWrite();
     for(int base=0;base<config.screen_h;base+=8) {
         for(int y=0;y<8;y++) for(int x=0;x<config.screen_w;x++) {
             int sx=x*400/config.screen_w/logical_scale;
             int sy=(base+y)*240/config.screen_h/logical_scale;
             bool black=((bits[sy*50+sx/8]>>(7-sx%8))&1)^inverted;
-            rows[y*200+x]=black ? M5DialBoard::lcd_ink : M5DialBoard::lcd_paper;
+            rows[y*200+x]=black ? ink : paper;
         }
         M5Dial.Display.pushImage(config.screen_x,config.screen_y+base,config.screen_w,8,rows);
     }
