@@ -41,7 +41,7 @@ void SCrankAction::Construct(const FArguments& Args) {
     else if(Args._ShowIcon) Content->AddSlot().AutoWidth().VAlign(VAlign_Center).Padding(0,0,8,0)
         [SNew(SCrankGlyph).Icon(Args._Icon).Tint_Lambda([this]{return Button.IsValid() && Button->IsPressed() ? CrankTheme::Ink() : CrankTheme::Accent();})];
     auto Labels=SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()
-        [SNew(STextBlock).Text(Args._Label).Font(CrankTheme::Body()).AutoWrapText(true)
+        [SNew(STextBlock).Text(Args._Label).Font(CrankTheme::Body()).AutoWrapText(Args._WrapLabel)
          .ColorAndOpacity_Lambda([this]{return Button.IsValid() && Button->IsPressed() ? CrankTheme::Ink() : CrankTheme::HudText();})];
     if(!Args._Subtitle.IsEmpty()) Labels->AddSlot().AutoHeight().Padding(0,4,0,0)
         [SNew(STextBlock).Text(Args._Subtitle).Font(CrankTheme::Utility()).AutoWrapText(true)

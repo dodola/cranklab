@@ -15,7 +15,7 @@
 #include "Framework/Application/SlateApplication.h"
 
 TSharedRef<SWidget> SCrankOverlay::Action(const FString& Label,TFunction<FReply()> Callback,bool AllowBusy,ECrankGlyph Icon,TFunction<bool()> Selected,bool ShowIcon,bool Toolbar) {
-    return SNew(SCrankAction).Device(Device).Label(FText::FromString(Label)).Icon(Icon).ShowIcon(ShowIcon)
+    return SNew(SCrankAction).Device(Device).Label(FText::FromString(Label)).Icon(Icon).ShowIcon(ShowIcon).WrapLabel(!Toolbar && Icon!=ECrankGlyph::Crank)
         .Compact_Lambda([this,Toolbar]{return Toolbar && GetCachedGeometry().GetLocalSize().X<740;})
         .Selected_Lambda([Selected=MoveTemp(Selected)]{return Selected && Selected();})
         .OnClicked_Lambda(MoveTemp(Callback))
@@ -164,7 +164,7 @@ void SCrankOverlay::Construct(const FArguments& Args) {
         +SHorizontalBox::Slot().AutoWidth().Padding(0,0,6,0)[LibraryButton.ToSharedRef()]
         +SHorizontalBox::Slot().AutoWidth().Padding(0,0,6,0)[SettingsButton.ToSharedRef()]
         +SHorizontalBox::Slot().AutoWidth().Padding(0,0,6,0)
-        [SNew(SCrankAction).Device(Device).Icon(ECrankGlyph::Screen)
+        [SNew(SCrankAction).Device(Device).Icon(ECrankGlyph::Screen).WrapLabel(false)
          .Label_Lambda([this]{return FText::FromString(Device.IsValid() && Device->IsImmersive() ? TEXT("返回 3D") : TEXT("沉浸"));})
          .Compact_Lambda([this]{return GetCachedGeometry().GetLocalSize().X<740;})
          .Selected_Lambda([this]{return Device.IsValid() && Device->IsImmersive();})

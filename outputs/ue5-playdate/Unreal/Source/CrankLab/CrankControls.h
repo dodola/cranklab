@@ -19,10 +19,10 @@ private:
 };
 class SCrankAction : public SCompoundWidget {
 public:
-    SLATE_BEGIN_ARGS(SCrankAction) : _Selected(false), _Compact(false), _Cover(nullptr), _Icon(ECrankGlyph::Library), _ShowIcon(true) {}
+    SLATE_BEGIN_ARGS(SCrankAction) : _Selected(false), _Compact(false), _Cover(nullptr), _Icon(ECrankGlyph::Library), _ShowIcon(true), _WrapLabel(true) {}
         SLATE_ATTRIBUTE(FText,Label) SLATE_ATTRIBUTE(bool,Selected) SLATE_ATTRIBUTE(bool,Compact)
         SLATE_ARGUMENT(FText,Subtitle) SLATE_ARGUMENT(UTexture2D*,Cover)
-        SLATE_ARGUMENT(ECrankGlyph,Icon) SLATE_ARGUMENT(bool,ShowIcon)
+        SLATE_ARGUMENT(ECrankGlyph,Icon) SLATE_ARGUMENT(bool,ShowIcon) SLATE_ARGUMENT(bool,WrapLabel)
         SLATE_ARGUMENT(TWeakObjectPtr<ACrankDevicePawn>,Device)
         SLATE_EVENT(FOnClicked,OnClicked)
     SLATE_END_ARGS()

@@ -160,7 +160,10 @@ sampling, and never changes the game aspect ratio. A/B targets are 72–112 unit
 in portrait (64 in very narrow windows) and at least 64 units in short landscape. Utility controls compact
 to labeled/tooltip icons on narrow viewports, while panel actions keep text.
 Compact utility buttons use a centered 22-unit icon inside a 48-unit square,
-independent of the text-button layout. Following the 2026-10-08 device feedback,
+independent of the text-button layout. Wide toolbar actions and the short crank
+caption keep their labels on one line; `SCrankAction::WrapLabel` owns this
+variant so label measurement cannot split Chinese words or grow the toolbar
+into the LCD. Library titles and panel actions retain wrapping. Following the 2026-10-08 device feedback,
 the immersive crank surface grows to 128–180 units in portrait and up to 160
 in landscape, constrained by the available height. Its visible dial and drag
 target grow together; space is reserved below A/B without overlap.
